@@ -693,65 +693,26 @@ def diseñador_plantillas(request):
                 # 1. Cargar el documento
                 doc = DocumentoWord(archivo)
                 
-                # 2. Aplicar reemplazos explícitos del Diseñador (Frontend)
+                # 2. Aplicar reemplazos explícitos preservando estilos
                 if data_reemplazos:
                     lista = json.loads(data_reemplazos)
                     for item in lista:
                         original = item.get('texto_original', '')
                         variable_raw = item.get('variable', '').strip()
                         
-                        # Sanitizar nombre variable (Ej: "Nombre Cliente" -> "nombre_cliente")
-                        variable_clean = variable_raw.lower().replace(' ', '_').replace('-', '_')
-                        variable_clean = re.sub(r'[^a-z0-9_]', '', variable_clean) # Solo letras, numeros y _
-                        
-                        variable_formateada = "{{ " + variable_clean + " }}"
-                        
-                        modo = item.get('modo', 'SINGLE')
-                        
-                        # Usar la función helper que ya tienes (reemplazar_preservando_estilo)
-                        # Nota: Si usas replace simple, asegúrate de iterar runs.
-                        # Aquí asumimos que tienes la función helper, si no, usa una lógica simple:
-                        for p in doc.paragraphs:
-                            if original in p.text:
-                                p.text = p.text.replace(original, variable_formateada)
-                        
-                        for table in doc.tables:
-                            for row in table.rows:
-                                for cell in row.cells:
-                                    for p in cell.paragraphs:
-                                        if original in p.text:
-                                            p.text = p.text.replace(original, variable_formateada)
+                        if original and variable_raw:
+                            # Sanitizar nombre variable (Ej: "Nombre Cliente" -> "nombre_cliente")
+                            variable_clean = variable_raw.lower().replace(' ', '_').replace('-', '_')
+                            variable_clean = re.sub(r'[^a-z0-9_]', '', variable_clean)
+                            
+                            variable_formateada = "{{ " + variable_clean + " }}"
+                            
+                            # --- CAMBIO IMPORTANTE: Usamos la función helper ---
+                            reemplazar_preservando_estilo(doc, original, variable_formateada)
 
-                # 3. AUTO-REPARACIÓN DE VARIABLES ROTAS (NUEVO - NIVEL ENTERPRISE)
-                # Escanea todo el documento buscando {{ ALGO MAL ESCRITO }} y lo arregla
+                # 3. GUARDAR (He desactivado la auto-reparación porque rompía estilos)
+                # Si necesitas reparar tags rotos, hazlo manualmente en Word antes de subir.
                 
-                def reparar_texto(texto):
-                    # Busca patrones {{ ... }}
-                    pattern = r'\{\{\s*(.*?)\s*\}\}'
-                    
-                    def replacer(match):
-                        contenido = match.group(1)
-                        # Si tiene espacios o caracteres raros, lo arreglamos
-                        if ' ' in contenido or not contenido.isidentifier():
-                            nuevo_contenido = slugify(contenido).replace('-', '_')
-                            return f"{{{{ {nuevo_contenido} }}}}"
-                        return match.group(0) # Si está bien, lo deja igual
-                    
-                    return re.sub(pattern, replacer, texto)
-
-                # Aplicar reparación a todo el documento
-                for p in doc.paragraphs:
-                    if '{{' in p.text:
-                        p.text = reparar_texto(p.text)
-                
-                for table in doc.tables:
-                    for row in table.rows:
-                        for cell in row.cells:
-                            for p in cell.paragraphs:
-                                if '{{' in p.text:
-                                    p.text = reparar_texto(p.text)
-
-                # 4. Guardar archivo final
                 buffer = BytesIO()
                 doc.save(buffer)
                 buffer.seek(0)
@@ -763,10 +724,10 @@ def diseñador_plantillas(request):
                 nueva_plantilla.archivo.save(nombre_archivo, ContentFile(buffer.getvalue()))
                 nueva_plantilla.save()
                 
-                messages.success(request, f"¡Plantilla '{nombre}' guardada y optimizada correctamente!")
+                messages.success(request, f"¡Plantilla '{nombre}' guardada con estilos originales!")
                 
             except Exception as e:
-                print(f"Error CRÍTICO en diseñador: {e}") # Ver en consola
+                logger.error(f"Error en diseñador: {e}")
                 messages.error(request, f"Error procesando el archivo: {str(e)}")
             
             return redirect('dashboard')
@@ -774,7 +735,6 @@ def diseñador_plantillas(request):
     return render(request, 'generador/diseñador.html', {
         'glosario': VariableEstandar.objects.all().order_by('clave')
     })
-
 @login_required
 def previsualizar_word_raw(request):
     # SEGURO: Eliminado @csrf_exempt
@@ -794,12 +754,32 @@ def crear_variable_api(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            clave = data.get('clave')
+            clave_raw = data.get('clave', '')
             descripcion = data.get('descripcion', '')
             tipo = data.get('tipo', 'texto')
-            if not clave: return JsonResponse({'status': 'error', 'msg': 'Falta la clave'}, status=400)
-            variable, created = VariableEstandar.objects.get_or_create(clave=clave, defaults={'descripcion': descripcion, 'tipo': tipo})
-            return JsonResponse({'status': 'ok', 'id': str(variable.id), 'clave': variable.clave, 'created': created})
+
+            if not clave_raw: 
+                return JsonResponse({'status': 'error', 'msg': 'Falta la clave'}, status=400)
+
+            # --- LIMPIEZA AUTOMÁTICA (EL CANDADO) ---
+            # 1. Minúsculas
+            # 2. Espacios y guiones medios a guiones bajos
+            # 3. Eliminar cualquier caracter raro
+            clave_clean = clave_raw.lower().strip().replace(' ', '_').replace('-', '_')
+            clave_clean = re.sub(r'[^a-z0-9_]', '', clave_clean)
+
+            # Guardamos la versión LIMPIA
+            variable, created = VariableEstandar.objects.get_or_create(
+                clave=clave_clean, 
+                defaults={'descripcion': descripcion, 'tipo': tipo}
+            )
+            
+            return JsonResponse({
+                'status': 'ok', 
+                'id': str(variable.id), 
+                'clave': variable.clave, # Devolvemos la clave limpia al frontend
+                'created': created
+            })
         except Exception as e:
             logger.error(f"Error creando variable API: {e}")
             return JsonResponse({'status': 'error', 'msg': str(e)}, status=500)
@@ -2017,32 +1997,31 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             return redirect('detalle_cliente', cliente_id=cliente.id)
 
     return render(request, 'correo/enviar_correo_universal.html', context)
-def reemplazar_preservando_estilo(doc, variable, valor):
+def reemplazar_preservando_estilo(doc, texto_original, texto_nuevo):
     """
-    Busca una variable (ej: {{ cliente }}) en párrafos y tablas.
-    Reemplaza el texto dentro del 'Run' específico para NO perder
-    negritas, colores, cursivas o subrayados.
+    Reemplaza texto en párrafos y tablas preservando el estilo (negrita, cursiva, etc.)
+    Iterando sobre los 'runs' para no romper el XML de estilo.
     """
-    valor_str = str(valor)
-    
+    if not texto_original or not texto_nuevo:
+        return
+
     # 1. Buscar en Párrafos del cuerpo principal
     for p in doc.paragraphs:
-        if variable in p.text:
+        if texto_original in p.text:
             # Iteramos sobre los 'runs' (fragmentos con estilo)
             for run in p.runs:
-                if variable in run.text:
-                    run.text = run.text.replace(variable, valor_str)
+                if texto_original in run.text:
+                    run.text = run.text.replace(texto_original, texto_nuevo)
 
     # 2. Buscar en Tablas (celda por celda)
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 for p in cell.paragraphs:
-                    if variable in p.text:
+                    if texto_original in p.text:
                         for run in p.runs:
-                            if variable in run.text:
-                                run.text = run.text.replace(variable, valor_str)
-@login_required
+                            if texto_original in run.text:
+                                run.text = run.text.replace(texto_original, texto_nuevo)@login_required
 def generar_contrato_final(request):
     """
     Recibe los datos del formulario de homologación y genera el Word final.

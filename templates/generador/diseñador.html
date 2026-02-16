@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js "></script>
 
 <style>
     /* --- ESTÉTICA JARVIS v12.3 (Data-First / Compact) --- */
@@ -79,11 +79,11 @@
             <div class="bg-slate-900 p-1.5 px-3 rounded-lg flex items-center gap-3 text-white shadow-md">
                 <div id="sys-status-icon" class="system-status"></div>
                 <div>
-                    <span class="font-mono font-bold text-[10px] tracking-widest block text-cyan-400 leading-none">JARVIS</span>
+                    <span class="font-mono font-bold text-[10px] tracking-widest block text-cyan-400 leading-none">CORPAD ASSISTANT</span>
                     <span id="sys-status-text" class="font-bold text-[9px] tracking-wide text-slate-300 leading-none">READY</span>
                 </div>
             </div>
-            <h2 class="text-sm font-black text-slate-700 uppercase tracking-tight">Diseñador Legal</h2>
+            <h2 class="text-sm font-black text-slate-700 uppercase tracking-tight">Diseñador De Formatos</h2>
         </div>
 
         <div class="flex gap-2">
@@ -410,7 +410,7 @@ const JarvisUI = {
         div.innerHTML = `
             <div class="flex items-center gap-2 mb-1 opacity-70">
                 <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i> 
-                <span class="text-[9px] font-bold tracking-widest uppercase">${type === 'user' ? 'Tú' : 'Jarvis'}</span>
+                <span class="text-[9px] font-bold tracking-widest uppercase">${type === 'user' ? 'Tú' : 'CORPAD ASSISTANT'}</span>
             </div>
             <div class="text-slate-700 leading-relaxed font-medium text-xs">${safeMsg}</div>
             ${actionsHtml}
@@ -528,6 +528,10 @@ const JarvisUI = {
 
     promptAssignment(variable) {
         if (!JarvisState.selection) return;
+        
+        // 🔴 CORRECCIÓN 1: Sanitizar variable que viene del glosario (por si tiene espacios)
+        variable = this.sanitizeVarName(variable);
+        
         const text = JarvisState.selection.text;
         
         const content = document.getElementById('editor-canvas').textContent;
@@ -547,6 +551,14 @@ const JarvisUI = {
     },
 
     executeAssignment(variable, isMassive) {
+        // 🔴 CORRECCIÓN 2: Forzar sanitización de la variable (doble seguridad)
+        variable = this.sanitizeVarName(variable);
+        
+        if (!variable) {
+            this.log("❌ Nombre de variable inválido", "system");
+            return;
+        }
+        
         const { text, range } = JarvisState.selection;
         const nodesAffected = [];
 
@@ -599,8 +611,12 @@ const JarvisUI = {
     },
 
     async apiCreateVariable() {
-        const clave = document.getElementById('input-clave-nueva').value;
+        let clave = document.getElementById('input-clave-nueva').value;
         const desc = document.getElementById('input-desc-nueva').value;
+        
+        // 🔴 CORRECCIÓN 3: Forzar sanitización antes de enviar al backend
+        clave = this.sanitizeVarName(clave);
+        
         if (!clave || !desc) return alert("Faltan datos");
 
         const btn = document.getElementById('btn-crear-accion');
@@ -620,8 +636,10 @@ const JarvisUI = {
             const data = await res.json();
             if(data.status === 'ok') {
                 const varName = data.clave || clave;
-                this.addGlossaryItem(varName, desc);
-                this.promptAssignment(varName);
+                // 🔴 CORRECCIÓN 4: Asegurar que la variable del backend también esté sanitizada
+                const varNameClean = this.sanitizeVarName(varName);
+                this.addGlossaryItem(varNameClean, desc);
+                this.promptAssignment(varNameClean);
                 this.setTab('buscar');
             } else {
                 alert(data.msg);
@@ -635,20 +653,29 @@ const JarvisUI = {
         if (!nombre || !JarvisState.archivo || JarvisState.reemplazos.length === 0) {
             return this.log("❌ Faltan datos (Nombre, Archivo o Variables).", "robot");
         }
+        
+        // 🔴 CORRECCIÓN 5: Sanitizar todas las variables en los reemplazos antes de guardar
+        const reemplazosLimpios = JarvisState.reemplazos.map(r => ({
+            ...r,
+            variable: this.sanitizeVarName(r.variable)
+        }));
+        
         document.getElementById('input-nombre-final').value = nombre;
         const dt = new DataTransfer(); dt.items.add(JarvisState.archivo);
         document.getElementById('input-archivo-final').files = dt.files;
-        document.getElementById('input-reemplazos-final').value = JSON.stringify(JarvisState.reemplazos);
+        document.getElementById('input-reemplazos-final').value = JSON.stringify(reemplazosLimpios);
         
         this.log("Guardando...", "robot");
         document.getElementById('form-final').submit();
     },
 
     sanitizeVarName: (str) => {
-        return str.trim().toLowerCase()
+        if (!str) return '';
+        return str.toString().trim().toLowerCase()
                   .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                   .replace(/[^a-z0-9]/g, '_')
-                  .replace(/_+/g, '_');
+                  .replace(/_+/g, '_')
+                  .replace(/^_|_$/g, ''); // Eliminar guiones bajos al inicio y final
     },
 
     setTab(tab) {
