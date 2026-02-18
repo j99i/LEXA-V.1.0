@@ -15,6 +15,7 @@ environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
 # --- CORRECCIÓN DE SEGURIDAD 1: DEBUG ---
 # Por defecto FALSE. Solo será True si el .env lo dice explícitamente.
+# IMPORTANTE: En tu PC, tu archivo .env debe tener: DEBUG=True
 DEBUG = env.bool('DEBUG', default=False)
 
 # --- CORRECCIÓN DE SEGURIDAD 2: SECRET_KEY ---
@@ -30,12 +31,11 @@ else:
 # --- CORRECCIÓN DE SEGURIDAD 3: ALLOWED_HOSTS ---
 # Evita el '*' en producción. Lee una lista separada por comas del entorno.
 # Ejemplo en .env: ALLOWED_HOSTS=mi-app.railway.app,midominio.com
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app'])
 
 
 # Si usas Railway, es bueno agregar esto para evitar errores de CSRF en formularios
 # Nota: Ajusta esto a tus dominios reales cuando tengas la URL final
-# IMPORTANTE: Asegúrate de que tu dominio de Railway esté aquí
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
@@ -75,6 +75,8 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    # NOTA: Si X_FRAME_OPTIONS = 'SAMEORIGIN' aún falla, puedes comentar la siguiente línea
+    # para desactivar la protección de clickjacking completamente (bajo tu riesgo):
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -164,12 +166,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # --- CONFIGURACIÓN DE MEDIA (CLOUDINARY) ---
-# Leemos las credenciales del entorno
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-    'SECURE': True, # <--- ¡IMPORTANTE! Esto fuerza HTTPS en las URLs de los archivos
+    'SECURE': True,  # <--- CRÍTICO: Fuerza HTTPS en las URLs de imágenes/PDFs
     'MEDIA_TAG': 'media',
 }
 
@@ -200,9 +201,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # ==========================================
-# 10. SEGURIDAD PARA PRODUCCIÓN (BLINDAJE)
+# 10. CONFIGURACIÓN GLOBAL DE IFRAMES (VISOR PDF)
 # ==========================================
-# Este bloque se activa SOLO si DEBUG=False (en Railway)
+# Esto soluciona el error "refused to connect" en el visor.
+# Aplica tanto para local como producción.
+X_FRAME_OPTIONS = 'SAMEORIGIN'
+XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
+
+
+# ==========================================
+# 11. SEGURIDAD PARA PRODUCCIÓN (BLINDAJE)
+# ==========================================
+# Este bloque se activa SOLO si DEBUG=False (en Railway/Producción)
 
 if not DEBUG:
     # 1. Forzar HTTPS siempre
@@ -219,15 +229,16 @@ if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
     
-    # --- CORRECCIÓN DE SEGURIDAD 4: HTTPONLY ---
-    SESSION_COOKIE_HTTPONLY = True
-    
     # 4. Cabeceras extra contra ataques
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
-    
-    # NOTA: Si los PDFs siguen fallando por "Refused to display", 
-    # comenta temporalmente la siguiente línea para probar:
-    X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # --- FIN DEL ARCHIVO ---
+# ==========================================
+# 12. CORRECCIÓN PARA WINDOWS (LOCAL)
+# ==========================================
+import mimetypes
+mimetypes.add_type("application/pdf", ".pdf", True)
+mimetypes.add_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx", True)
+mimetypes.add_type("image/svg+xml", ".svg", True)
+mimetypes.add_type("text/javascript", ".js", True) # Ayuda si tus JS no cargan
