@@ -1,115 +1,283 @@
-{% load static %}
-{% load humanize %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <title>Acuse de Entrega - Corpad</title>
+    {% load static %}
+    {% load humanize %}
     <style>
+        /* --- CONFIGURACIÓN DE LA HOJA --- */
         @page {
-            size: letter;
-            margin: 2.5cm;
-            @top-right {
+            size: Letter;
+            margin: 2cm 1.8cm;
+            @bottom-right {
                 content: "Página " counter(page);
                 font-family: 'Helvetica', sans-serif;
-                font-size: 9pt;
-                color: #888;
+                font-size: 8pt;
+                color: #9CA3AF;
             }
         }
-        body { font-family: 'Helvetica', sans-serif; font-size: 10pt; line-height: 1.5; color: #333; }
-        .header { margin-bottom: 40px; border-bottom: 2px solid #2D1B4B; padding-bottom: 20px; }
-        .logo { width: 120px; float: left; }
-        .meta-info { text-align: right; float: right; margin-top: 10px; }
-        .meta-info p { margin: 0; font-size: 9pt; color: #555; }
+
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #2D1B4B; 
+            font-size: 10pt;
+            line-height: 1.5;
+            background-color: #ffffff; /* Fondo blanco puro para impresión limpia */
+            margin: 0;
+            padding: 0;
+        }
+
+        /* --- ENCABEZADO --- */
+        .header {
+            border-bottom: 3px solid #2D1B4B;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            overflow: hidden;
+        }
+        .header-left { float: left; width: 60%; }
+        .header-right { float: right; width: 40%; text-align: right; padding-top: 5px; }
+
+        .logo-img { height: 55px; width: auto; vertical-align: middle; margin-right: 12px; }
+        .brand-name { 
+            font-size: 24pt; font-weight: 800; color: #2D1B4B; 
+            display: inline-block; vertical-align: middle; letter-spacing: -1px;
+        }
+
+        .folio-badge {
+            background-color: #2D1B4B; color: white; padding: 6px 14px;
+            border-radius: 20px; font-size: 8pt; font-weight: 700;
+            text-transform: uppercase; display: inline-block; margin-bottom: 6px;
+        }
+        .location-date { font-size: 9pt; color: #4B5563; font-weight: 500; }
+
+        /* --- TARJETAS DE INFORMACIÓN (Con estilo mejorado) --- */
+        .info-container { overflow: hidden; margin-bottom: 30px; }
+        
+        .info-box {
+            float: left; width: 48%;
+            background-color: #F8F9FA; /* Gris muy suave */
+            border: 1px solid #E9ECEF;
+            border-radius: 8px; /* Bordes menos redondeados, más serio */
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .info-box.right {
+            float: right;
+            background-color: #ffffff;
+            border: 1px dashed #A855F7; /* Borde punteado morado */
+        }
+
+        .card-label {
+            font-size: 7pt; font-weight: 800; color: #A855F7; 
+            text-transform: uppercase; letter-spacing: 1.2px; 
+            margin-bottom: 10px; display: block;
+        }
+
+        .client-name { font-weight: 700; font-size: 11pt; color: #2D1B4B; margin-bottom: 4px; text-transform: uppercase; }
+        .client-detail { font-size: 9pt; color: #4B5563; margin-bottom: 3px; }
+        
+        .presente {
+            display: block; margin: 12px 0; font-size: 8pt; 
+            font-weight: 800; color: #2D1B4B; letter-spacing: 3px;
+        }
+
+        .attn-line {
+            margin-top: 10px; padding-top: 10px; border-top: 1px dotted #D1D5DB;
+        }
+
+        .subject-text { font-size: 9pt; color: #4B5563; line-height: 1.6; text-align: justify; }
+
+        /* --- TABLA --- */
+        .section-title {
+            font-size: 10pt; font-weight: 700; color: #2D1B4B; margin-bottom: 10px;
+            padding-bottom: 6px; border-bottom: 2px solid #E5E7EB; text-transform: uppercase;
+        }
+
+        .data-table { 
+            width: 100%; border-collapse: collapse; margin-bottom: 20px; 
+            table-layout: fixed; /* Clave para no romper diseño */
+        }
+        .data-table thead { display: table-header-group; }
+        .data-table tr { page-break-inside: avoid; }
+
+        .data-table th {
+            background-color: #2D1B4B; color: #ffffff; padding: 10px 12px;
+            text-align: left; font-size: 8pt; font-weight: 700; text-transform: uppercase;
+        }
+        .data-table td { 
+            padding: 12px; border-bottom: 1px solid #E5E7EB; vertical-align: top; 
+            word-wrap: break-word;
+        }
+        .data-table tr:nth-child(even) { background-color: #F9FAFB; } /* Zebra striping sutil */
+
+        .doc-name { font-weight: 600; color: #2D1B4B; font-size: 9.5pt; display: block; margin-bottom: 4px; }
+        .doc-vence { 
+            font-size: 7.5pt; font-weight: 700; color: #DC2626; 
+            background-color: #FEF2F2; padding: 2px 6px; border-radius: 4px; 
+            display: inline-block; border: 1px solid #FECACA;
+        }
+
+        /* --- CHECKLIST --- */
+        ul.checklist { margin: 0; padding-left: 15px; list-style: none; }
+        ul.checklist li { margin-bottom: 4px; position: relative; font-size: 9pt; color: #4B5563; }
+        ul.checklist li:before { 
+            content: "✓"; position: absolute; left: -15px; 
+            color: #10B981; /* Verde éxito */
+            font-weight: bold; 
+        }
+        .empty-state { font-size: 9pt; color: #9CA3AF; font-style: italic; }
+
+        /* --- DISCLAIMER --- */
+        .disclaimer {
+            background-color: #FFFBEB; border-left: 4px solid #F59E0B;
+            padding: 10px 15px; margin: 20px 0; font-size: 8pt; color: #92400E;
+            text-align: center; border-radius: 0 4px 4px 0;
+        }
+
+        /* --- OBSERVACIONES --- */
+        .obs-container {
+            background-color: #F8FAFC; border: 1px solid #E2E8F0;
+            border-left: 4px solid #2D1B4B; padding: 15px; margin-top: 20px;
+            page-break-inside: avoid; border-radius: 4px;
+        }
+        .obs-title {
+            color: #2D1B4B; font-weight: 700; font-size: 8pt; text-transform: uppercase; margin-bottom: 6px;
+        }
+        .obs-content { font-size: 9pt; color: #475569; white-space: pre-line; text-align: justify; }
+
+        /* --- FIRMA --- */
+        .footer-section { margin-top: 40px; text-align: center; page-break-inside: avoid; }
+        .signature-img { width: 150px; height: auto; display: block; margin: 0 auto 5px auto; }
+        .signature-line { border-top: 1px solid #2D1B4B; width: 240px; margin: 0 auto 8px auto; }
+        .signer-name { font-weight: 700; font-size: 10pt; color: #2D1B4B; text-transform: uppercase; }
+        .signer-title { font-size: 8pt; font-weight: 600; color: #A855F7; text-transform: uppercase; }
+        
+        .contact-text { font-size: 8pt; color: #64748B; margin-top: 15px; font-weight: 500; }
+        .doc-code {
+            margin-top: 10px; font-size: 7pt; color: #94A3B8; font-family: monospace;
+            background: #F1F5F9; padding: 3px 8px; border-radius: 4px; display: inline-block;
+        }
+
         .clear { clear: both; }
-        
-        .destinatario { margin-top: 30px; margin-bottom: 30px; }
-        .destinatario h3 { margin: 0; text-transform: uppercase; color: #2D1B4B; font-size: 11pt; }
-        .destinatario p { margin: 2px 0; }
-
-        .intro { margin-bottom: 20px; text-align: justify; }
-
-        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-        th { background-color: #2D1B4B; color: white; padding: 8px; text-align: left; font-size: 9pt; text-transform: uppercase; }
-        td { border-bottom: 1px solid #eee; padding: 10px 8px; vertical-align: top; }
-        .col-doc { width: 60%; font-weight: bold; }
-        .col-det { width: 40%; color: #555; font-size: 9pt; }
-
-        .notas { background-color: #f9fafb; padding: 15px; border: 1px solid #eee; border-radius: 5px; font-size: 9pt; margin-bottom: 40px; }
-        .notas h4 { margin-top: 0; color: #e65100; text-transform: uppercase; font-size: 9pt; }
-        
-        .firma { text-align: center; margin-top: 60px; page-break-inside: avoid; }
-        .firma-linea { border-top: 1px solid #333; width: 250px; margin: 0 auto 10px auto; }
-        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #2D1B4B; }
-        .firma-cargo { font-size: 9pt; color: #666; }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <img src="{{ base_url }}static/img/logo.png" class="logo"> 
-        <div class="meta-info">
-            <p><strong>Asunto:</strong> Entrega de Autorizaciones</p>
-            <p><strong>Fecha:</strong> {% now "d \d\e F \d\e Y" %}</p>
-            <p><strong>Lugar:</strong> Ciudad de México</p>
+        <div class="header-left">
+            {% if base_url %}
+                <img src="{{ base_url }}static/img/logo.png" class="logo-img" alt="Corpad">
+            {% else %}
+                <img src="{% static 'img/logo.png' %}" class="logo-img" alt="Corpad">
+            {% endif %}
+            <span class="brand-name">CORPAD</span>
+        </div>
+        <div class="header-right">
+            <div class="folio-badge">Acuse de Entrega</div>
+            <div class="location-date">
+                {{ municipio }}, {{ estado }}<br>
+                {% now "d \d\e F \d\e Y" %}
+            </div>
         </div>
         <div class="clear"></div>
     </div>
 
-    <div class="destinatario">
-        <h3>{{ cliente.nombre_empresa }}</h3>
-        <p><strong>At'n:</strong> {{ cliente.nombre_contacto }}</p>
-        {% if cliente.datos_extra.cargo %}<p>{{ cliente.datos_extra.cargo }}</p>{% endif %}
-        <p>Presente</p>
+    <div class="info-container">
+        <div class="info-box">
+            <span class="card-label">Entregado a</span>
+            <div class="client-name">{{ cliente.nombre_empresa }}</div>
+            <div class="client-detail">{{ cliente.direccion_completa }}</div>
+            
+            <span class="presente">P R E S E N T E</span>
+            
+            {% if atencion or cliente.nombre_contacto %}
+            <div class="attn-line">
+                <div class="client-detail">
+                    <strong style="color: #2D1B4B;">AT'N:</strong> {{ atencion|default:cliente.nombre_contacto }}
+                </div>
+                {% if cargo %}
+                <div class="client-detail" style="font-size: 8pt; font-weight: 700; color: #6B7280;">{{ cargo|upper }}</div>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="info-box right">
+            <span class="card-label">Asunto</span>
+            <p class="subject-text">
+                Sirva la presente para enviarle un cordial saludo. Derivado de las gestiones realizadas a favor de su empresa, hacemos entrega formal de la documentación en <strong>ORIGINAL</strong> que se enlista a continuación:
+            </p>
+        </div>
+        <div class="clear"></div>
     </div>
 
-    <div class="intro">
-        <p>Estimado(a) Cliente,</p>
-        <p>Por medio de la presente y derivado de las gestiones realizadas por <strong>Gestiones Corpad</strong> a favor de su empresa, hacemos entrega formal de la documentación y autorizaciones liberadas que se enlistan a continuación:</p>
-    </div>
-
-    <table>
+    <div class="section-title">Documentación Entregada</div>
+    
+    <table class="data-table">
         <thead>
             <tr>
-                <th>Documento / Autorización</th>
-                <th>Vigencia / Detalle</th>
+                <th width="40%">Documento / Vigencia</th>
+                <th width="60%">Detalle de Entrega</th>
             </tr>
         </thead>
         <tbody>
             {% for doc in documentos %}
             <tr>
-                <td class="col-doc">{{ doc.nombre_archivo }}</td>
-                <td class="col-det">
-                    {% if doc.fecha_vencimiento %}
-                        <span style="color: #d97706;">Vence: {{ doc.fecha_vencimiento|date:"d/m/Y" }}</span>
-                    {% else %}
-                        Vigencia según normativa
+                <td>
+                    <span class="doc-name">{{ doc.nombre }}</span>
+                    {% if doc.mostrar_vence and doc.fecha_vencimiento %}
+                        <span class="doc-vence">VENCE: {{ doc.fecha_vencimiento|date:"d/m/Y" }}</span>
                     {% endif %}
-                    <br>
-                    <span style="font-size: 8pt; color: #999;">Entrega Digital (ZIP)</span>
                 </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="2" style="text-align: center; padding: 20px;">No hay documentos en esta carpeta.</td>
+                <td>
+                    {% if doc.detalle_lista %}
+                        <ul class="checklist">
+                            {% for punto in doc.detalle_lista %}
+                                <li>{{ punto }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <span class="empty-state">Original entregado</span>
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 
-    <div class="notas">
-        <h4>Observaciones Importantes:</h4>
-        <ul>
-            <li>Las Licencias y Autorizaciones originales deberán ser exhibidas en un lugar visible dentro del establecimiento.</li>
-            <li>Se recomienda realizar un respaldo digital adicional de estos archivos.</li>
-            <li>Para cualquier renovación, favor de contactarnos con 60 días de anticipación.</li>
-        </ul>
+    <div class="disclaimer">
+        * La documentación original es responsabilidad única del cliente a partir de este momento.
     </div>
 
-    <div class="firma">
-        <div class="firma-linea"></div>
-        <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
-        <div class="firma-cargo">Director General | Gestiones Corpad</div>
-        <div style="margin-top: 5px; font-size: 8pt; color: #888;">www.gestionescorpad.com</div>
+    {% if observaciones %}
+    <div class="obs-container">
+        <div class="obs-title">Observaciones para Cumplimiento Normativo</div>
+        <div class="obs-content">{{ observaciones }}</div>
+    </div>
+    {% endif %}
+
+    <div class="footer-section">
+        {% if base_url %}
+            <img src="{{ base_url }}static/img/firma_full.png" class="signature-img" alt="Firma">
+        {% else %}
+            <img src="{% static 'img/firma_full.png' %}" class="signature-img" alt="Firma">
+        {% endif %}
+
+        <div class="signature-line"></div>
+        <div class="signer-name">Lic. Maribel Aldana Santos</div>
+        <div class="signer-title">Directora General | Gestiones Corpad</div>
+        
+        <div class="contact-text">
+            55 9270 0722 &nbsp;|&nbsp; 
+            ges.corpad@outlook.com &nbsp;|&nbsp; 
+            {{ municipio }}, {{ estado }}
+        </div>
+        
+        <div class="doc-code">
+            ACUSE-{{ cliente.nombre_empresa|slice:":3"|upper }}-{% now "Ymd" %}
+        </div>
     </div>
 
 </body>

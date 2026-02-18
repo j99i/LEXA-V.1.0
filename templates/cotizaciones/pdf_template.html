@@ -12,7 +12,7 @@
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #2D1B4B; /* Color base morado oscuro de tu app */
+            color: #2D1B4B; 
             font-size: 10pt;
             line-height: 1.4;
             background-color: #ffffff;
@@ -20,16 +20,15 @@
             padding: 0;
         }
 
-        /* --- CONTENEDOR PRINCIPAL CON BORDE --- */
         .page-border {
             border: 1px solid #F3F4F6;
-            border-radius: 2rem;
+            border-radius: 2rem; 
             padding: 30px;
             min-height: 95%;
             position: relative;
         }
 
-        /* --- ENCABEZADO MODERNO --- */
+        /* --- ENCABEZADO --- */
         .header {
             display: table;
             width: 100%;
@@ -60,7 +59,7 @@
             text-transform: uppercase;
         }
 
-        /* --- BLOQUE DE INFORMACIÓN (TARJETAS) --- */
+        /* --- INFO CARDS --- */
         .info-grid {
             display: table;
             width: 100%;
@@ -77,7 +76,7 @@
         .card-label {
             font-size: 8pt;
             font-weight: 800;
-            color: #A855F7;
+            color: #A855F7; 
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 8px;
@@ -86,12 +85,12 @@
         .client-name { font-weight: bold; font-size: 11pt; text-transform: uppercase; margin-bottom: 5px; }
         .client-detail { font-size: 9pt; color: #6B7280; line-height: 1.2; }
 
-        /* --- TABLA DE SERVICIOS --- */
+        /* --- TABLA --- */
         .table-container {
             border: 1px solid #F3F4F6;
             border-radius: 1.5rem;
             overflow: hidden;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         table { width: 100%; border-collapse: collapse; }
         th {
@@ -110,42 +109,61 @@
         .item-desc { font-size: 9pt; color: #6B7280; margin-top: 4px; }
         .price-col { text-align: right; font-weight: bold; color: #2D1B4B; font-size: 10pt; white-space: nowrap; }
 
-        /* --- RESUMEN DE COSTOS --- */
+        /* --- TEXTOS GENERALES --- */
+        .generalidades {
+            font-size: 9.5pt;
+            color: #374151;
+            text-align: justify;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            padding: 0 5px;
+        }
+        .generalidades p { margin-bottom: 12px; }
+        
+        /* --- RESUMEN --- */
         .summary-card {
             background-color: #2D1B4B;
             color: white;
             border-radius: 1.5rem;
             padding: 25px;
-            margin-top: 20px;
+            margin-top: 10px;
             display: block;
             text-align: right;
+            page-break-inside: avoid;
         }
-        .summary-row { margin-bottom: 5px; }
-        .total-label { font-size: 9pt; font-weight: bold; opacity: 0.8; }
-        .total-amount { font-size: 18pt; font-weight: 900; color: #ffffff; }
+        .total-amount { font-size: 20pt; font-weight: 900; color: #ffffff; }
         .discount-text { font-size: 8pt; color: #A855F7; font-weight: bold; margin-bottom: 10px; }
-        .sub-row { font-size: 9pt; color: #e5e7eb; margin-bottom: 2px; }
+        .sub-row { font-size: 9pt; color: #e5e7eb; margin-bottom: 4px; }
 
-        /* --- FIRMA Y PIE --- */
-        .footer-section {
-            margin-top: 40px;
-            text-align: center;
+        /* --- FIRMA (ESTILO FINAL) --- */
+        .firma { 
+            text-align: center; 
+            margin-top: 40px; /* Espacio superior adecuado */
+            page-break-inside: avoid; 
         }
-        .signature-line {
-            border-top: 2px solid #2D1B4B;
-            width: 200px;
-            margin: 40px auto 10px;
+
+        .firma-imagen { 
+            height: 100px; /* Tamaño de la firma */
+            width: auto; 
+            display: block; 
+            
+            /* Margen positivo abajo para separarla de la línea */
+            margin: 0 auto 10px auto; 
+            
+            /* Efecto "Multiply" para eliminar el fondo blanco y parecer tinta */
+            mix-blend-mode: multiply; 
+            opacity: 0.95; 
         }
-        .contact-pill {
-            background-color: #F3F4F6;
-            padding: 10px;
-            border-radius: 1rem;
-            display: inline-block;
-            margin-top: 20px;
-            font-size: 8pt;
-            font-weight: bold;
+
+        .firma-linea { 
+            border-top: 1px solid #333; 
+            width: 250px; 
+            margin: 0 auto 10px auto; 
         }
-        
+        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #2D1B4B; font-size: 10pt; }
+        .firma-cargo { font-size: 9pt; color: #666; }
+        .firma-web { margin-top: 5px; font-size: 8pt; color: #888; }
+
         .folio-footer {
             position: absolute;
             bottom: 20px;
@@ -170,33 +188,38 @@
                 <h1 class="brand-name">CORPAD</h1>
             </div>
             <div class="header-right">
-                <div class="folio-badge">{{ c.titulo|default:"PROYECTO SIN TÍTULO" }}</div>
-                
+                <div class="folio-badge">{{ c.titulo|default:"COTIZACIÓN" }}</div>
                 <div style="font-size: 8pt; font-weight: bold; margin-top: 8px; color: #6B7280;">
                     Cuautitlán, Edo. Méx. | {% now "d/m/Y" %} <br>
-                    Folio: GC-COT-{{ c.id|stringformat:"03d" }}-{{ c.fecha_creacion|date:"Y" }}
+                    Folio Interno: GC/COT/{{ c.id|stringformat:"03d" }}/{% now "Y" %}
                 </div>
             </div>
         </div>
 
         <div class="info-grid">
             <div class="info-card">
-                <span class="card-label">Preparado para</span>
                 <div class="client-name">{{ c.prospecto_empresa|default:c.prospecto_nombre|upper }}</div>
-                <div class="client-detail">
-                    {{ c.prospecto_direccion|default:"Domicilio no especificado" }}
-                </div>
+                <div class="client-detail">{{ c.prospecto_direccion|default:"Domicilio no especificado" }}</div>
+                
                 <div class="attn-block" style="margin-top: 10px;">
-                    <span style="font-size: 8pt; font-weight: bold; color: #2D1B4B;">AT'N:</span> 
-                    <span style="font-size: 9pt; font-weight: bold;">{{ c.prospecto_nombre|upper }}</span>
-                    <span style="font-size: 8pt; display: block; color: #6B7280;">{{ c.prospecto_cargo|default:"Representante Legal" }}</span>
+                    <div style="margin-bottom: 3px;">
+                        <span style="font-size: 8pt; font-weight: bold; color: #2D1B4B;">AT'N:</span> 
+                        <span style="font-size: 9pt; font-weight: bold;">{{ c.prospecto_nombre|upper }}</span>
+                    </div>
+                    {% if c.prospecto_cargo %}
+                        <div style="font-size: 8pt; color: #4B5563; text-transform: uppercase; letter-spacing: 0.5px;">
+                            {{ c.prospecto_cargo }}
+                        </div>
+                    {% endif %}
                 </div>
             </div>
+            
             <div style="display: table-cell; width: 5%;"></div> 
+            
             <div class="info-card" style="background-color: white; border-color: #A855F7;">
                 <span class="card-label">Mensaje</span>
-                <p style="font-size: 8.5pt; margin: 0; color: #4B5563; text-align: justify;">
-                    Me permito poner a sus órdenes los servicios de asesoría y gestoría de trámites administrativos, asegurando el cumplimiento normativo y el legal funcionamiento de su establecimiento. A continuación detallo nuestra propuesta económica:
+                <p style="font-size: 8.5pt; margin: 0; color: #4B5563;">
+                    Me permito poner a sus órdenes los servicios de asesoría y gestoría de trámites administrativos. A continuación detallo nuestra propuesta económica:
                 </p>
             </div>
         </div>
@@ -214,76 +237,88 @@
                     <tr>
                         <td>
                             <span class="item-title"><span class="item-num">{{ forloop.counter }}.</span> {{ item.servicio.nombre }}</span>
-                            <div class="item-desc">
-                                {{ item.descripcion_personalizada|default:item.servicio.descripcion }}
-                            </div>
+                            <div class="item-desc">{{ item.descripcion_personalizada|default:item.servicio.descripcion }}</div>
                         </td>
-                        <td class="price-col">
-                            $ {{ item.subtotal|floatformat:2|intcomma }}
-                        </td>
+                        <td class="price-col">$ {{ item.subtotal|floatformat:2|intcomma }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
 
-        <div style="margin-top: 20px;">
-            <p style="font-size: 8.5pt; color: #6B7280; margin-bottom: 20px;">
-                * Estos documentos serán entregados en original una vez recibidos por las dependencias correspondientes. El pago de derechos (si aplica) corre por cuenta del establecimiento.
+        <div class="generalidades">
+            <p>
+                Derivado de lo anterior, se señala que estos documentos serán entregados a Usted en original una vez recibidos por las dependencias de gobierno. El pago de derechos corre por cuenta del establecimiento.
             </p>
-
-            <div class="summary-card">
+            <p>
+                Así mismo, los honorarios por los trámites antes referidos corresponden al ejercicio <strong>{% now "Y" %}</strong>
                 
                 {% if c.descuento > 0 %}
-                <div class="discount-text">
-                    DESCUENTO APLICADO ({{ c.porcentaje_descuento|floatformat:0 }}%): - $ {{ c.descuento|floatformat:2|intcomma }}
-                </div>
-                {% endif %}
-                
-                {% if c.aplica_iva %}
-                    <div class="sub-row">
-                        Subtotal: $ {{ c.subtotal|floatformat:2|intcomma }}
-                    </div>
-                    <div class="sub-row">
-                        I.V.A. ({{ c.porcentaje_iva|floatformat:0 }}%): $ {{ c.monto_iva|floatformat:2|intcomma }}
-                    </div>
-                    
-                    <div class="summary-row" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-                        <span class="total-label">MONTO TOTAL NETO</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="total-amount">$ {{ c.total_con_iva|floatformat:2|intcomma }}</span>
-                    </div>
+                    y ascienden a la cantidad de <strong>$ {{ c.subtotal|floatformat:2|intcomma }}</strong>, 
+                    <strong>menos el {{ c.porcentaje_descuento|floatformat:1 }}% de descuento por la relación comercial existente</strong>, 
+                    por lo que el costo ofrecido es de <strong>$ {{ c.total|floatformat:2|intcomma }}</strong>
                 {% else %}
-                    <div class="summary-row">
-                        <span class="total-label">MONTO FINAL DE HONORARIOS</span>
-                    </div>
-                    <div class="summary-row">
-                        <span class="total-amount">$ {{ c.total|floatformat:2|intcomma }}</span>
-                    </div>
+                   y ascienden a la cantidad de <strong>$ {{ c.total|floatformat:2|intcomma }}</strong>
                 {% endif %}
                 
-                <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); font-size: 8.5pt; line-height: 1.6; opacity: 0.95;">
-                    <div><strong>Tiempo de Gestión:</strong> {{ c.get_tiempo_entrega_display }}</div>
-                    <div><strong>Condiciones de Pago:</strong> {{ c.get_condiciones_pago_display }}</div>
-                </div>
-                </div>
+                <strong>más I.V.A.</strong>.
+                
+                Dicho monto se cubrirá mediante 
+                <strong>
+                    {% if c.condiciones_pago == '50_50' %}
+                        un anticipo del 50% y el resto contra entrega de las autorizaciones
+                    {% elif c.condiciones_pago == '100_entrega' %}
+                        un pago único del 100% contra entrega de resultados
+                    {% elif c.condiciones_pago == 'contado' %}
+                        un pago único de contado en una sola exhibición
+                    {% else %}
+                        {{ c.get_condiciones_pago_display|lower }}
+                    {% endif %}
+                </strong>,
+                en un plazo aproximado de gestión de <strong>{{ c.get_tiempo_entrega_display|default:"30 días hábiles" }}</strong>.
+            </p>
+            <p>
+                Sin más por el momento, me reitero a sus órdenes para la valoración de costos y propuestas.
+            </p>
         </div>
 
-        <div class="footer-section">
-            <div class="signature-line"></div>
-            <div style="font-weight: 900; font-size: 11pt; text-transform: uppercase;">Lic. Maribel Aldana Santos</div>
-            <div style="font-size: 8pt; font-weight: bold; color: #A855F7; text-transform: uppercase;">Directora General | Gestiones Corpad</div>
+        <div class="summary-card">
             
-            <div class="contact-pill">
-                <i class="fas fa-phone"></i> 55 9270 0722 &nbsp; | &nbsp; 
-                <i class="fas fa-envelope"></i> ges.corpad@outlook.com &nbsp; | &nbsp; 
-                <i class="fas fa-globe"></i> Cuautitlán, Edo. Méx.
+            {% if c.descuento > 0 %}
+            <div class="discount-text">
+                DESCUENTO APLICADO ({{ c.porcentaje_descuento|floatformat:1 }}%): - $ {{ c.descuento|floatformat:2|intcomma }}
+            </div>
+            {% endif %}
+            
+            <div class="sub-row">Subtotal: $ {{ c.subtotal|default:c.total|floatformat:2|intcomma }}</div>
+            
+            {% if c.aplica_iva %}
+                <div class="sub-row">I.V.A. ({{ c.porcentaje_iva|floatformat:0 }}%): $ {{ c.monto_iva|floatformat:2|intcomma }}</div>
+            {% endif %}
+                
+            <div class="summary-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                <span class="total-label" style="font-size: 10pt; text-transform: uppercase;">MONTO TOTAL NETO</span>
+            </div>
+            <div class="summary-row">
+                <span class="total-amount">$ {{ c.total_con_iva|floatformat:2|intcomma }}</span>
             </div>
         </div>
 
+        <div class="firma">
+            {% if base_url %}
+                <img src="{{ base_url }}static/img/firma_full.png" class="firma-imagen" alt="Firma">
+            {% else %}
+                <img src="{% static 'img/firma_full.png' %}" class="firma-imagen" alt="Firma">
+            {% endif %}
+            
+            <div class="firma-linea"></div>
+            <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
+            <div class="firma-cargo">Director General | Gestiones Corpad</div>
+            <div class="firma-web">www.gestionescorpad.com</div>
+        </div>
+
         <div class="folio-footer">
-            GC-COT-{{ c.id|stringformat:"03d" }}-{{ c.fecha_creacion|date:"Y" }}
+            GC-COT-{{ c.id }}-{{ c.fecha_creacion|date:"Y" }}
         </div>
     </div>
 

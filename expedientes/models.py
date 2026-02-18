@@ -58,12 +58,30 @@ class Cliente(models.Model):
     nombre_contacto = models.CharField(max_length=200)
     telefono = models.CharField(max_length=20, blank=True)
     email = models.EmailField()
+    
+    # --- CAMPO NUEVO (Dirección) ---
+    direccion = models.TextField(blank=True, null=True, verbose_name="Dirección Fiscal")
+    
     logo = models.ImageField(upload_to='logos_clientes/', null=True, blank=True)
     fecha_registro = models.DateTimeField(auto_now_add=True)
     datos_extra = models.JSONField(default=dict, blank=True) 
 
     def __str__(self):
         return self.nombre_empresa
+
+    # --- LÓGICA AUTOMÁTICA PARA EL PDF ---
+    @property
+    def direccion_completa(self):
+        # 1. Si se llenó en el cliente, usar esa.
+        if self.direccion:
+            return self.direccion
+        
+        # 2. Si no, buscar en la cotización original.
+        cotizacion_origen = self.cotizacion_origen.order_by('-fecha_creacion').first()
+        if cotizacion_origen and cotizacion_origen.prospecto_direccion:
+            return cotizacion_origen.prospecto_direccion
+            
+        return "Domicilio no especificado"
 
 class CampoAdicional(models.Model):
     TIPOS = (('text', 'Texto Corto'), ('textarea', 'Texto Largo'), ('date', 'Fecha'), ('number', 'Número'))

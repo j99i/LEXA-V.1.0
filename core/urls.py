@@ -86,12 +86,15 @@ urlpatterns = [
     path('finanzas/recibo/<int:pago_id>/', views.recibo_pago_pdf, name='recibo_pago_pdf'),
     path('correo/<uuid:cliente_id>/<str:tipo_correo>/', views.enviar_correo_universal, name='enviar_correo_universal'),
     path('generar-final/', views.generar_contrato_final, name='generar_contrato_final'),
+    path('cliente/<uuid:cliente_id>/carpeta/<int:carpeta_id>/preparar-entrega/', views.preparar_entrega_autorizaciones, name='preparar_entrega'),
     # AGENDA
     path('agenda/', views.agenda_legal, name='agenda_legal'),
     path('agenda/api/', views.api_eventos, name='api_eventos'),
     path('agenda/crear/', views.crear_evento, name='crear_evento'),
     path('agenda/eliminar/<int:evento_id>/', views.eliminar_evento, name='eliminar_evento'),
     path('agenda/mover/', views.mover_evento_api, name='mover_evento_api'),
+    # En urls.py
+path('cliente/<uuid:cliente_id>/carpeta/<int:carpeta_id>/preparar-entrega/', views.preparar_entrega_autorizaciones, name='preparar_entrega'),
     # PARCHE DE EMERGENCIA: Acepta la ruta vieja por si el navegador tiene caché
     path('expedientes/drive/subir-requisito/<int:carpeta_id>/', views.subir_archivo_requisito),
     path('cliente/<uuid:cliente_id>/enviar-recordatorio/', views.enviar_recordatorio_documentacion, name='enviar_recordatorio'),

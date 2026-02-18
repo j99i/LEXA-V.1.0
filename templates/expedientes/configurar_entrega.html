@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto py-8 animate__animated animate__fadeIn">
+    
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h2 class="text-2xl font-black text-[#2D1B4B]">Configurar Acuse de Entrega</h2>
+            <p class="text-gray-500">Carpeta: <strong>{{ carpeta.nombre }}</strong> | Cliente: <strong>{{ cliente.nombre_empresa }}</strong></p>
+        </div>
+        <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 transition-all shadow-sm">
+            <i class="fas fa-times text-lg"></i>
+        </a>
+    </div>
+
+    <form method="POST" class="bg-white rounded-[2rem] shadow-xl border border-gray-100 overflow-hidden relative">
+        {% csrf_token %}
+
+        <div class="p-8 border-b border-gray-100 bg-gray-50/50">
+            <h3 class="text-xs font-black text-[#A855F7] uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="fas fa-user-tag"></i> Datos del Destinatario
+            </h3>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-5">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Atención a (Nombre):</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-300"><i class="fas fa-user"></i></span>
+                            <input type="text" name="atencion" value="{{ cliente.nombre_contacto }}" 
+                                   class="w-full pl-10 p-3 bg-white rounded-xl border-gray-200 focus:border-[#2D1B4B] focus:ring-0 font-bold text-[#2D1B4B] shadow-sm transition-all" placeholder="Ej. Lic. Juan Pérez">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Cargo / Puesto:</label>
+                        <div class="relative">
+                            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-300"><i class="fas fa-briefcase"></i></span>
+                            <input type="text" name="cargo" placeholder="Ej. Representante Legal" 
+                                   class="w-full pl-10 p-3 bg-white rounded-xl border-gray-200 focus:border-[#2D1B4B] focus:ring-0 font-bold text-gray-600 shadow-sm transition-all">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Municipio:</label>
+                            <input type="text" name="municipio" value="Cuautitlán" 
+                                   class="w-full p-3 bg-white rounded-xl border-gray-200 focus:border-[#2D1B4B] focus:ring-0 font-bold text-gray-600 shadow-sm">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-2 ml-1">Estado:</label>
+                            <input type="text" name="estado" value="Estado de México" 
+                                   class="w-full p-3 bg-white rounded-xl border-gray-200 focus:border-[#2D1B4B] focus:ring-0 font-bold text-gray-600 shadow-sm">
+                        </div>
+                    </div>
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-start gap-3">
+                        <i class="fas fa-info-circle text-blue-500 mt-1"></i>
+                        <div class="text-xs text-blue-800">
+                            <span class="font-bold block mb-1">Nota:</span>
+                            La dirección fiscal se tomará automáticamente del perfil del cliente o su última cotización.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-8">
+            <h3 class="text-xs font-black text-[#A855F7] uppercase tracking-widest mb-6 flex items-center gap-2">
+                <i class="fas fa-file-contract"></i> Detalle de Documentos
+            </h3>
+
+            <div class="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+                <table class="w-full text-sm text-left">
+                    <thead class="bg-gray-50 text-gray-500 uppercase font-bold text-xs">
+                        <tr>
+                            <th class="p-4 w-1/3">Documento</th>
+                            <th class="p-4 w-1/2">Detalle de Entrega <span class="normal-case font-normal text-gray-400 ml-1">(1 línea = 1 viñeta)</span></th>
+                            <th class="p-4 text-center w-1/6">Vencimiento</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 bg-white">
+                        {% for doc in documentos %}
+                        <tr class="hover:bg-purple-50/20 transition-colors group">
+                            <td class="p-4 align-top">
+                                <div class="flex items-start gap-3">
+                                    <div class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center shrink-0">
+                                        <i class="far fa-file-pdf"></i>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-[#2D1B4B] text-sm leading-tight mb-1">{{ doc.nombre_archivo }}</p>
+                                        {% if doc.fecha_vencimiento %}
+                                            <span class="inline-flex items-center gap-1 text-[10px] bg-orange-100 text-orange-700 px-2 py-0.5 rounded font-bold border border-orange-200">
+                                                <i class="far fa-calendar-alt"></i> {{ doc.fecha_vencimiento|date:"d/m/Y" }}
+                                            </span>
+                                        {% else %}
+                                            <span class="text-[10px] text-gray-300 italic">Sin fecha</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="p-4 align-top">
+                                <textarea name="detalle_{{ doc.id }}" rows="2" 
+                                          placeholder="• Original entregado..." 
+                                          class="w-full text-sm p-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:border-[#A855F7] focus:ring-0 transition-all placeholder-gray-300 resize-none custom-scrollbar"></textarea>
+                            </td>
+                            <td class="p-4 text-center align-middle">
+                                <label class="relative inline-flex items-center cursor-pointer group-hover:scale-105 transition-transform">
+                                    <input type="checkbox" name="vence_{{ doc.id }}" class="peer sr-only">
+                                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#2D1B4B]"></div>
+                                    <span class="ml-2 text-xs font-bold text-gray-400 peer-checked:text-[#2D1B4B]">Mostrar</span>
+                                </label>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="p-8 border-t border-gray-100 bg-gray-50/30">
+            <label class="block text-xs font-black text-[#A855F7] uppercase tracking-widest mb-3">
+                <i class="fas fa-exclamation-circle mr-1"></i> Observaciones Legales
+            </label>
+            <textarea name="observaciones" rows="4" class="w-full p-4 rounded-2xl border-gray-200 focus:border-[#2D1B4B] focus:ring-0 shadow-sm text-sm text-gray-600 leading-relaxed">{{ observaciones_default }}</textarea>
+        </div>
+
+        <div class="p-6 bg-white border-t border-gray-100 flex justify-end gap-4 items-center rounded-b-[2rem]">
+            <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="px-6 py-3 text-gray-400 font-bold hover:text-gray-600 text-sm transition-colors">Cancelar</a>
+            
+            <button type="submit" class="bg-[#2D1B4B] hover:bg-[#4c1d95] text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-xl hover:shadow-purple-500/20 transition-all transform hover:-translate-y-1 flex items-center gap-3">
+                <span>GENERAR Y CONTINUAR</span>
+                <div class="w-6 h-6 rounded-full bg-white/20 flex items-center justify-center">
+                    <i class="fas fa-arrow-right text-xs"></i>
+                </div>
+            </button>
+        </div>
+
+    </form>
+</div>
+{% endblock %}

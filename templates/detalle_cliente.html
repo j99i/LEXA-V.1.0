@@ -16,10 +16,10 @@
             <div>
                 <h2 class="text-2xl font-black text-[#2D1B4B] leading-none">{{ cliente.nombre_empresa }}</h2>
                 {% if user.rol == 'admin' %}
-    <p class="text-xs text-gray-400 mt-1">{{ cliente.nombre_contacto }} | {{ cliente.telefono }}</p>
-{% else %}
-    <p class="text-xs text-gray-400 mt-1">Contacto restringido</p>
-{% endif %}
+                    <p class="text-xs text-gray-400 mt-1">{{ cliente.nombre_contacto }} | {{ cliente.telefono }}</p>
+                {% else %}
+                    <p class="text-xs text-gray-400 mt-1">Contacto restringido</p>
+                {% endif %}
                 
                 {% if not carpeta_actual %}
                     {% if user.can_edit_client or user.rol == 'admin' %}
@@ -62,6 +62,7 @@
     </div>
 
     <div id="drive-content" class="animate__animated animate__fadeIn">
+        
         <div class="flex justify-between items-center mb-4">
             <nav class="flex text-sm font-bold text-gray-400">
                 {% if carpeta_actual %}
@@ -75,11 +76,10 @@
             <div class="flex gap-2">
                 
                 {% if carpeta_actual and carpeta_actual.nombre == 'Autorizaciones liberadas' %}
-                <a href="{% url 'enviar_correo_universal' cliente.id 'autorizaciones' %}?carpeta_id={{ carpeta_actual.id }}" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:from-red-600 hover:to-red-700 shadow-lg flex items-center gap-2 animate__animated animate__pulse">
+                <a href="{% url 'preparar_entrega' cliente.id carpeta_actual.id %}" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:from-red-600 hover:to-red-700 shadow-lg flex items-center gap-2 animate__animated animate__pulse">
                     <i class="fas fa-paper-plane"></i> ENVIAR AUTORIZACIONES
                 </a>
                 {% endif %}
-
                 {% if user.can_edit_client or user.rol == 'admin' %}
                 <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 shadow-md flex items-center gap-2 transition-colors">
                     <i class="fas fa-link"></i> LINK CLIENTE
@@ -146,6 +146,7 @@
             </div>
         </div>
         {% endif %}
+
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[500px]">
             
             {% if carpetas %}
@@ -358,7 +359,7 @@
             </div>
         </div>
         <div id="preview-body" class="flex-1 bg-gray-100 overflow-hidden relative flex items-center justify-center">
-            </div>
+        </div>
     </div>
 </div>
 
@@ -523,7 +524,7 @@
     function ejecutarMasivo(a) { if(a==='eliminar' && !confirm('¿Seguro?'))return; document.getElementById('input-accion').value=a; document.getElementById('form-masivo').submit(); }
     function cerrarMasivo() { document.querySelectorAll('.doc-check').forEach(c => c.checked=false); verificarSeleccion(); }
     
-    // --- Lógica del Preview Universal (Word, Excel, Video, etc) ---
+    // --- Lógica del Preview Universal ---
     function abrirPreview(id) {
         const modal = document.getElementById('modal-preview');
         const body = document.getElementById('preview-body');
@@ -539,7 +540,6 @@
             .then(data => {
                 title.innerText = data.nombre;
                 
-                // CAMBIO CLAVE: El botón del visor ahora descarga el nombre oficial
                 downloadBtn.href = `/archivo/descargar/${id}/`; 
                 
                 let contenidoHTML = '';

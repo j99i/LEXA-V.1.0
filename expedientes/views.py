@@ -922,20 +922,55 @@ def nueva_cotizacion(request):
 
     servicios = Servicio.objects.all()
     return render(request, 'cotizaciones/crear.html', {'servicios': servicios})
-
 @login_required
 def detalle_cotizacion(request, cotizacion_id):
     c = get_object_or_404(
         Cotizacion.objects.prefetch_related('items__servicio'), 
         id=cotizacion_id
     )
-    return render(request, 'cotizaciones/detalle.html', {'c': c, 'plantillas_ws': PlantillaMensaje.objects.filter(tipo='whatsapp')})
+    
+    # --- AUTO-REPARACIÓN INTELIGENTE ---
+    # Si el total es 0, o los items tienen importe 0, forzamos el cálculo matemático aquí mismo.
+    recalculo_necesario = False
+    
+    if c.total == 0 and c.items.exists():
+        recalculo_necesario = True
+    
+    # Verificamos si algún item individual está en 0 y lo arreglamos
+    for item in c.items.all():
+        if item.subtotal == 0 and item.precio_unitario > 0:
+            # Hacemos la multiplicación manual: Cantidad x Precio
+            item.subtotal = item.cantidad * item.precio_unitario
+            item.save()
+            recalculo_necesario = True
 
+    # Si hubo correcciones, recalculamos el total general de la cotización
+    if recalculo_necesario:
+        c.calcular_totales()
+        c.refresh_from_db()
+    # -----------------------------------
+
+    return render(request, 'cotizaciones/detalle.html', {
+        'c': c, 
+        'plantillas_ws': PlantillaMensaje.objects.filter(tipo='whatsapp')
+    })
 @login_required
 def generar_pdf_cotizacion(request, cotizacion_id):
+    # 1. Recuperamos la cotización y sus items
     c = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
-    return generar_pdf_response(request, 'cotizaciones/pdf_template.html', {'c': c}, f"Cotizacion_{c.id}.pdf")
+    
+    # 2. FIX DE SEGURIDAD: Si el total es 0.00 pero tiene servicios agregados, forzamos el cálculo
+    if c.total == 0 and c.items.exists():
+        c.calcular_totales()  # Ejecuta la suma matemática
+        c.refresh_from_db()   # Recarga el dato correcto desde la base de datos
 
+    # 3. Generamos el PDF usando la utilidad existente
+    return generar_pdf_response(
+        request, 
+        'cotizaciones/pdf_template.html', 
+        {'c': c}, 
+        f"Cotizacion_{c.id}.pdf"
+    )
 @login_required
 @transaction.atomic
 def convertir_a_cliente(request, cotizacion_id):
@@ -1724,56 +1759,100 @@ def descargar_archivo_oficial(request, archivo_id):
 
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
+    """
+    Paso 2: Redactar y enviar el correo.
+    Detecta si viene un 'acuse_id' (del paso 1) para adjuntarlo como PDF suelto.
+    El resto de archivos de la carpeta se comprimen en un ZIP.
+    """
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
     cliente = carpeta.cliente
     
+    # Intentar recuperar el Acuse generado en el paso anterior
+    acuse_id = request.GET.get('acuse_id')
+    doc_acuse = None
+    if acuse_id:
+        doc_acuse = Documento.objects.filter(id=acuse_id).first()
+
     if request.method == 'POST':
         asunto = request.POST.get('asunto')
         mensaje_usuario = request.POST.get('mensaje')
         destinatario = request.POST.get('destinatario')
         
+        # Recuperar ID del acuse desde el campo oculto (por si se pierde el GET)
+        acuse_id_post = request.POST.get('acuse_id_hidden')
+        if acuse_id_post:
+             doc_acuse = Documento.objects.filter(id=acuse_id_post).first()
+
+        # 1. Generar ZIP con las EVIDENCIAS (Excluyendo el Acuse PDF para que no vaya duplicado)
         buffer = io.BytesIO()
-        with zipfile.ZipFile(buffer, 'w') as zip_file:
+        with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for doc in carpeta.documentos.all():
+                # Si tenemos un acuse identificado, NO lo metemos al ZIP (irá suelto)
+                if doc_acuse and doc.id == doc_acuse.id:
+                    continue
                 try:
                     zip_file.write(doc.archivo.path, arcname=doc.nombre_archivo)
                 except FileNotFoundError:
-                    pass
+                    pass # Si el archivo físico no existe, lo saltamos
         buffer.seek(0)
 
+        # 2. Renderizar cuerpo del correo
         cuerpo_html = render_to_string('expedientes/email_autorizaciones_template.html', {
             'cliente': cliente,
             'usuario': request.user,
             'mensaje_usuario': mensaje_usuario,
-            'archivos': carpeta.documentos.all()
+            # Mostramos en el correo la lista de archivos (excluyendo el acuse visualmente si quieres)
+            'archivos': carpeta.documentos.exclude(id=doc_acuse.id if doc_acuse else None)
         })
         
+        # 3. Preparar el Email
         email = EmailMessage(
             subject=asunto,
             body=cuerpo_html,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[destinatario],
-            cc=[request.user.email],
-            # --- CAMBIO: RESPUESTA A MARIBEL ---
-            reply_to=['maribel.aldana@gestionescorpad.com']
+            cc=[request.user.email], # Copia al usuario que envía
+            reply_to=['maribel.aldana@gestionescorpad.com'] # Respuesta directa
         )
         email.content_subtype = "html"
         
-        nombre_zip = f"Autorizaciones_{cliente.nombre_empresa}_{timezone.now().date()}.zip"
+        # 4. Adjuntar el ZIP de Evidencias
+        nombre_zip = f"Evidencias_{cliente.nombre_empresa}.zip"
         email.attach(nombre_zip, buffer.getvalue(), 'application/zip')
         
+        # 5. Adjuntar el ACUSE PDF (Suelto, fuera del ZIP)
+        if doc_acuse:
+            try:
+                email.attach(doc_acuse.nombre_archivo, doc_acuse.archivo.read(), 'application/pdf')
+            except Exception as e:
+                logger.warning(f"No se pudo adjuntar el físico del acuse: {e}")
+
+        # 6. Enviar
         try:
             email.send()
-            messages.success(request, f"✅ Correo enviado a {destinatario}.")
+            
+            # Registrar en Bitácora
+            Bitacora.objects.create(
+                usuario=request.user, 
+                cliente=cliente, 
+                accion='entrega_formal', 
+                descripcion=f"Envió entrega final de: {carpeta.nombre}"
+            )
+            
+            messages.success(request, f"✅ Correo enviado exitosamente a {destinatario} con Acuse y Evidencias.")
             return redirect('detalle_carpeta', cliente_id=cliente.id, carpeta_id=carpeta.id)
+            
         except Exception as e:
             logger.error(f"Error enviando correo autorizaciones: {e}")
-            messages.error(request, f"❌ Error: {e}")
+            messages.error(request, f"❌ Error al enviar: {e}")
     
+    # Texto predeterminado para el cuerpo del correo
     mensaje_plano = (
         f"Estimado(a) {cliente.nombre_contacto},\n\n"
-        f"Por medio del presente le hago entrega de las autorizaciones liberadas para {cliente.nombre_empresa}.\n\n"
-        "Adjunto encontrará un archivo ZIP con todos los documentos digitales para su resguardo.\n\n"
+        f"Por medio del presente le hago entrega formal de las autorizaciones originales gestionadas para {cliente.nombre_empresa}.\n\n"
+        "Adjunto encontrará:\n"
+        "1. Acuse de Recibo (PDF) con el detalle de vigencias.\n"
+        "2. Archivo ZIP con las evidencias digitales de sus documentos.\n\n"
         "Quedo a sus órdenes."
     )
     
@@ -1782,9 +1861,9 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         'cliente': cliente,
         'asunto': f"Entrega de Autorizaciones - {cliente.nombre_empresa}",
         'mensaje': mensaje_plano,
-        'email_destino': cliente.email
+        'email_destino': cliente.email,
+        'doc_acuse': doc_acuse # Pasamos el objeto acuse al template para mostrar la alerta verde
     })
-
 @login_required
 def enviar_correo_universal(request, cliente_id, tipo_correo):
     """
@@ -2068,7 +2147,7 @@ def generar_contrato_final(request):
             )
             response['Content-Disposition'] = f'attachment; filename="{nombre_salida}"'
 
-            # 7. Guardar el documento procesado directamente en la respuesta (sin guardar en disco)
+            # 7. Guardar el documento procesado directamente en la respuesta (in guardar en disco)
             doc.save(response)
 
             return response
@@ -2080,3 +2159,87 @@ def generar_contrato_final(request):
             return redirect('dashboard') # O redirige a donde prefieras en caso de error
 
     return redirect('dashboard')
+# ==========================================
+# GESTIÓN DE ENTREGA Y ACUSES (REEMPLAZAR EN VIEWS.PY)
+# ==========================================
+@login_required
+def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
+    carpeta = get_object_or_404(Carpeta.objects.prefetch_related('documentos'), id=carpeta_id)
+    cliente = carpeta.cliente
+    documentos = carpeta.documentos.all()
+
+    observaciones_default = (
+        "1. Las Licencias y Autorizaciones originales deberán ser exhibidas en un lugar visible dentro del establecimiento.\n"
+        "2. Se recomienda realizar un respaldo digital adicional de estos archivos.\n"
+        "3. Informar cualquier cambio o modificación a las autoridades pertinentes."
+    )
+
+    if request.method == 'POST':
+        try:
+            # 1. Datos Generales (INCLUYENDO EL NUEVO CAMPO CARGO)
+            atencion = request.POST.get('atencion')
+            cargo = request.POST.get('cargo') # <--- NUEVO
+            observaciones = request.POST.get('observaciones')
+            municipio = request.POST.get('municipio', 'Cuautitlán')
+            estado = request.POST.get('estado', 'Estado de México')
+            
+            docs_procesados = []
+            for doc in documentos:
+                raw_detalle = request.POST.get(f'detalle_{doc.id}', '').strip()
+                mostrar_vence = request.POST.get(f'vence_{doc.id}') == 'on'
+                
+                nombre_limpio = os.path.splitext(doc.nombre_archivo)[0]
+                detalle_lista = [linea.strip() for linea in raw_detalle.split('\n') if linea.strip()]
+
+                docs_procesados.append({
+                    'nombre': nombre_limpio,
+                    'detalle_lista': detalle_lista,
+                    'mostrar_vence': mostrar_vence,
+                    'fecha_vencimiento': doc.fecha_vencimiento
+                })
+
+            # 2. Generar PDF
+            context_pdf = {
+                'cliente': cliente,
+                'carpeta': carpeta,
+                'documentos': docs_procesados,
+                'atencion': atencion,
+                'cargo': cargo, # <--- PASAMOS EL CARGO AL TEMPLATE
+                'observaciones': observaciones,
+                'municipio': municipio,
+                'estado': estado,
+                'fecha_emision': timezone.now(),
+                'base_url': request.build_absolute_uri('/')
+            }
+            
+            html_string = render_to_string('expedientes/acuse_pdf.html', context_pdf)
+            html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+            pdf_content = html.write_pdf()
+
+            # 3. Guardar Acuse
+            nombre_acuse = f"ACUSE ENTREGA {cliente.nombre_empresa}.pdf"
+            Documento.objects.filter(carpeta=carpeta, nombre_archivo__startswith="ACUSE ENTREGA").delete()
+            
+            nuevo_acuse = Documento(
+                cliente=cliente,
+                carpeta=carpeta,
+                nombre_archivo=nombre_acuse,
+                subido_por=request.user
+            )
+            nuevo_acuse.archivo.save(nombre_acuse, ContentFile(pdf_content))
+            nuevo_acuse.save()
+
+            # 4. Redirigir
+            url_redactar = reverse('redactar_correo_autorizaciones', kwargs={'carpeta_id': carpeta.id})
+            return redirect(f"{url_redactar}?acuse_id={nuevo_acuse.id}")
+
+        except Exception as e:
+            logger.error(f"Error generando acuse: {e}")
+            messages.error(request, f"Error al generar el acuse: {e}")
+
+    return render(request, 'expedientes/configurar_entrega.html', {
+        'carpeta': carpeta,
+        'cliente': cliente,
+        'documentos': documentos,
+        'observaciones_default': observaciones_default
+    })

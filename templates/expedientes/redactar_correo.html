@@ -3,48 +3,70 @@
 {% block content %}
 <div class="max-w-4xl mx-auto py-8 animate__animated animate__fadeIn">
     
-    <div class="bg-white p-6 rounded-t-2xl border-b border-gray-100 flex justify-between items-center">
+    <div class="bg-white p-6 rounded-t-[2rem] border-b border-gray-100 flex justify-between items-center">
         <h2 class="text-xl font-black text-[#2D1B4B]">
-            <i class="fas fa-envelope-open-text mr-2 text-red-500"></i> Enviar Autorizaciones
+            <i class="fas fa-envelope-open-text mr-2 text-[#A855F7]"></i> Redactar y Enviar
         </h2>
-        <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></a>
+        <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="text-gray-400 hover:text-gray-600 transition-colors"><i class="fas fa-times text-lg"></i></a>
     </div>
 
-    <form method="POST" class="bg-white p-8 rounded-b-2xl shadow-xl">
+    <form method="POST" class="bg-white p-8 rounded-b-[2rem] shadow-xl relative">
         {% csrf_token %}
         
-        <div class="mb-4">
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Para:</label>
-            <input type="email" name="destinatario" value="{{ email_destino }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-gray-700 border border-gray-200 focus:border-[#A855F7] focus:ring-0 transition-colors" required>
+        {% if doc_acuse %}
+        <input type="hidden" name="acuse_id_hidden" value="{{ doc_acuse.id }}">
+        
+        <div class="bg-green-50 p-4 rounded-xl mb-6 border border-green-100 flex items-center gap-4 animate__animated animate__fadeInDown shadow-sm">
+            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center text-green-600 shrink-0">
+                <i class="fas fa-file-contract text-xl"></i>
+            </div>
+            <div class="flex-1">
+                <p class="text-sm font-black text-green-800 uppercase tracking-wide">Acuse Generado Exitosamente</p>
+                <p class="text-xs text-green-700 font-medium mt-1">Se adjuntará automáticamente: <strong>{{ doc_acuse.nombre_archivo }}</strong></p>
+            </div>
+            <div class="shrink-0 flex flex-col gap-2">
+                 <span class="text-[10px] bg-green-200 text-green-800 px-3 py-1 rounded-full font-bold shadow-sm text-center">
+                    <i class="fas fa-check mr-1"></i> LISTO
+                 </span>
+                 <a href="{% url 'descargar_archivo_oficial' doc_acuse.id %}" target="_blank" class="text-[10px] bg-white border border-green-200 text-green-700 px-3 py-1 rounded-full font-bold hover:bg-green-100 shadow-sm flex items-center justify-center gap-1 transition-colors">
+                    <i class="fas fa-eye"></i> VER PDF
+                 </a>
+            </div>
+        </div>
+        {% endif %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Para:</label>
+                <input type="email" name="destinatario" value="{{ email_destino }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-gray-700 border border-gray-200 focus:border-[#A855F7] focus:ring-0 transition-colors" required>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Asunto:</label>
+                <input type="text" name="asunto" value="{{ asunto }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border border-gray-200 focus:border-[#A855F7] focus:ring-0 transition-colors" required>
+            </div>
         </div>
 
-        <div class="mb-6">
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Asunto:</label>
-            <input type="text" name="asunto" value="{{ asunto }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border border-gray-200 focus:border-[#A855F7] focus:ring-0 transition-colors" required>
+        <div class="mb-8">
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Mensaje del Correo:</label>
+            <textarea name="mensaje" rows="12" class="w-full p-5 bg-white rounded-xl border border-gray-200 focus:border-[#A855F7] focus:ring-0 shadow-inner font-sans text-sm leading-relaxed text-gray-600">{{ mensaje }}</textarea>
+            <p class="text-[10px] text-gray-400 mt-2 text-right italic">* Se enviará con formato corporativo HTML y firma digital.</p>
         </div>
 
-        <div class="mb-6">
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Mensaje:</label>
-            <textarea name="mensaje" rows="12" class="w-full p-4 bg-white rounded-xl border border-gray-200 focus:border-[#A855F7] focus:ring-0 shadow-inner font-sans text-sm leading-relaxed">{{ mensaje }}</textarea>
-            <p class="text-xs text-gray-400 mt-2 text-right">* Se enviará con formato HTML y firma.</p>
-        </div>
-
-        <div class="bg-red-50 p-4 rounded-xl mb-8 flex items-center justify-between">
+        <div class="bg-blue-50 p-4 rounded-xl mb-8 flex items-center justify-between border border-blue-100">
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-red-100 rounded-lg flex items-center justify-center text-red-500">
+                <div class="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-500">
                     <i class="fas fa-file-archive text-lg"></i>
                 </div>
                 <div>
-                    <p class="text-sm font-bold text-red-800">Se adjuntará un ZIP con {{ carpeta.documentos.count }} documentos.</p>
-                    <p class="text-xs text-red-600">Total aprox: 15 MB</p>
+                    <p class="text-sm font-bold text-blue-800">Se generará un ZIP con el resto de evidencias.</p>
+                    <p class="text-xs text-blue-600">Archivos en carpeta: {{ carpeta.documentos.count }}</p>
                 </div>
             </div>
-            <button type="button" class="text-xs font-bold text-red-500 hover:underline">Ver lista</button>
         </div>
 
-        <div class="flex justify-end gap-3">
-            <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="px-6 py-3 bg-gray-100 text-gray-500 font-bold rounded-xl hover:bg-gray-200 transition-colors">Cancelar</a>
-            <button type="submit" class="px-8 py-3 bg-[#2D1B4B] text-white font-bold rounded-xl hover:bg-[#A855F7] shadow-lg transition-all transform hover:-translate-y-1 flex items-center gap-2">
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+            <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="px-6 py-3 bg-white border border-gray-200 text-gray-500 font-bold rounded-xl hover:bg-gray-50 transition-colors">Cancelar</a>
+            
+            <button type="submit" class="px-8 py-3 bg-[#2D1B4B] text-white font-bold rounded-xl hover:bg-[#A855F7] shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-1 flex items-center gap-3">
                 <i class="fas fa-paper-plane"></i> ENVIAR AHORA
             </button>
         </div>
