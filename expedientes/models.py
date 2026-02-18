@@ -468,3 +468,37 @@ class ArchivoTemporal(models.Model):
     
     def __str__(self):
         return f"{self.nombre_requisito} - Pendiente"
+
+# expedientes/models.py
+
+class FacturaGasto(models.Model):
+    # Identificador único del SAT (UUID) para evitar duplicados
+    uuid = models.CharField(max_length=36, unique=True, verbose_name="Folio Fiscal (UUID)")
+    
+    # Datos del XML
+    fecha_emision = models.DateTimeField()
+    rfc_emisor = models.CharField(max_length=13)
+    nombre_emisor = models.CharField(max_length=255)
+    rfc_receptor = models.CharField(max_length=13)
+    nombre_receptor = models.CharField(max_length=255)
+    
+    # Montos
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    total_impuestos = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    total = models.DecimalField(max_digits=10, decimal_places=2)
+    moneda = models.CharField(max_length=10, default="MXN")
+    
+    # Archivo físico
+    archivo_xml = models.FileField(upload_to='gastos/xml/%Y/%m/')
+    
+    # Metadatos internos
+    fecha_carga = models.DateTimeField(auto_now_add=True)
+    cargado_por = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True)
+    
+    def __str__(self):
+        return f"{self.nombre_emisor} - ${self.total} ({self.fecha_emision.date()})"
+
+    class Meta:
+        verbose_name = "Gasto / Factura"
+        verbose_name_plural = "Gastos y Facturas"
+        ordering = ['-fecha_emision']

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cfdi:Comprobante xsi:schemaLocation="http://www.sat.gob.mx/cfd/4 http://www.sat.gob.mx/sitio_internet/cfd/4/cfdv40.xsd" Version="4.0" Fecha="2025-11-25T19:33:53" Sello="mKO0hUsb6ErUNSbGkYyzSDi5+LOZnkwLzvaXpcPtMRdpRRR9SXHt8quANUDwmqvLQboXVMZPo0mJDxZHfILLpkKiGHSN/GPF84IolkM4WTHhmfKDIoJu6+ge6lqcTa8RguCVoPgAOH6Lgz/b/9hgRhy3qjtoDlgtAdIEitbow3yzzjXzx0xoPqnPdwV5WU3RYTKIEsa5gzx1qFFxR6Ao837LKnQsoMh7hE21jBttczm8pBMIcBaQ9n1zDWYZxFs3sp8d3AB/6jOVeUXGhldatjTFPlKN7CP/qxXQkZ5FkiGzjfbh2UQExVVbIyXz4WlZmSbFegR+uFobQjJEn73EoA==" FormaPago="99" NoCertificado="00001000000718427554" Certificado="MIIGXzCCBEegAwIBAgIUMDAwMDEwMDAwMDA3MTg0Mjc1NTQwDQYJKoZIhvcNAQELBQAwggGVMTUwMwYDVQQDDCxBQyBERUwgU0VSVklDSU8gREUgQURNSU5JU1RSQUNJT04gVFJJQlVUQVJJQTEuMCwGA1UECgwlU0VSVklDSU8gREUgQURNSU5JU1RSQUNJT04gVFJJQlVUQVJJQTEaMBgGA1UECwwRU0FULUlFUyBBdXRob3JpdHkxMjAwBgkqhkiG9w0BCQEWI3NlcnZpY2lvc2FsY29udHJpYnV5ZW50ZUBzYXQuZ29iLm14MSYwJAYDVQQJDB1Bdi4gSGlkYWxnbyA3NywgQ29sLiBHdWVycmVybzEOMAwGA1UEEQwFMDYzMDAxCzAJBgNVBAYTAk1YMQ0wCwYDVQQIDARDRE1YMRMwEQYDVQQHDApDVUFVSFRFTU9DMRUwEwYDVQQtEwxTQVQ5NzA3MDFOTjMxXDBaBgkqhkiG9w0BCQITTXJlc3BvbnNhYmxlOiBBRE1JTklTVFJBQ0lPTiBDRU5UUkFMIERFIFNFUlZJQ0lPUyBUUklCVVRBUklPUyBBTCBDT05UUklCVVlFTlRFMB4XDTI1MDgyODE1MjgyOVoXDTI5MDgyODE1MjkwOVowgeoxJzAlBgNVBAMTHk9TQ0FSIElWQU4gVEFERU8gQ0FTVElMTE8gQ0FOTzEnMCUGA1UEKRMeT1NDQVIgSVZBTiBUQURFTyBDQVNUSUxMTyBDQU5PMScwJQYDVQQKEx5PU0NBUiBJVkFOIFRBREVPIENBU1RJTExPIENBTk8xCzAJBgNVBAYTAk1YMSswKQYJKoZIhvcNAQkBFhxDWENPODAwMjI1SERGU05TMDlAZ21haWwuY29tMRYwFAYDVQQtEw1DQUNYODAwMjI1Ulk3MRswGQYDVQQFExJDWENPODAwMjI1SERGU05TMDkwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCZ1xsyIF8PvHOBTSEjMwZwKJzcRhdAFAy0fUfpt3WnO6HkE7sh++aSCNznE4+QH8vniwukbHNT7WH8yh7zy0dsmrI+xb+BEF7/59NlfZB5bl/Aty0wVNrlQt2rufMqQy87X8eFuW/EXOh/f8Dfairke98sI1dO5+8VMa5q704JT2RtbrppM8xkFmf4Pk3yXHRJyY0jhddALzYwI5v89RVutKbHQQzyh2zvLA78TqubhyaZuqsoO2d89oiVKkN9mkqfZX6jv+9TqkEnf/gEh+duSgY3bATK1g6cX4jzHIAeVmPhUmpC+UP3DmVli7ETCc/ex0Uw6uhltIvSG6vMoLZPAgMBAAGjTzBNMAwGA1UdEwEB/wQCMAAwCwYDVR0PBAQDAgPYMBEGCWCGSAGG+EIBAQQEAwIFoDAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIwDQYJKoZIhvcNAQELBQADggIBAD/LbyoLG2yDHEMk8ZG+vh/fzmLfv+YlSO4vytTSkT8wkD00XYHqV+K1Hwro/QLurUzjm7m3IdqEX59Iw+4GnGMEq8eEGTLJpBQijdjESNMc7qeI+jNYFyewbds3iKjOccuQR7lvtCmS/oMvQ842tp1wiXV6lEetTmnbYEEkm9VLdFzeN9lm0MwNCShX4WG2TPwHFDo6ifTBwHRh/nAQ03F2JDg8WnIoO5q7AB22rm9aRwEaa+rdq+Wtnd2DZ9vjbMBNCp3VdoZpzR0shMtxpevau/PJg24QdURxGB0XOMkrLlMf50z396kZWj1JIqMGokRiH8JZAL51iQSUmWro9MWxzPloptetNdEVLb6e19D3ywnUA6BUlx8ARsTZzu2Sh06T9iRkr5wTLdRRKV+F+uxKfWEPaf7h9DXk6htXb78OEyBZfvFp6VCmDaU3d0KrlhydfC0jtUI6sbpHT5iv77qfA1uU43Tz0F8XocTIQ3ssTH5pXrO4GHzKno9b5cMcAGGHAxTwTmN1RXtZ/qEqkAd63AhMGy6IpaZTIgiHAO6IlTOvaEssEvF4nvfwd8OdjGGLjGU70d1C/ooMDww1Vi/7VqnbhbLFS5YWq5VwaU/EATcWWCHDCkLqTUFawNcK9z3u2TCOLmMYn2Ht7lpovuO8Zcenemp+XersTaDuJbpJ" SubTotal="52000.00" Moneda="MXN" Total="55120.00" TipoDeComprobante="I" Exportacion="01" MetodoPago="PPD" LugarExpedicion="06920" xmlns:cfdi="http://www.sat.gob.mx/cfd/4" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <cfdi:Emisor Rfc="CACX800225RY7" Nombre="OSCAR IVAN TADEO CASTILLO CANO" RegimenFiscal="612" />
+  <cfdi:Receptor Rfc="FGJ2001109B6" Nombre="FISCALIA GENERAL DE JUSTICIA DE LA CIUDAD DE MEXICO" DomicilioFiscalReceptor="06720" RegimenFiscalReceptor="603" UsoCFDI="G03" />
+  <cfdi:Conceptos>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Servicio de mantenimiento preventivo y/o correctivo a maquina insoladora olite compact printing light al 15" ValorUnitario="15720" Importe="15720.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="15720.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="2515.200000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="15720.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="1572.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Revisión y ajuste del sistema de encendido" ValorUnitario="1950" Importe="1950.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="1950.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="312.000000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="1950.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="195.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Revisión y ajuste de bomba de succión." ValorUnitario="2200" Importe="2200.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="2200.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="352.000000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="2200.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="220.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112306" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Revisión y ajuste de tornillos sujetadores de porta plancha" ValorUnitario="2370" Importe="2370.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="2370.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="379.200000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="2370.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="237.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112300" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Revisión y ajuste de mangueras de compresor" ValorUnitario="1100" Importe="1100.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="1100.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="176.000000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="1100.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="110.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="72154302" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Revisión y ajuste de motor" ValorUnitario="3600" Importe="3600.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="3600.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="576.000000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="3600.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="360.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="40151600" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Reemplazo e instalación de compresor de vacío" ValorUnitario="5632" Importe="5632.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="5632.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="901.120000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="5632.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="563.200000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="39111815" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Reemplazo e instalación de lámpara de exposición" ValorUnitario="5500" Importe="5500.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="5500.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="880.000000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="5500.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="550.000000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Reemplazo e instalación del ventilador de enfriamiento" ValorUnitario="4643" Importe="4643.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="4643.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="742.880000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="4643.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="464.300000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Reemplazo e instalación de nanómetro" ValorUnitario="3827" Importe="3827.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="3827.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="612.320000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="3827.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="382.700000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+    <cfdi:Concepto ClaveProdServ="81112222" Cantidad="1" ClaveUnidad="E48" Unidad="Unidad de servicio" Descripcion="Limpieza en general y puesto en marcha. No. Req. 153/2025 Partida única Nombre del Banco: SANTANDER Número de sucursal: 2229 Plaza: Centro Sur Clabe Bancaria: 014680606235014639" ValorUnitario="5458" Importe="5458.000000" ObjetoImp="02">
+      <cfdi:Impuestos>
+        <cfdi:Traslados>
+          <cfdi:Traslado Base="5458.000000" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="873.280000" />
+        </cfdi:Traslados>
+        <cfdi:Retenciones>
+          <cfdi:Retencion Base="5458.000000" Impuesto="001" TipoFactor="Tasa" TasaOCuota="0.100000" Importe="545.800000" />
+        </cfdi:Retenciones>
+      </cfdi:Impuestos>
+    </cfdi:Concepto>
+  </cfdi:Conceptos>
+  <cfdi:Impuestos TotalImpuestosTrasladados="8320.00" TotalImpuestosRetenidos="5200.00">
+    <cfdi:Retenciones>
+      <cfdi:Retencion Impuesto="001" Importe="5200.00" />
+    </cfdi:Retenciones>
+    <cfdi:Traslados>
+      <cfdi:Traslado Base="52000.00" Impuesto="002" TipoFactor="Tasa" TasaOCuota="0.160000" Importe="8320.00" />
+    </cfdi:Traslados>
+  </cfdi:Impuestos>
+  <cfdi:Complemento>
+    <tfd:TimbreFiscalDigital xmlns:tfd="http://www.sat.gob.mx/TimbreFiscalDigital" xsi:schemaLocation="http://www.sat.gob.mx/TimbreFiscalDigital http://www.sat.gob.mx/sitio_internet/cfd/TimbreFiscalDigital/TimbreFiscalDigitalv11.xsd" Version="1.1" UUID="F7CB11FC-75C6-4208-BDF8-F3ACCF8015A0" FechaTimbrado="2025-11-25T19:34:13" RfcProvCertif="SAT970701NN3" SelloCFD="mKO0hUsb6ErUNSbGkYyzSDi5+LOZnkwLzvaXpcPtMRdpRRR9SXHt8quANUDwmqvLQboXVMZPo0mJDxZHfILLpkKiGHSN/GPF84IolkM4WTHhmfKDIoJu6+ge6lqcTa8RguCVoPgAOH6Lgz/b/9hgRhy3qjtoDlgtAdIEitbow3yzzjXzx0xoPqnPdwV5WU3RYTKIEsa5gzx1qFFxR6Ao837LKnQsoMh7hE21jBttczm8pBMIcBaQ9n1zDWYZxFs3sp8d3AB/6jOVeUXGhldatjTFPlKN7CP/qxXQkZ5FkiGzjfbh2UQExVVbIyXz4WlZmSbFegR+uFobQjJEn73EoA==" NoCertificadoSAT="00001000000705250068" SelloSAT="QZas0j5KSo5t0MfXqBqBpEid9hYPifYR51wjzRSoh8HdMztvQfCbSRb2BkoPBj77M1iRvDmUa1mTcRMK3guiNCUDMwYFayJhFlhFejTdF0xgt8jti/e09gn9lQs6VtBuU6KU/leNczjlzlMpvcC8A1en798mhlKaGmnuGQHvJNdVXnqwOuJYwgx8mlGLX3GiExvb0+uGQMWfNsDmm3OS9vInnXDxcdTrKjSszPLVpuLZVR6fYRMIMSDChputpj5eqf69pDPiMe/WR549muQQmw3RUaO7+gRb7wBX14Cx+bqPCVPCyzSnUFMWiDADI5dEyTu+8DN/h045wnwfXIhjDg==" />
+  </cfdi:Complemento>
+</cfdi:Comprobante>

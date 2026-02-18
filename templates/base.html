@@ -89,10 +89,16 @@
             {% endif %}
 
             {% if user.access_finanzas %}
-            <a href="{% url 'panel_finanzas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'finanzas' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+            <a href="{% url 'panel_finanzas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'finanzas' in request.path and 'gastos' not in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
                 <i class="fas fa-wallet text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Finanzas</span>
-                {% if 'finanzas' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+                {% if 'finanzas' in request.path and 'gastos' not in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+
+            <a href="{% url 'modulo_gastos' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'gastos' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-receipt text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Gastos (XML)</span>
+                {% if 'gastos' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
             </a>
             {% endif %}
 

@@ -105,4 +105,6 @@ path('cliente/<uuid:cliente_id>/carpeta/<int:carpeta_id>/preparar-entrega/', vie
     path('api/buscar-cliente/', views.buscar_cliente_api, name='buscar_cliente_api'),
     # MEDIA PARCHE
     re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    path('finanzas/gastos/', views.modulo_gastos, name='modulo_gastos'),
+    path('finanzas/gastos/exportar/', views.exportar_gastos_excel, name='exportar_gastos_excel'),
 ]

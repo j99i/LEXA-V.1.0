@@ -13,6 +13,9 @@ import json
 from .models import Plantilla
 from django.utils.text import slugify
 import locale# <--- 1. IMPORTANTE: Logging agregado
+from .models import FacturaGasto # Importa el nuevo modelo
+from .utils import procesar_xml_factura # Importa la función del paso 2
+from django.db.models.functions import TruncMonth
 from io import BytesIO
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -2243,3 +2246,121 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
         'documentos': documentos,
         'observaciones_default': observaciones_default
     })
+@login_required
+def modulo_gastos(request):
+    # --- 1. LÓGICA DE CARGA ---
+    if request.method == 'POST' and request.FILES.getlist('xml_files'):
+        archivos = request.FILES.getlist('xml_files')
+        guardados, errores, existentes = 0, 0, 0
+        
+        for f in archivos:
+            if not f.name.lower().endswith('.xml'): continue
+            try:
+                datos = procesar_xml_factura(f)
+                if FacturaGasto.objects.filter(uuid=datos['uuid']).exists():
+                    existentes += 1
+                    continue
+                
+                FacturaGasto.objects.create(
+                    uuid=datos['uuid'],
+                    fecha_emision=datos['fecha_emision'],
+                    rfc_emisor=datos['rfc_emisor'],
+                    nombre_emisor=datos['nombre_emisor'],
+                    rfc_receptor=datos['rfc_receptor'],
+                    nombre_receptor=datos['nombre_receptor'],
+                    subtotal=datos['subtotal'],
+                    total_impuestos=datos['total_impuestos'],
+                    total=datos['total'],
+                    moneda=datos['moneda'],
+                    archivo_xml=f,
+                    cargado_por=request.user
+                )
+                guardados += 1
+            except Exception as e:
+                logger.error(f"Error XML: {e}")
+                errores += 1
+        
+        msj = f"Carga: {guardados} nuevos."
+        if existentes: msj += f" {existentes} repetidos."
+        if errores: msj += f" {errores} fallidos."
+        messages.success(request, msj) if guardados else messages.warning(request, msj)
+        return redirect('modulo_gastos')
+
+    # --- 2. LÓGICA DE FILTRADO Y DASHBOARD ---
+    anio = request.GET.get('anio', timezone.now().year)
+    mes = request.GET.get('mes', '')
+
+    gastos = FacturaGasto.objects.filter(fecha_emision__year=anio)
+
+    if mes and mes != '':
+        gastos = gastos.filter(fecha_emision__month=mes)
+
+    # --- CORRECCIÓN AQUÍ: Usamos nombres explícitos para evitar el KeyError ---
+    totales_db = gastos.aggregate(
+        suma_total=Sum('total'), 
+        suma_iva=Sum('total_impuestos')
+    )
+    
+    total_filtrado = totales_db['suma_total'] or 0
+    iva_filtrado = totales_db['suma_iva'] or 0
+    # -------------------------------------------------------------------------
+
+    resumen_mes = gastos.annotate(mes_trunc=TruncMonth('fecha_emision')).values('mes_trunc').annotate(
+        total_mes=Sum('total'),
+        iva_mes=Sum('total_impuestos'),
+        count=Count('id')
+    ).order_by('mes_trunc')
+
+    return render(request, 'finanzas/gastos.html', {
+        'resumen_mes': resumen_mes,
+        'total_anual': total_filtrado,
+        'iva_anual': iva_filtrado,
+        'anio_actual': int(anio),
+        'mes_actual': mes,
+        'ultimos_gastos': gastos.order_by('-fecha_emision')
+    })
+@login_required
+def exportar_gastos_excel(request):
+    if request.user.rol != 'admin': return redirect('dashboard')
+    
+    # Recibir los mismos filtros que la vista principal
+    anio = request.GET.get('anio', timezone.now().year)
+    mes = request.GET.get('mes', '')
+
+    # Aplicar filtros
+    qs = FacturaGasto.objects.filter(fecha_emision__year=anio)
+    nombre_archivo = f"Gastos_{anio}"
+
+    if mes:
+        qs = qs.filter(fecha_emision__month=mes)
+        nombres_meses = ['', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
+        nombre_mes = nombres_meses[int(mes)]
+        nombre_archivo += f"_{nombre_mes}"
+
+    if not qs.exists():
+        messages.warning(request, "No hay datos para exportar con esos filtros.")
+        return redirect('modulo_gastos')
+
+    # Generar Dataframe
+    data = list(qs.values(
+        'fecha_emision', 'uuid', 'nombre_emisor', 'rfc_emisor', 
+        'subtotal', 'total_impuestos', 'total', 'moneda'
+    ))
+    
+    df = pd.DataFrame(data)
+    
+    # Formateo
+    df['fecha_emision'] = df['fecha_emision'].astype(str).str[:10]
+    df.rename(columns={
+        'fecha_emision': 'Fecha', 'uuid': 'UUID', 'nombre_emisor': 'Proveedor',
+        'rfc_emisor': 'RFC', 'total_impuestos': 'IVA Trasladado', 'total': 'Total'
+    }, inplace=True)
+
+    # Exportar
+    response = HttpResponse(content_type='application/vnd.ms-excel')
+    response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}.xlsx"'
+    
+    with pd.ExcelWriter(response, engine='openpyxl') as writer:
+        df.to_excel(writer, index=False, sheet_name='Gastos')
+        
+    return response
