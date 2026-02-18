@@ -35,6 +35,7 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1'])
 
 # Si usas Railway, es bueno agregar esto para evitar errores de CSRF en formularios
 # Nota: Ajusta esto a tus dominios reales cuando tengas la URL final
+# IMPORTANTE: Asegúrate de que tu dominio de Railway esté aquí
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
@@ -168,6 +169,8 @@ CLOUDINARY_STORAGE = {
     'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
+    'SECURE': True, # <--- ¡IMPORTANTE! Esto fuerza HTTPS en las URLs de los archivos
+    'MEDIA_TAG': 'media',
 }
 
 # Si hay credenciales, usamos Cloudinary. Si no, seguimos en local.
@@ -190,8 +193,6 @@ ANYMAIL = {
 }
 
 # CONFIGURACIÓN DEL REMITENTE
-# Actualizado: Ahora lee la variable DEFAULT_FROM_EMAIL. 
-# Si no existe (local), usa la de prueba de Resend.
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="GESTIONES CORPAD <onboarding@resend.dev>")
 SERVER_EMAIL = env('DEFAULT_FROM_EMAIL', default="onboarding@resend.dev")
 
@@ -210,7 +211,6 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     
     # 2. HSTS (Seguridad Estricta de Transporte)
-    # Obliga al navegador a usar HTTPS por 1 año
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -220,12 +220,14 @@ if not DEBUG:
     CSRF_COOKIE_SECURE = True
     
     # --- CORRECCIÓN DE SEGURIDAD 4: HTTPONLY ---
-    # Evita robo de sesiones por XSS
     SESSION_COOKIE_HTTPONLY = True
     
     # 4. Cabeceras extra contra ataques
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
+    
+    # NOTA: Si los PDFs siguen fallando por "Refused to display", 
+    # comenta temporalmente la siguiente línea para probar:
     X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # --- FIN DEL ARCHIVO ---
