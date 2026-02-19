@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.humanize',
+    'django_apscheduler',
     # --- CLOUDINARY (Importante: cloudinary_storage antes de staticfiles) ---
     'cloudinary_storage',
     'django.contrib.staticfiles',
