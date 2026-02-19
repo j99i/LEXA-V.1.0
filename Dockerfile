@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     libffi-dev \
     shared-mime-info \
     fonts-liberation \
+    libmagic1 \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 4. Crear directorio de trabajo

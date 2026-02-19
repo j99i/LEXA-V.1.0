@@ -1,5 +1,6 @@
 # ==========================================
 # EXPEDIENTES/VIEWS.PY - VERSIÓN CORREGIDA Y PULIDA
+# Análisis Técnico Final + Backlog Sprint 1 (Fixes)
 # ==========================================
 import io
 import os
@@ -9,22 +10,27 @@ import zipfile
 import re
 import base64
 import logging 
-import json
+from functools import wraps 
+
+# Librerías de seguridad (Sprint 1 y 2)
+import bleach
+import magic
+
 from .models import Plantilla
 from django.utils.text import slugify
-import locale# <--- 1. IMPORTANTE: Logging agregado
-from .models import FacturaGasto # Importa el nuevo modelo
-from .utils import procesar_xml_factura # Importa la función del paso 2
+import locale
+from .models import FacturaGasto
+from .utils import procesar_xml_factura
 from django.db.models.functions import TruncMonth
 from io import BytesIO
 from datetime import datetime, timedelta
 from decimal import Decimal
 from django.utils.formats import date_format
+
 # --- Django Core ---
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
-# Importación explícita para el uso en api_convertir_html
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt 
 from django.contrib import messages
@@ -59,8 +65,31 @@ from .models import (
 # --- Utilidades ---
 from .utils import generar_pdf_response
 
-# <--- 2. CONFIGURACIÓN DEL LOGGER ---
+# <--- CONFIGURACIÓN DEL LOGGER ---
 logger = logging.getLogger(__name__)
+
+# <--- VARIABLES DE ENTORNO SEGURAS ---
+EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', 'maribel.aldana@gestionescorpad.com')
+URL_PORTAL = os.environ.get('URL_PORTAL', 'https://portalgestionescorpad.up.railway.app')
+FIRMA_NOMBRE_DEFAULT = os.environ.get('FIRMA_NOMBRE_DEFAULT', 'Lic. Maribel Aldana Santos')
+FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Gestiones Corpad | Directora General')
+
+# <--- DECORADOR CENTRALIZADO DE PERMISOS ---
+def requiere_permiso(permiso):
+    """
+    Verifica si el usuario es admin O tiene el permiso específico.
+    Si no, redirige al dashboard con un mensaje de error.
+    """
+    def decorator(view_func):
+        @wraps(view_func)
+        def _wrapped_view(request, *args, **kwargs):
+            if request.user.rol == 'admin' or getattr(request.user, permiso, False):
+                return view_func(request, *args, **kwargs)
+            messages.error(request, f"Acceso Denegado. Se requiere el permiso: {permiso}")
+            return redirect('dashboard')
+        return _wrapped_view
+    return decorator
+
 
 # ==========================================
 # 1. AUTENTICACIÓN Y PERFIL
@@ -92,7 +121,7 @@ def registro(request):
             )
             return render(request, 'registro_pendiente.html')
         except Exception as e:
-            logger.error(f"Error en registro de usuario: {e}") # Log de error
+            logger.error(f"Error en registro de usuario: {e}")
             messages.error(request, f"Error del sistema: {e}")
 
     return render(request, 'registro.html')
@@ -193,12 +222,9 @@ def dashboard(request):
 
     if request.user.rol == 'admin':
         mis_clientes = qs
-    else:
-       mis_clientes = qs.filter(abogados_asignados=request.user)
-
-    if request.user.rol == 'admin':
         base_clientes = Cliente.objects.all()
     else:
+        mis_clientes = qs.filter(abogados_asignados=request.user)
         base_clientes = request.user.clientes_asignados.all()
 
     stats = {
@@ -228,9 +254,8 @@ def dashboard(request):
     })
 
 @login_required
+@requiere_permiso('can_create_client')
 def nuevo_cliente(request):
-    if not (request.user.rol == 'admin' or request.user.can_create_client):
-        return redirect('dashboard')
     if request.method == 'POST':
         c = Cliente.objects.create(
             nombre_empresa=request.POST.get('nombre_empresa'),
@@ -245,9 +270,8 @@ def nuevo_cliente(request):
     return render(request, 'nuevo_cliente.html')
 
 @login_required
+@requiere_permiso('can_delete_client')
 def eliminar_cliente(request, cliente_id):
-    if request.user.rol != 'admin' and not request.user.can_delete_client:
-        return redirect('dashboard')
     cliente = get_object_or_404(Cliente, id=cliente_id)
     cliente.delete()
     messages.success(request, "Cliente eliminado.")
@@ -372,8 +396,8 @@ def crear_carpeta(request, cliente_id):
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
 @login_required
+@requiere_permiso('can_delete_client')
 def eliminar_carpeta(request, carpeta_id):
-    if not (request.user.can_delete_client or request.user.rol == 'admin'): return redirect('dashboard')
     c = get_object_or_404(Carpeta, id=carpeta_id)
     url_destino = 'detalle_carpeta' if c.padre else 'detalle_cliente'
     kwargs = {'cliente_id': c.cliente.id}
@@ -389,6 +413,7 @@ def crear_expediente(request, cliente_id):
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
 @login_required
+@requiere_permiso('can_upload_files')
 def subir_archivo_drive(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     
@@ -402,8 +427,26 @@ def subir_archivo_drive(request, cliente_id):
             carpeta = get_object_or_404(Carpeta, id=carpeta_id)
 
         eventos_to_create = []
+        archivos_guardados = 0
 
         for f in archivos:
+            try:
+                mime_type = magic.from_buffer(f.read(1024), mime=True)
+                f.seek(0) 
+                allowed_mimes = [
+                    'application/pdf', 'image/jpeg', 'image/png', 
+                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                    'text/csv', 'application/zip'
+                ]
+                if mime_type not in allowed_mimes:
+                    messages.error(request, f"El archivo '{f.name}' fue rechazado por seguridad (Tipo no permitido).")
+                    logger.warning(f"Intento de subida maliciosa bloqueado MIME: {mime_type}")
+                    continue
+            except Exception as e:
+                logger.error(f"Error analizando MIME de archivo: {e}")
+                continue
+
             nuevo_doc = Documento(
                 cliente=cliente,
                 carpeta=carpeta,
@@ -430,11 +473,13 @@ def subir_archivo_drive(request, cliente_id):
                         ))
             
             nuevo_doc.save()
+            archivos_guardados += 1
 
         if eventos_to_create:
             Evento.objects.bulk_create(eventos_to_create)
 
-        messages.success(request, f"{len(archivos)} archivo(s) subido(s) correctamente.")
+        if archivos_guardados > 0:
+            messages.success(request, f"{archivos_guardados} archivo(s) subido(s) correctamente.")
         
         if carpeta:
             return redirect('detalle_carpeta', cliente_id=cliente.id, carpeta_id=carpeta.id)
@@ -443,9 +488,9 @@ def subir_archivo_drive(request, cliente_id):
     return redirect('detalle_cliente', cliente_id=cliente.id)
 
 @login_required
+@requiere_permiso('can_delete_client')
 def eliminar_archivo_drive(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
-    if not (request.user.can_delete_client or request.user.rol == 'admin'): return redirect('detalle_cliente', cliente_id=doc.cliente.id)
     c_id, padre_id = doc.cliente.id, doc.carpeta.id if doc.carpeta else None
     Bitacora.objects.create(usuario=request.user, cliente=doc.cliente, accion='eliminacion', descripcion=f"Eliminó {doc.nombre_archivo}")
     doc.archivo.delete(); doc.delete()
@@ -463,7 +508,6 @@ def descargar_carpeta_zip(request, carpeta_id):
         for file in Documento.objects.filter(carpeta=carpeta):
             try: zip_file.writestr(file.nombre_archivo, file.archivo.read())
             except Exception as e: 
-                # <--- 3. CORRECCIÓN: Uso correcto de logger.warning
                 logger.warning(f"No se pudo incluir {file.nombre_archivo} en ZIP de carpeta {carpeta.id}: {e}")
     
     Bitacora.objects.create(usuario=request.user, cliente=carpeta.cliente, accion='descarga', descripcion=f"Descargó ZIP: {carpeta.nombre}")
@@ -494,7 +538,6 @@ def acciones_masivas_drive(request):
                 for doc in docs:
                     try: zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                     except Exception as e:
-                        # <--- 3. CORRECCIÓN: Logging en lugar de pass
                         logger.warning(f"Error zipping {doc.id} en acciones masivas: {e}")
 
             Bitacora.objects.create(usuario=request.user, cliente=cliente, accion='descarga', descripcion=f"Descargó selección ZIP.")
@@ -517,7 +560,6 @@ def preview_archivo(request, documento_id):
         try:
             with doc.archivo.open() as f: data['html'] = mammoth.convert_to_html(f).value
         except Exception as e:
-             # <--- 3. CORRECCIÓN: Logging y mensaje de error
             logger.error(f"Error procesando preview DOCX {documento_id}: {e}")
             data['html'] = "Error de lectura en servidor."
     return JsonResponse(data)
@@ -564,8 +606,8 @@ def eliminar_tarea(request, tarea_id):
 # ==========================================
 
 @login_required
+@requiere_permiso('access_contratos')
 def generador_contratos(request, cliente_id):
-    if not request.user.access_contratos: return redirect('dashboard')
     cliente = get_object_or_404(Cliente, id=cliente_id)
     
     if request.method == 'GET' and 'plantilla_id' not in request.GET:
@@ -581,12 +623,10 @@ def generador_contratos(request, cliente_id):
     memoria = cliente.datos_extra if isinstance(cliente.datos_extra, dict) else {}
     formulario = []
     
-    # --- LÓGICA INTELIGENTE: VARIABLES AUTOMÁTICAS ---
     hoy = timezone.now()
     meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
     fecha_larga = f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
     
-    # Mapeo Automático de Datos del Sistema
     datos_sistema = {
         'cliente_empresa': cliente.nombre_empresa,
         'cliente_contacto': cliente.nombre_contacto,
@@ -597,11 +637,10 @@ def generador_contratos(request, cliente_id):
         'fecha_corta': hoy.strftime("%d/%m/%Y"),
         'fecha_larga': fecha_larga,
         'anio_actual': str(hoy.year),
-        'firma_nombre': 'Lic. Maribel Aldana Santos',
-        'firma_cargo': 'Gestiones Corpad | Directora General',
+        'firma_nombre': FIRMA_NOMBRE_DEFAULT,
+        'firma_cargo': FIRMA_CARGO_DEFAULT,
     }
 
-    # Si el cliente viene de una cotización aceptada, buscamos datos financieros
     cotizacion = Cotizacion.objects.filter(cliente_convertido=cliente, estado='aceptada').last()
     if cotizacion:
         datos_sistema.update({
@@ -614,7 +653,6 @@ def generador_contratos(request, cliente_id):
     vars_std_dict = {v.clave: v for v in VariableEstandar.objects.all()}
 
     for v in vars_en_doc:
-        # Si la variable está en nuestros datos automáticos, la pre-llenamos y marcamos como oculta/auto
         if v in datos_sistema:
             formulario.append({'clave': v, 'valor': datos_sistema[v], 'descripcion': 'Automático del Sistema', 'es_automatico': True, 'tipo': 'hidden'})
             continue
@@ -638,7 +676,7 @@ def generador_contratos(request, cliente_id):
         nuevos_datos = {}
         for item in formulario:
             if item['es_automatico']: 
-                val = item['valor'] # Usar el valor calculado
+                val = item['valor'] 
             else:
                 val = request.POST.get(item['clave'], '').strip()
                 nuevos_datos[item['clave']] = val
@@ -672,7 +710,6 @@ def visor_docx(request, documento_id):
         try:
             with doc.archivo.open() as f: html = mammoth.convert_to_html(f).value
         except Exception as e:
-            # <--- 3. CORRECCIÓN: Logging en lugar de pass
             logger.error(f"Error visualizando DOCX {documento_id}: {e}")
     return render(request, 'generador/visor.html', {'doc': doc, 'contenido_html': html})
 
@@ -683,9 +720,8 @@ def subir_plantilla(request):
     return redirect('dashboard')
 
 @login_required
+@requiere_permiso('access_disenador')
 def diseñador_plantillas(request):
-    if not request.user.access_disenador: return redirect('dashboard')
-    
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
         archivo = request.FILES.get('archivo_base')
@@ -693,10 +729,8 @@ def diseñador_plantillas(request):
 
         if archivo and nombre:
             try:
-                # 1. Cargar el documento
                 doc = DocumentoWord(archivo)
                 
-                # 2. Aplicar reemplazos explícitos preservando estilos
                 if data_reemplazos:
                     lista = json.loads(data_reemplazos)
                     for item in lista:
@@ -704,25 +738,17 @@ def diseñador_plantillas(request):
                         variable_raw = item.get('variable', '').strip()
                         
                         if original and variable_raw:
-                            # Sanitizar nombre variable (Ej: "Nombre Cliente" -> "nombre_cliente")
                             variable_clean = variable_raw.lower().replace(' ', '_').replace('-', '_')
                             variable_clean = re.sub(r'[^a-z0-9_]', '', variable_clean)
-                            
                             variable_formateada = "{{ " + variable_clean + " }}"
-                            
-                            # --- CAMBIO IMPORTANTE: Usamos la función helper ---
                             reemplazar_preservando_estilo(doc, original, variable_formateada)
 
-                # 3. GUARDAR (He desactivado la auto-reparación porque rompía estilos)
-                # Si necesitas reparar tags rotos, hazlo manualmente en Word antes de subir.
-                
                 buffer = BytesIO()
                 doc.save(buffer)
                 buffer.seek(0)
                 
                 nombre_archivo = nombre if nombre.endswith('.docx') else f"{nombre}.docx"
                 
-                # Crear registro en BD
                 nueva_plantilla = Plantilla(nombre=nombre)
                 nueva_plantilla.archivo.save(nombre_archivo, ContentFile(buffer.getvalue()))
                 nueva_plantilla.save()
@@ -738,9 +764,9 @@ def diseñador_plantillas(request):
     return render(request, 'generador/diseñador.html', {
         'glosario': VariableEstandar.objects.all().order_by('clave')
     })
+
 @login_required
 def previsualizar_word_raw(request):
-    # SEGURO: Eliminado @csrf_exempt
     if request.method == 'POST' and request.FILES.get('archivo'):
         try:
             f = request.FILES['archivo']
@@ -753,7 +779,6 @@ def previsualizar_word_raw(request):
 
 @login_required
 def crear_variable_api(request):
-    # SEGURO: Eliminado @csrf_exempt
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
@@ -764,14 +789,9 @@ def crear_variable_api(request):
             if not clave_raw: 
                 return JsonResponse({'status': 'error', 'msg': 'Falta la clave'}, status=400)
 
-            # --- LIMPIEZA AUTOMÁTICA (EL CANDADO) ---
-            # 1. Minúsculas
-            # 2. Espacios y guiones medios a guiones bajos
-            # 3. Eliminar cualquier caracter raro
             clave_clean = clave_raw.lower().strip().replace(' ', '_').replace('-', '_')
             clave_clean = re.sub(r'[^a-z0-9_]', '', clave_clean)
 
-            # Guardamos la versión LIMPIA
             variable, created = VariableEstandar.objects.get_or_create(
                 clave=clave_clean, 
                 defaults={'descripcion': descripcion, 'tipo': tipo}
@@ -780,7 +800,7 @@ def crear_variable_api(request):
             return JsonResponse({
                 'status': 'ok', 
                 'id': str(variable.id), 
-                'clave': variable.clave, # Devolvemos la clave limpia al frontend
+                'clave': variable.clave,
                 'created': created
             })
         except Exception as e:
@@ -788,35 +808,67 @@ def crear_variable_api(request):
             return JsonResponse({'status': 'error', 'msg': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'msg': 'Método no permitido'}, status=405)
 
-@csrf_exempt
+
+# <--- FIX 1A: ALLOWED_TAGS muy restrictivo rompe PDFs del diseñador ---
+@login_required
 def api_convertir_html(request):
+    """
+    Convierte HTML a PDF. 
+    Aplica lista ampliada de tags y atributos permitidos para no romper los PDFs del diseñador.
+    """
     if request.method == 'POST':
         try:
             try: data = json.loads(request.body); html_content = data.get('html', '')
             except: html_content = request.POST.get('html', '')
             if not html_content: return JsonResponse({'error': 'No content'}, status=400)
             
+            # --- Lista extendida de tags y atributos permitidos ---
+            TAGS_PDF_PERMITIDOS = [
+                'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
+                'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'table', 'thead', 'tbody', 'tfoot', 'tr', 'th', 'td',
+                'div', 'span', 'section', 'article', 'header', 'footer',
+                'ul', 'ol', 'li', 'dl', 'dt', 'dd',
+                'img', 'a', 'hr', 'blockquote', 'pre', 'code',
+            ]
+            ATTRS_PDF_PERMITIDOS = {
+                '*': ['style', 'class', 'id'],
+                'a': ['href', 'target'],
+                'img': ['src', 'alt', 'width', 'height'],
+                'td': ['colspan', 'rowspan'],
+                'th': ['colspan', 'rowspan'],
+            }
+            
+            html_limpio = bleach.clean(
+                html_content, 
+                tags=TAGS_PDF_PERMITIDOS,
+                attributes=ATTRS_PDF_PERMITIDOS,
+                strip=True,
+            )
+
             response = HttpResponse(content_type='application/pdf')
             response['Content-Disposition'] = 'attachment; filename="documento_diseñado.pdf"'
             base_url = request.build_absolute_uri('/')
-            weasyprint.HTML(string=html_content, base_url=base_url).write_pdf(response)
+            weasyprint.HTML(string=html_limpio, base_url=base_url).write_pdf(response)
             return response
         except Exception as e:
             logger.error(f"Error api_convertir_html: {e}")
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': 'Only POST allowed'}, status=405)
+# ------------------------------------------------------------------------
 
 # ==========================================
 # 7. COTIZACIONES Y SERVICIOS
 # ==========================================
 
 @login_required
+@requiere_permiso('access_cotizaciones')
 def gestion_servicios(request):
-    if not request.user.access_cotizaciones: return redirect('dashboard')
     servicios = Servicio.objects.all().order_by('nombre')
     return render(request, 'cotizaciones/servicios.html', {'servicios': servicios})
 
 @login_required
+@requiere_permiso('access_cotizaciones')
 def guardar_servicio(request):
     if request.method == 'POST':
         s_id = request.POST.get('servicio_id')
@@ -840,17 +892,19 @@ def guardar_servicio(request):
     return redirect('gestion_servicios')
 
 @login_required
+@requiere_permiso('access_cotizaciones')
 def eliminar_servicio(request, servicio_id):
     get_object_or_404(Servicio, id=servicio_id).delete()
     return redirect('gestion_servicios')
 
 @login_required
+@requiere_permiso('access_cotizaciones')
 def lista_cotizaciones(request):
-    if not request.user.access_cotizaciones: return redirect('dashboard')
     cotizaciones = Cotizacion.objects.select_related('creado_por', 'cliente_convertido').order_by('-fecha_creacion')
     return render(request, 'cotizaciones/lista.html', {'cotizaciones': cotizaciones})
 
 @login_required
+@requiere_permiso('access_cotizaciones')
 @transaction.atomic
 def nueva_cotizacion(request):
     if request.method == 'POST':
@@ -925,6 +979,7 @@ def nueva_cotizacion(request):
 
     servicios = Servicio.objects.all()
     return render(request, 'cotizaciones/crear.html', {'servicios': servicios})
+
 @login_required
 def detalle_cotizacion(request, cotizacion_id):
     c = get_object_or_404(
@@ -932,48 +987,41 @@ def detalle_cotizacion(request, cotizacion_id):
         id=cotizacion_id
     )
     
-    # --- AUTO-REPARACIÓN INTELIGENTE ---
-    # Si el total es 0, o los items tienen importe 0, forzamos el cálculo matemático aquí mismo.
     recalculo_necesario = False
     
     if c.total == 0 and c.items.exists():
         recalculo_necesario = True
     
-    # Verificamos si algún item individual está en 0 y lo arreglamos
     for item in c.items.all():
         if item.subtotal == 0 and item.precio_unitario > 0:
-            # Hacemos la multiplicación manual: Cantidad x Precio
             item.subtotal = item.cantidad * item.precio_unitario
             item.save()
             recalculo_necesario = True
 
-    # Si hubo correcciones, recalculamos el total general de la cotización
     if recalculo_necesario:
         c.calcular_totales()
         c.refresh_from_db()
-    # -----------------------------------
 
     return render(request, 'cotizaciones/detalle.html', {
         'c': c, 
         'plantillas_ws': PlantillaMensaje.objects.filter(tipo='whatsapp')
     })
+
 @login_required
 def generar_pdf_cotizacion(request, cotizacion_id):
-    # 1. Recuperamos la cotización y sus items
     c = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
     
-    # 2. FIX DE SEGURIDAD: Si el total es 0.00 pero tiene servicios agregados, forzamos el cálculo
     if c.total == 0 and c.items.exists():
-        c.calcular_totales()  # Ejecuta la suma matemática
-        c.refresh_from_db()   # Recarga el dato correcto desde la base de datos
+        c.calcular_totales() 
+        c.refresh_from_db()  
 
-    # 3. Generamos el PDF usando la utilidad existente
     return generar_pdf_response(
         request, 
         'cotizaciones/pdf_template.html', 
         {'c': c}, 
         f"Cotizacion_{c.id}.pdf"
     )
+
 @login_required
 @transaction.atomic
 def convertir_a_cliente(request, cotizacion_id):
@@ -1094,8 +1142,8 @@ def enviar_cotizacion_email(request, cotizacion_id):
     if request.method == 'POST':
         asunto = request.POST.get('asunto')
         mensaje_usuario = request.POST.get('mensaje')
-        firma_nombre = request.POST.get('firma_nombre', 'Lic. Maribel Aldana Santos')
-        firma_cargo = request.POST.get('firma_cargo', 'Gestiones Corpad | Directora General')
+        firma_nombre = request.POST.get('firma_nombre', FIRMA_NOMBRE_DEFAULT)
+        firma_cargo = request.POST.get('firma_cargo', FIRMA_CARGO_DEFAULT)
         usar_logo_default = request.POST.get('usar_logo_default') == 'on'
         
         html_string = render_to_string('cotizaciones/pdf_template.html', {'c': cotizacion})
@@ -1126,8 +1174,7 @@ def enviar_cotizacion_email(request, cotizacion_id):
             body=text_content,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[cotizacion.prospecto_email],
-            # --- CAMBIO: RESPUESTA A MARIBEL ---
-            reply_to=['maribel.aldana@gestionescorpad.com']
+            reply_to=[EMAIL_REPLY_TO] 
         )
         email.attach_alternative(html_content, "text/html")
 
@@ -1147,12 +1194,10 @@ def enviar_cotizacion_email(request, cotizacion_id):
         messages.success(request, f'Correo enviado exitosamente a {cotizacion.prospecto_email}')
         
     return redirect('detalle_cotizacion', cotizacion_id=cotizacion_id)
+
 @login_required
+@requiere_permiso('access_cotizaciones')
 def eliminar_cotizacion(request, cotizacion_id):
-    if not request.user.access_cotizaciones:
-        messages.error(request, "No tienes permiso para realizar esta acción.")
-        return redirect('lista_cotizaciones')
-    
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
     cotizacion_id_ref = cotizacion.id 
     cotizacion.delete()
@@ -1164,16 +1209,27 @@ def eliminar_cotizacion(request, cotizacion_id):
 # 8. FINANZAS (OPTIMIZADO)
 # ==========================================
 
+# <--- FIX 1B: N+1 en panel_finanzas (prefetch ignorado por .all() en loop) ---
 @login_required
+@requiere_permiso('access_finanzas')
 def panel_finanzas(request):
-    clientes_con_actividad = Cliente.objects.filter(cuentas__isnull=False).distinct().prefetch_related('cuentas')
-    
+    # prefetch_related carga todo en 2 queries (clientes + cuentas)
+    clientes_con_actividad = (
+        Cliente.objects
+        .filter(cuentas__isnull=False)
+        .distinct()
+        .prefetch_related('cuentas')
+    )
+
     lista_clientes = []
     total_global_pendiente = 0
     total_global_cobrado = 0
 
     for cli in clientes_con_actividad:
-        cuentas = cli.cuentas.all()
+        # list() fuerza el uso del caché del prefetch
+        # sin list(), .all() hace una nueva query por cliente
+        cuentas = list(cli.cuentas.all())
+        
         deuda = sum(c.saldo_pendiente for c in cuentas)
         pagado = sum(c.monto_pagado for c in cuentas)
         pendientes_count = sum(1 for c in cuentas if c.estado != 'pagado')
@@ -1193,6 +1249,7 @@ def panel_finanzas(request):
         'total_por_cobrar': total_global_pendiente,
         'total_cobrado': total_global_cobrado
     })
+# -----------------------------------------------------------------------------
 
 @login_required
 def registrar_pago(request):
@@ -1295,8 +1352,8 @@ def generar_orden_cobro(request, cuenta_id, tipo_pago):
 # ==========================================
 
 @login_required
+@requiere_permiso('access_agenda')
 def agenda_legal(request):
-    if not request.user.access_agenda: return redirect('dashboard')
     hoy = timezone.now()
     proximas = Evento.objects.filter(
         tipo='audiencia', inicio__gte=hoy, usuario=request.user
@@ -1321,7 +1378,6 @@ def api_eventos(request):
 
 @login_required
 def mover_evento_api(request):
-    # <--- 4. CORRECCIÓN: @csrf_exempt ELIMINADO CORRECTAMENTE
     if request.method == 'POST':
         try:
             data = json.loads(request.body); evento = get_object_or_404(Evento, id=data.get('id'))
@@ -1580,13 +1636,20 @@ def buscar_cliente_api(request):
 def generar_link_externo(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     solicitud = SolicitudEnlace.objects.create(cliente=cliente)
+    solicitud.fecha_expiracion = timezone.now() + timedelta(hours=72)
+    solicitud.save()
+    
     link = request.build_absolute_uri(f'/portal-cliente/{solicitud.id}/')
-    messages.success(request, f"¡Link generado! Copia y envía esto al cliente: {link}")
+    messages.success(request, f"¡Link generado y expira en 72h! Copia y envía esto al cliente: {link}")
     return redirect('detalle_cliente', cliente_id=cliente.id)
 
 def vista_publica_carga(request, token):
     solicitud = get_object_or_404(SolicitudEnlace, id=token, activa=True)
-    cliente = solicitud.cliente
+    
+    if hasattr(solicitud, 'fecha_expiracion') and solicitud.fecha_expiracion and solicitud.fecha_expiracion < timezone.now():
+        return HttpResponse('El link de carga ha expirado por seguridad. Por favor, solicite uno nuevo.', status=410)
+
+    cliente = Cliente.objects.prefetch_related('carpetas_drive__documentos').get(id=solicitud.cliente.id)
 
     archivos_en_revision = set(ArchivoTemporal.objects.filter(solicitud=solicitud).values_list('nombre_requisito', flat=True))
 
@@ -1625,6 +1688,21 @@ def vista_publica_carga(request, token):
     if request.method == 'POST' and request.FILES.get('archivo'):
         requisito_a_subir = request.POST.get('requisito_objetivo')
         archivo_subido = request.FILES['archivo']
+        
+        try:
+            mime_type = magic.from_buffer(archivo_subido.read(1024), mime=True)
+            archivo_subido.seek(0)
+            allowed_mimes = [
+                'application/pdf', 'image/jpeg', 'image/png', 
+                'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                'text/csv', 'application/zip'
+            ]
+            if mime_type not in allowed_mimes:
+                return HttpResponse('Tipo de archivo no permitido por políticas de seguridad.', status=400)
+        except Exception as e:
+            logger.error(f"Error analizando MIME: {e}")
+            return HttpResponse('Error procesando el archivo', status=500)
         
         if requisito_a_subir:
             ArchivoTemporal.objects.create(
@@ -1744,33 +1822,40 @@ def obtener_preview_archivo(request, archivo_id):
             data['tipo'] = 'descarga'
 
     except Exception as e:
-        # <--- 3. CORRECCIÓN: Logging
         logger.error(f"Error generando preview {archivo_id}: {e}")
         data['tipo'] = 'error'
 
     return JsonResponse(data)
 
+# <--- FIX 1C: Compatibilidad con entorno local y en R2 ---
 @login_required
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        response = FileResponse(doc.archivo.open('rb'), as_attachment=True, filename=doc.nombre_archivo)
-        return response
+        url = doc.archivo.url
+        # Si la URL es absoluta (https://...) ya estamos en R2 → redirect directo
+        if url.startswith('http://') or url.startswith('https://'):
+            return redirect(url)
+        # Si es relativa, aún estamos en almacenamiento local → servir el archivo
+        return FileResponse(
+            doc.archivo.open('rb'), 
+            as_attachment=True, 
+            filename=doc.nombre_archivo
+        )
     except FileNotFoundError:
         messages.error(request, "El archivo físico no se encuentra en el servidor.")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
+    except Exception as e:
+        logger.error(f"Error en descarga archivo {archivo_id}: {e}")
+        messages.error(request, "Error al intentar descargar el archivo.")
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
+# -------------------------------------------------------------------------
 
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
-    """
-    Paso 2: Redactar y enviar el correo.
-    Detecta si viene un 'acuse_id' (del paso 1) para adjuntarlo como PDF suelto.
-    El resto de archivos de la carpeta se comprimen en un ZIP.
-    """
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
     cliente = carpeta.cliente
     
-    # Intentar recuperar el Acuse generado en el paso anterior
     acuse_id = request.GET.get('acuse_id')
     doc_acuse = None
     if acuse_id:
@@ -1781,60 +1866,50 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         mensaje_usuario = request.POST.get('mensaje')
         destinatario = request.POST.get('destinatario')
         
-        # Recuperar ID del acuse desde el campo oculto (por si se pierde el GET)
         acuse_id_post = request.POST.get('acuse_id_hidden')
         if acuse_id_post:
              doc_acuse = Documento.objects.filter(id=acuse_id_post).first()
 
-        # 1. Generar ZIP con las EVIDENCIAS (Excluyendo el Acuse PDF para que no vaya duplicado)
         buffer = io.BytesIO()
         with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
             for doc in carpeta.documentos.all():
-                # Si tenemos un acuse identificado, NO lo metemos al ZIP (irá suelto)
                 if doc_acuse and doc.id == doc_acuse.id:
                     continue
                 try:
                     zip_file.write(doc.archivo.path, arcname=doc.nombre_archivo)
                 except FileNotFoundError:
-                    pass # Si el archivo físico no existe, lo saltamos
+                    pass
         buffer.seek(0)
 
-        # 2. Renderizar cuerpo del correo
         cuerpo_html = render_to_string('expedientes/email_autorizaciones_template.html', {
             'cliente': cliente,
             'usuario': request.user,
             'mensaje_usuario': mensaje_usuario,
-            # Mostramos en el correo la lista de archivos (excluyendo el acuse visualmente si quieres)
             'archivos': carpeta.documentos.exclude(id=doc_acuse.id if doc_acuse else None)
         })
         
-        # 3. Preparar el Email
         email = EmailMessage(
             subject=asunto,
             body=cuerpo_html,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[destinatario],
-            cc=[request.user.email], # Copia al usuario que envía
-            reply_to=['maribel.aldana@gestionescorpad.com'] # Respuesta directa
+            cc=[request.user.email], 
+            reply_to=[EMAIL_REPLY_TO] 
         )
         email.content_subtype = "html"
         
-        # 4. Adjuntar el ZIP de Evidencias
         nombre_zip = f"Evidencias_{cliente.nombre_empresa}.zip"
         email.attach(nombre_zip, buffer.getvalue(), 'application/zip')
         
-        # 5. Adjuntar el ACUSE PDF (Suelto, fuera del ZIP)
         if doc_acuse:
             try:
                 email.attach(doc_acuse.nombre_archivo, doc_acuse.archivo.read(), 'application/pdf')
             except Exception as e:
                 logger.warning(f"No se pudo adjuntar el físico del acuse: {e}")
 
-        # 6. Enviar
         try:
             email.send()
             
-            # Registrar en Bitácora
             Bitacora.objects.create(
                 usuario=request.user, 
                 cliente=cliente, 
@@ -1849,7 +1924,6 @@ def redactar_correo_autorizaciones(request, carpeta_id):
             logger.error(f"Error enviando correo autorizaciones: {e}")
             messages.error(request, f"❌ Error al enviar: {e}")
     
-    # Texto predeterminado para el cuerpo del correo
     mensaje_plano = (
         f"Estimado(a) {cliente.nombre_contacto},\n\n"
         f"Por medio del presente le hago entrega formal de las autorizaciones originales gestionadas para {cliente.nombre_empresa}.\n\n"
@@ -1865,35 +1939,25 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         'asunto': f"Entrega de Autorizaciones - {cliente.nombre_empresa}",
         'mensaje': mensaje_plano,
         'email_destino': cliente.email,
-        'doc_acuse': doc_acuse # Pasamos el objeto acuse al template para mostrar la alerta verde
+        'doc_acuse': doc_acuse 
     })
+
 @login_required
 def enviar_correo_universal(request, cliente_id, tipo_correo):
-    """
-    Vista unificada optimizada para evitar SPAM.
-    - Usa URL pública para el logo en lugar de adjunto CID.
-    - Envía respuestas a Maribel.
-    """
     cliente = get_object_or_404(Cliente.objects.prefetch_related('carpetas_drive'), id=cliente_id)
     
-    # URL del logo para el correo (Evita penalización SpamAssassin)
-    # Cambia este dominio si usas uno propio en el futuro (ej: https://gestionescorpad.com/...)
-    domain = "https://portalgestionescorpad.up.railway.app"
+    domain = URL_PORTAL
     logo_url = f"{domain}/static/img/logo.png"
 
-    # ==========================================
-    # PREPARAR CONTEXTO GENERAL
-    # ==========================================
     context = {
         'cliente': cliente,
         'tipo_correo': tipo_correo,
         'destinatario': cliente.email or '',
-        'firma_nombre': 'Lic. Maribel Aldana Santos',
-        'firma_cargo': 'Gestiones Corpad | Directora General',
+        'firma_nombre': FIRMA_NOMBRE_DEFAULT,
+        'firma_cargo': FIRMA_CARGO_DEFAULT,
         'logo_url': logo_url, 
     }
 
-    # --- LÓGICA ESPECÍFICA POR TIPO (GET) ---
     if tipo_correo == 'cotizacion':
         cotizacion_id = request.GET.get('cotizacion_id') or request.POST.get('cotizacion_id')
         cotizacion = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
@@ -1946,6 +2010,8 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             return redirect('detalle_cliente', cliente_id=cliente.id)
 
         solicitud = SolicitudEnlace.objects.create(cliente=cliente)
+        solicitud.fecha_expiracion = timezone.now() + timedelta(hours=72)
+        solicitud.save()
         link_carga = request.build_absolute_uri(f'/portal-cliente/{solicitud.id}/')
 
         context.update({
@@ -1968,9 +2034,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
         messages.error(request, "Tipo de correo no válido.")
         return redirect('detalle_cliente', cliente_id=cliente.id)
 
-    # ==========================================
-    # PROCESAR ENVÍO (POST)
-    # ==========================================
     if request.method == 'POST':
         destinatario = request.POST.get('destinatario')
         asunto = request.POST.get('asunto')
@@ -1978,18 +2041,16 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
         firma_nombre = request.POST.get('firma_nombre')
         firma_cargo = request.POST.get('firma_cargo')
         
-        # Contexto para el template HTML del correo
         email_context = {
             'cliente': cliente,
             'tipo_correo': tipo_correo,
             'mensaje': mensaje,
             'firma_nombre': firma_nombre,
             'firma_cargo': firma_cargo,
-            'logo_url': logo_url, # URL pública (NO CID)
+            'logo_url': logo_url, 
         }
 
         try:
-            # 1. PREPARACIÓN SEGÚN TIPO
             pdf_bytes = None
             zip_buffer = None
             filename_adjunto = None
@@ -1999,7 +2060,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 cotizacion = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
                 email_context['cotizacion'] = cotizacion
                 
-                # Generar PDF
                 html_string = render_to_string('cotizaciones/pdf_template.html', {'c': cotizacion})
                 pdf_bytes = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri()).write_pdf()
                 filename_adjunto = f"Cotizacion_{cotizacion.id}.pdf"
@@ -2010,7 +2070,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 lista_adjuntos = carpeta.documentos.all()
                 email_context['lista_adjuntos'] = lista_adjuntos
                 
-                # Generar ZIP
                 zip_buffer = io.BytesIO()
                 with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
                     for doc in lista_adjuntos:
@@ -2022,41 +2081,38 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 filename_adjunto = f"Autorizaciones_{cliente.nombre_empresa}_{timezone.now().date()}.zip"
 
             elif tipo_correo == 'recordatorio':
-                # Recuperar o crear link
                 solicitud = SolicitudEnlace.objects.filter(cliente=cliente, activa=True).last()
                 if not solicitud:
                     solicitud = SolicitudEnlace.objects.create(cliente=cliente)
+                    solicitud.fecha_expiracion = timezone.now() + timedelta(hours=72)
+                    solicitud.save()
                 link_carga = request.build_absolute_uri(f'/portal-cliente/{solicitud.id}/')
                 
                 email_context['faltantes_por_carpeta'] = context.get('faltantes_por_carpeta', {})
                 email_context['link_carga'] = link_carga
 
-            # 2. CONSTRUIR EL CORREO
             html_body = render_to_string('correo/email_body_universal.html', email_context)
-            text_body = strip_tags(html_body) # Versión texto plano automática
+            text_body = strip_tags(html_body) 
 
             email = EmailMultiAlternatives(
                 subject=asunto,
                 body=text_body,
                 from_email=settings.DEFAULT_FROM_EMAIL,
                 to=[destinatario],
-                reply_to=['maribel.aldana@gestionescorpad.com'] # <--- CLAVE PARA RESPUESTAS
+                reply_to=[EMAIL_REPLY_TO] 
             )
             
-            # Copia oculta al usuario en autorizaciones
             if tipo_correo == 'autorizaciones':
                 email.cc = [request.user.email]
 
             email.attach_alternative(html_body, "text/html")
 
-            # 3. ADJUNTAR ARCHIVOS (Si aplica)
             if pdf_bytes:
                 email.attach(filename_adjunto, pdf_bytes, 'application/pdf')
             
             if zip_buffer:
                 email.attach(filename_adjunto, zip_buffer.getvalue(), 'application/zip')
 
-            # 4. ENVIAR
             email.send()
             messages.success(request, f"✅ Correo enviado exitosamente a {destinatario}")
             
@@ -2070,7 +2126,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             logger.error(f"Error enviando correo universal ({tipo_correo}): {e}")
             messages.error(request, f"❌ Error al enviar el correo: {str(e)}")
 
-        # Redirigir
         if tipo_correo == 'cotizacion':
             return redirect('detalle_cotizacion', cotizacion_id=request.POST.get('cotizacion_id'))
         elif tipo_correo == 'autorizaciones':
@@ -2079,23 +2134,17 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             return redirect('detalle_cliente', cliente_id=cliente.id)
 
     return render(request, 'correo/enviar_correo_universal.html', context)
+
 def reemplazar_preservando_estilo(doc, texto_original, texto_nuevo):
-    """
-    Reemplaza texto en párrafos y tablas preservando el estilo (negrita, cursiva, etc.)
-    Iterando sobre los 'runs' para no romper el XML de estilo.
-    """
     if not texto_original or not texto_nuevo:
         return
 
-    # 1. Buscar en Párrafos del cuerpo principal
     for p in doc.paragraphs:
         if texto_original in p.text:
-            # Iteramos sobre los 'runs' (fragmentos con estilo)
             for run in p.runs:
                 if texto_original in run.text:
                     run.text = run.text.replace(texto_original, texto_nuevo)
 
-    # 2. Buscar en Tablas (celda por celda)
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
@@ -2103,68 +2152,45 @@ def reemplazar_preservando_estilo(doc, texto_original, texto_nuevo):
                     if texto_original in p.text:
                         for run in p.runs:
                             if texto_original in run.text:
-                                run.text = run.text.replace(texto_original, texto_nuevo)@login_required
+                                run.text = run.text.replace(texto_original, texto_nuevo)
+
+@login_required
 def generar_contrato_final(request):
-    """
-    Recibe los datos del formulario de homologación y genera el Word final.
-    Mantiene los estilos (negritas, cursivas) definidos en la plantilla original.
-    """
     if request.method == 'POST':
         try:
-            # 1. Identificar qué plantilla estamos usando
             plantilla_id = request.POST.get('plantilla_id')
             plantilla = get_object_or_404(Plantilla, id=plantilla_id)
 
-            # 2. Limpiar y preparar el "Contexto" (Diccionario de datos)
-            # Filtramos los datos que NO son variables del contrato (tokens, ids, etc.)
             campos_ignorados = ['csrfmiddlewaretoken', 'plantilla_id', 'nombre_archivo_salida']
             contexto = {}
 
             for key, value in request.POST.items():
                 if key not in campos_ignorados:
-                    # Guardamos la variable. 
-                    # NOTA: Aunque 'value' es texto plano, al inyectarse en el Word
-                    # tomará el formato que tenga la llave {{ key }} en el archivo .docx
                     contexto[key] = value
 
-            # 3. Cargar la Plantilla Maestra usando DocxTemplate
-            # Esto es vital. No usamos 'python-docx' directo, usamos 'docxtpl' 
-            # porque es el motor que sabe leer Jinja2 dentro de Word.
             doc = DocxTemplate(plantilla.archivo.path)
-
-            # 4. RENDERIZADO (El momento mágico)
-            # Aquí se sustituyen las {{ variables }} por el texto del formulario.
-            # Los estilos se conservan porque solo se cambia el contenido XML del texto, no el contenedor.
             doc.render(contexto)
 
-            # 5. Preparar el nombre del archivo de salida
             nombre_salida = request.POST.get('nombre_archivo_salida', 'Documento_Generado')
-            # Sanitización básica para asegurar extensión .docx
             nombre_salida = nombre_salida.strip().replace('/', '_').replace('\\', '_')
             if not nombre_salida.lower().endswith('.docx'):
                 nombre_salida += '.docx'
 
-            # 6. Crear la respuesta HTTP para forzar la descarga
             response = HttpResponse(
                 content_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document'
             )
             response['Content-Disposition'] = f'attachment; filename="{nombre_salida}"'
 
-            # 7. Guardar el documento procesado directamente en la respuesta (in guardar en disco)
             doc.save(response)
 
             return response
 
         except Exception as e:
-            # Manejo de errores básico
             print(f"Error generando contrato: {str(e)}")
-            # Aquí podrías usar messages.error(request, ...)
-            return redirect('dashboard') # O redirige a donde prefieras en caso de error
+            return redirect('dashboard') 
 
     return redirect('dashboard')
-# ==========================================
-# GESTIÓN DE ENTREGA Y ACUSES (REEMPLAZAR EN VIEWS.PY)
-# ==========================================
+
 @login_required
 def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
     carpeta = get_object_or_404(Carpeta.objects.prefetch_related('documentos'), id=carpeta_id)
@@ -2179,9 +2205,8 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
 
     if request.method == 'POST':
         try:
-            # 1. Datos Generales (INCLUYENDO EL NUEVO CAMPO CARGO)
             atencion = request.POST.get('atencion')
-            cargo = request.POST.get('cargo') # <--- NUEVO
+            cargo = request.POST.get('cargo') 
             observaciones = request.POST.get('observaciones')
             municipio = request.POST.get('municipio', 'Cuautitlán')
             estado = request.POST.get('estado', 'Estado de México')
@@ -2201,13 +2226,12 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
                     'fecha_vencimiento': doc.fecha_vencimiento
                 })
 
-            # 2. Generar PDF
             context_pdf = {
                 'cliente': cliente,
                 'carpeta': carpeta,
                 'documentos': docs_procesados,
                 'atencion': atencion,
-                'cargo': cargo, # <--- PASAMOS EL CARGO AL TEMPLATE
+                'cargo': cargo, 
                 'observaciones': observaciones,
                 'municipio': municipio,
                 'estado': estado,
@@ -2219,7 +2243,6 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
             html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
             pdf_content = html.write_pdf()
 
-            # 3. Guardar Acuse
             nombre_acuse = f"ACUSE ENTREGA {cliente.nombre_empresa}.pdf"
             Documento.objects.filter(carpeta=carpeta, nombre_archivo__startswith="ACUSE ENTREGA").delete()
             
@@ -2232,7 +2255,6 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
             nuevo_acuse.archivo.save(nombre_acuse, ContentFile(pdf_content))
             nuevo_acuse.save()
 
-            # 4. Redirigir
             url_redactar = reverse('redactar_correo_autorizaciones', kwargs={'carpeta_id': carpeta.id})
             return redirect(f"{url_redactar}?acuse_id={nuevo_acuse.id}")
 
@@ -2246,9 +2268,9 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
         'documentos': documentos,
         'observaciones_default': observaciones_default
     })
+
 @login_required
 def modulo_gastos(request):
-    # --- 1. LÓGICA DE CARGA ---
     if request.method == 'POST' and request.FILES.getlist('xml_files'):
         archivos = request.FILES.getlist('xml_files')
         guardados, errores, existentes = 0, 0, 0
@@ -2286,7 +2308,6 @@ def modulo_gastos(request):
         messages.success(request, msj) if guardados else messages.warning(request, msj)
         return redirect('modulo_gastos')
 
-    # --- 2. LÓGICA DE FILTRADO Y DASHBOARD ---
     anio = request.GET.get('anio', timezone.now().year)
     mes = request.GET.get('mes', '')
 
@@ -2295,7 +2316,6 @@ def modulo_gastos(request):
     if mes and mes != '':
         gastos = gastos.filter(fecha_emision__month=mes)
 
-    # --- CORRECCIÓN AQUÍ: Usamos nombres explícitos para evitar el KeyError ---
     totales_db = gastos.aggregate(
         suma_total=Sum('total'), 
         suma_iva=Sum('total_impuestos')
@@ -2303,7 +2323,6 @@ def modulo_gastos(request):
     
     total_filtrado = totales_db['suma_total'] or 0
     iva_filtrado = totales_db['suma_iva'] or 0
-    # -------------------------------------------------------------------------
 
     resumen_mes = gastos.annotate(mes_trunc=TruncMonth('fecha_emision')).values('mes_trunc').annotate(
         total_mes=Sum('total'),
@@ -2319,15 +2338,14 @@ def modulo_gastos(request):
         'mes_actual': mes,
         'ultimos_gastos': gastos.order_by('-fecha_emision')
     })
+
 @login_required
 def exportar_gastos_excel(request):
     if request.user.rol != 'admin': return redirect('dashboard')
     
-    # Recibir los mismos filtros que la vista principal
     anio = request.GET.get('anio', timezone.now().year)
     mes = request.GET.get('mes', '')
 
-    # Aplicar filtros
     qs = FacturaGasto.objects.filter(fecha_emision__year=anio)
     nombre_archivo = f"Gastos_{anio}"
 
@@ -2341,7 +2359,6 @@ def exportar_gastos_excel(request):
         messages.warning(request, "No hay datos para exportar con esos filtros.")
         return redirect('modulo_gastos')
 
-    # Generar Dataframe
     data = list(qs.values(
         'fecha_emision', 'uuid', 'nombre_emisor', 'rfc_emisor', 
         'subtotal', 'total_impuestos', 'total', 'moneda'
@@ -2349,14 +2366,12 @@ def exportar_gastos_excel(request):
     
     df = pd.DataFrame(data)
     
-    # Formateo
     df['fecha_emision'] = df['fecha_emision'].astype(str).str[:10]
     df.rename(columns={
         'fecha_emision': 'Fecha', 'uuid': 'UUID', 'nombre_emisor': 'Proveedor',
         'rfc_emisor': 'RFC', 'total_impuestos': 'IVA Trasladado', 'total': 'Total'
     }, inplace=True)
 
-    # Exportar
     response = HttpResponse(content_type='application/vnd.ms-excel')
     response['Content-Disposition'] = f'attachment; filename="{nombre_archivo}.xlsx"'
     
