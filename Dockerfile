@@ -6,7 +6,6 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # 3. INSTALACIÓN DE LIBRERÍAS DE SISTEMA
-# Incluye todo lo necesario para WeasyPrint (PDFs) y Django
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpq-dev \
@@ -35,12 +34,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 6. Copiar el código del proyecto
 COPY . .
 
-# ---> NUEVO: Forzamos la creación de la carpeta para WhiteNoise
+# ---> Forzamos la creación de la carpeta para WhiteNoise
 RUN mkdir -p /app/staticfiles
 
-# 7. Recolectar archivos estáticos
-RUN SECRET_KEY=clave-temporal-para-build EMAIL_HOST_USER=dummy EMAIL_HOST_PASSWORD=dummy python manage.py collectstatic --noinput
+# 7. Recolectar archivos estáticos (CON VARIABLES TEMPORALES DE CLOUDINARY)
+RUN SECRET_KEY=clave-temporal CLOUDINARY_CLOUD_NAME=dummy CLOUDINARY_API_KEY=dummy CLOUDINARY_API_SECRET=dummy EMAIL_HOST_USER=dummy EMAIL_HOST_PASSWORD=dummy python manage.py collectstatic --noinput
 
-# 8. COMANDO DE INICIO (Con Puerto 8000 FIJO)
-# Usamos el puerto 8000 explícitamente para evitar errores de conexión (502)
-CMD ["sh", "-c", "python manage.py migrate && python manage.py createsuperuser --noinput || true && gunicorn core.wsgi:application --bind 0.0.0.0:8000"]
+# 8. COMANDO DE INICIO (Con multiprocesamiento para evitar Deadlocks en PDFs)
+CMD ["sh", "-c", "python manage.py migrate && python manage.py createsuperuser --noinput || true && gunicorn core.wsgi:application --bind 0.0.0.0:8000 --workers 3 --threads 2"]
