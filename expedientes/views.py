@@ -598,22 +598,6 @@ def acciones_masivas_drive(request):
     return redirect(request.META.get('HTTP_REFERER'))
 
 @login_required
-def preview_archivo(request, documento_id):
-    doc = get_object_or_404(Documento, id=documento_id)
-    ext = doc.nombre_archivo.split('.')[-1].lower()
-    data = {'tipo': 'unknown', 'url': doc.archivo.url, 'nombre': doc.nombre_archivo}
-    if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp']: data['tipo'] = 'imagen'
-    elif ext == 'pdf': data['tipo'] = 'pdf'
-    elif ext == 'docx':
-        data['tipo'] = 'docx'
-        try:
-            with doc.archivo.open() as f: data['html'] = mammoth.convert_to_html(f).value
-        except Exception as e:
-            logger.error(f"Error procesando preview DOCX {documento_id}: {e}")
-            data['html'] = "Error de lectura en servidor."
-    return JsonResponse(data)
-
-@login_required
 def mover_archivo_drive(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     
