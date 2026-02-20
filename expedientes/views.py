@@ -17,7 +17,7 @@ import urllib.parse
 # Librerías de seguridad (Sprint 1 y 2)
 import bleach
 import magic
-
+from django.http import HttpResponse
 
 from .models import Plantilla
 from django.utils.text import slugify
@@ -1924,37 +1924,24 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
+        # 1. Limpiamos el nombre para que tu computadora lo guarde bien
         nombre = doc.nombre_archivo.replace(' ', '_')
         content_type = 'application/pdf' if nombre.lower().endswith('.pdf') else 'application/octet-stream'
 
-        url = doc.archivo.url
+        # 2. MOTOR NATIVO: Va a la nube, ignora si hay espacios y trae el archivo
+        archivo_bytes = doc.archivo.read()
 
-        if url.startswith('http'):
-            # 1. Limpiamos espacios en la URL que hacen explotar a Python
-            url_segura = url.replace(' ', '%20')
-            
-            # 2. Máscara de navegador para que Cloudinary no nos bloquee con Error 401
-            req = urllib.request.Request(
-                url_segura, 
-                headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'}
-            )
-            
-            with urllib.request.urlopen(req) as response:
-                archivo_bytes = response.read()
-
-            http_response = HttpResponse(archivo_bytes, content_type=content_type)
-            http_response['Content-Disposition'] = f'attachment; filename="{nombre}"'
-            return http_response
-        else:
-            from django.http import FileResponse
-            return FileResponse(doc.archivo.open('rb'), as_attachment=True, filename=nombre)
+        # 3. Te lo entregamos en la aplicación ocultando a Cloudinary
+        response = HttpResponse(archivo_bytes, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+        return response
 
     except Exception as e:
-        logger.error(f"Error en descarga archivo {archivo_id}: {e}")
-        # Te avisará en pantalla si intentas descargar un archivo fantasma
-        messages.error(request, f"Error: El archivo '{doc.nombre_archivo}' es un registro viejo o dañado que ya no existe. Por favor, elimínalo y vuelve a subirlo.")
+        logger.error(f"Error crítico en descarga: {str(e)}")
+        # AHORA SÍ: Si falla, te dirá la verdad absoluta en la pantalla
+        messages.error(request, f"Error técnico (Cópialo y envíamelo): {str(e)}")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-
+    
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
