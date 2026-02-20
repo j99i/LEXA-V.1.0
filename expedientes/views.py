@@ -1,7 +1,6 @@
 # ==========================================
-# EXPEDIENTES/VIEWS.PY - VERSIÓN CORREGIDA PARA NUBE (RAILWAY + CLOUDINARY)
-# Análisis Técnico Final + Backlog Sprint 1 (Fixes)
-# Bitácora completa en todas las acciones
+# EXPEDIENTES/VIEWS.PY - VERSIÓN COMPLETA Y CORREGIDA (RAILWAY + CLOUDINARY)
+# Análisis Técnico Final + Escudo Anti-Cloudinary
 # ==========================================
 import io
 import os
@@ -14,7 +13,7 @@ import logging
 from functools import wraps 
 import urllib.request
 import urllib.parse
-# Librerías de seguridad (Sprint 1 y 2)
+# Librerías de seguridad
 import bleach
 import magic
 from django.http import HttpResponse
@@ -77,6 +76,21 @@ URL_PORTAL = os.environ.get('URL_PORTAL', 'https://portalgestionescorpad.up.rail
 FIRMA_NOMBRE_DEFAULT = os.environ.get('FIRMA_NOMBRE_DEFAULT', 'Lic. Maribel Aldana Santos')
 FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Gestiones Corpad | Directora General')
 
+
+# ==========================================
+# FUNCIÓN ESCUDO PARA CLOUDINARY
+# ==========================================
+def safe_read_file(file_field):
+    """
+    Lee archivos desde Cloudinary saltándose los bloqueos de seguridad y errores por espacios en nombres.
+    Esto salva el servidor de colapsar al generar ZIPs, adjuntar a correos o leer archivos Word en la nube.
+    """
+    url_segura = file_field.url.replace("http://", "https://").replace(' ', '%20')
+    req = urllib.request.Request(url_segura, headers={'User-Agent': 'Mozilla/5.0'})
+    with urllib.request.urlopen(req) as response:
+        return response.read()
+
+
 # <--- DECORADOR CENTRALIZADO DE PERMISOS ---
 def requiere_permiso(permiso):
     def decorator(view_func):
@@ -88,6 +102,7 @@ def requiere_permiso(permiso):
             return redirect('dashboard')
         return _wrapped_view
     return decorator
+
 
 # <--- HELPER CENTRALIZADO DE BITÁCORA ---
 def registrar_bitacora(usuario, cliente, accion, descripcion):
@@ -162,13 +177,15 @@ def mi_perfil(request):
 
 @login_required
 def gestion_usuarios(request):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     usuarios = Usuario.objects.all().order_by('-date_joined')
     return render(request, 'gestion_usuarios.html', {'usuarios': usuarios})
 
 @login_required
 def autorizar_usuario(request, user_id):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     user = get_object_or_404(Usuario, id=user_id)
     user.is_active = True
     user.save()
@@ -177,7 +194,8 @@ def autorizar_usuario(request, user_id):
 
 @login_required
 def editar_usuario(request, user_id):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     user_obj = get_object_or_404(Usuario, id=user_id)
     clientes_disponibles = Cliente.objects.all().order_by('nombre_empresa')
     
@@ -212,7 +230,8 @@ def editar_usuario(request, user_id):
 
 @login_required
 def eliminar_usuario(request, user_id):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     u = get_object_or_404(Usuario, id=user_id)
     if u == request.user:
         messages.error(request, "No puedes eliminarte a ti mismo.")
@@ -278,7 +297,6 @@ def nuevo_cliente(request):
         )
         if request.user.rol != 'admin':
             request.user.clientes_asignados.add(c)
-        # BITÁCORA: Creación de cliente
         registrar_bitacora(request.user, c, 'creacion', f"Dio de alta al cliente '{c.nombre_empresa}'.")
         return redirect('dashboard')
     return render(request, 'nuevo_cliente.html')
@@ -288,7 +306,6 @@ def nuevo_cliente(request):
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     nombre = cliente.nombre_empresa
-    # BITÁCORA: antes de eliminar para que no falle el FK
     registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó el cliente '{nombre}' y todos sus datos.")
     cliente.delete()
     messages.success(request, "Cliente eliminado.")
@@ -371,7 +388,6 @@ def editar_cliente(request, cliente_id):
         
         cliente.datos_extra = datos_nuevos
         cliente.save()
-        # BITÁCORA: Edición de cliente
         registrar_bitacora(request.user, cliente, 'edicion', "Actualizó datos del cliente.")
         messages.success(request, "Cliente actualizado.")
         return redirect('detalle_cliente', cliente_id=cliente.id)
@@ -388,7 +404,8 @@ def editar_cliente(request, cliente_id):
 
 @login_required
 def configurar_campos(request):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     campos = CampoAdicional.objects.all()
     if request.method == 'POST':
         nombre = request.POST.get('nombre')
@@ -400,7 +417,8 @@ def configurar_campos(request):
 
 @login_required
 def eliminar_campo_dinamico(request, campo_id):
-    if request.user.rol != 'admin': return redirect('dashboard')
+    if request.user.rol != 'admin': 
+        return redirect('dashboard')
     get_object_or_404(CampoAdicional, id=campo_id).delete()
     return redirect('configurar_campos')
 
@@ -411,10 +429,10 @@ def crear_carpeta(request, cliente_id):
         padre = get_object_or_404(Carpeta, id=padre_id) if padre_id else None
         carpeta = Carpeta.objects.create(nombre=request.POST.get('nombre'), cliente_id=cliente_id, padre=padre)
         cliente = get_object_or_404(Cliente, id=cliente_id)
-        # BITÁCORA: Creación de carpeta
         ubicacion = f"dentro de '{padre.nombre}'" if padre else "en la raíz del expediente"
         registrar_bitacora(request.user, cliente, 'creacion', f"Creó la carpeta '{carpeta.nombre}' {ubicacion}.")
-        if padre: return redirect('detalle_carpeta', cliente_id=cliente_id, carpeta_id=padre.id)
+        if padre: 
+            return redirect('detalle_carpeta', cliente_id=cliente_id, carpeta_id=padre.id)
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
 @login_required
@@ -425,8 +443,8 @@ def eliminar_carpeta(request, carpeta_id):
     nombre_carpeta = c.nombre
     url_destino = 'detalle_carpeta' if c.padre else 'detalle_cliente'
     kwargs = {'cliente_id': c.cliente.id}
-    if c.padre: kwargs['carpeta_id'] = c.padre.id
-    # BITÁCORA: Eliminación de carpeta
+    if c.padre: 
+        kwargs['carpeta_id'] = c.padre.id
     registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó la carpeta '{nombre_carpeta}' y todo su contenido.")
     c.delete()
     return redirect(url_destino, **kwargs)
@@ -439,7 +457,6 @@ def crear_expediente(request, cliente_id):
         titulo = request.POST.get('titulo')
         f = Carpeta.objects.create(nombre=f"EXP {num_exp}: {titulo}", cliente_id=cliente_id, es_expediente=True)
         Expediente.objects.create(cliente_id=cliente_id, num_expediente=num_exp, titulo=titulo, carpeta=f)
-        # BITÁCORA: Creación de expediente
         registrar_bitacora(request.user, cliente, 'creacion', f"Creó el expediente #{num_exp}: {titulo}.")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
@@ -512,7 +529,6 @@ def subir_archivo_drive(request, cliente_id):
             Evento.objects.bulk_create(eventos_to_create)
 
         if archivos_guardados > 0:
-            # BITÁCORA: Subida de archivos
             ubicacion = f"en '{carpeta.nombre}'" if carpeta else "en la raíz"
             registrar_bitacora(
                 request.user, cliente, 'subida',
@@ -531,11 +547,11 @@ def subir_archivo_drive(request, cliente_id):
 def eliminar_archivo_drive(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     c_id, padre_id = doc.cliente.id, doc.carpeta.id if doc.carpeta else None
-    # BITÁCORA: Eliminación de archivo
     registrar_bitacora(request.user, doc.cliente, 'eliminacion', f"Eliminó el archivo '{doc.nombre_archivo}'.")
     doc.archivo.delete()
     doc.delete()
-    if padre_id: return redirect('detalle_carpeta', cliente_id=c_id, carpeta_id=padre_id)
+    if padre_id: 
+        return redirect('detalle_carpeta', cliente_id=c_id, carpeta_id=padre_id)
     return redirect('detalle_cliente', cliente_id=c_id)
 
 @login_required
@@ -547,11 +563,12 @@ def descargar_carpeta_zip(request, carpeta_id):
     buffer = BytesIO()
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for file in Documento.objects.filter(carpeta=carpeta):
-            try: zip_file.writestr(file.nombre_archivo, file.archivo.read())
+            try: 
+                # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+                zip_file.writestr(file.nombre_archivo, safe_read_file(file.archivo))
             except Exception as e: 
                 logger.warning(f"No se pudo incluir {file.nombre_archivo} en ZIP de carpeta {carpeta.id}: {e}")
     
-    # BITÁCORA: Descarga de carpeta ZIP
     registrar_bitacora(request.user, carpeta.cliente, 'descarga', f"Descargó ZIP completo de la carpeta '{carpeta.nombre}'.")
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/zip')
@@ -564,7 +581,8 @@ def acciones_masivas_drive(request):
         accion = request.POST.get('accion')
         doc_ids = request.POST.getlist('doc_ids')
         docs = Documento.objects.filter(id__in=doc_ids)
-        if not docs: return redirect(request.META.get('HTTP_REFERER'))
+        if not docs: 
+            return redirect(request.META.get('HTTP_REFERER'))
         
         cliente = docs.first().cliente
 
@@ -576,7 +594,6 @@ def acciones_masivas_drive(request):
             for doc in docs: 
                 doc.archivo.delete()
                 doc.delete()
-            # BITÁCORA: Eliminación masiva
             resumen = ', '.join(nombres[:5]) + ('...' if len(nombres) > 5 else '')
             registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó {count} archivo(s) masivamente: {resumen}.")
             messages.success(request, f"Se eliminaron {count} archivos.")
@@ -585,10 +602,11 @@ def acciones_masivas_drive(request):
             buffer = BytesIO()
             with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for doc in docs:
-                    try: zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
+                    try: 
+                        # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+                        zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
                     except Exception as e:
                         logger.warning(f"Error zipping {doc.id} en acciones masivas: {e}")
-            # BITÁCORA: Descarga masiva
             registrar_bitacora(request.user, cliente, 'descarga', f"Descargó selección de {docs.count()} archivo(s) en ZIP.")
             buffer.seek(0)
             response = HttpResponse(buffer, content_type='application/zip')
@@ -618,7 +636,6 @@ def mover_archivo_drive(request, archivo_id):
             nombre_destino = carpeta_destino.nombre
             
         doc.save()
-        # BITÁCORA: Movimiento de archivo
         registrar_bitacora(
             request.user, doc.cliente, 'movimiento',
             f"Movió '{doc.nombre_archivo}' de '{origen_nombre}' a '{nombre_destino}'."
@@ -641,7 +658,6 @@ def gestionar_tarea(request, cliente_id):
             fecha_limite=request.POST.get('fecha_limite'), 
             prioridad=request.POST.get('prioridad')
         )
-        # BITÁCORA: Creación de tarea
         registrar_bitacora(request.user, cliente, 'tarea', f"Creó la tarea '{tarea.titulo}' con vencimiento {tarea.fecha_limite}.")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
@@ -650,7 +666,6 @@ def toggle_tarea(request, tarea_id):
     t = get_object_or_404(Tarea, id=tarea_id)
     t.completada = not t.completada
     t.save()
-    # BITÁCORA: Cambio de estado de tarea
     estado = "completó" if t.completada else "reabrió"
     registrar_bitacora(request.user, t.cliente, 'tarea', f"{estado.capitalize()} la tarea '{t.titulo}'.")
     return redirect('detalle_cliente', cliente_id=t.cliente.id)
@@ -664,7 +679,6 @@ def editar_tarea(request, tarea_id):
         t.fecha_limite = request.POST.get('fecha_limite')
         t.prioridad = request.POST.get('prioridad')
         t.save()
-        # BITÁCORA: Edición de tarea
         registrar_bitacora(request.user, t.cliente, 'tarea', f"Editó la tarea '{titulo_anterior}' → '{t.titulo}'.")
     return redirect('detalle_cliente', cliente_id=t.cliente.id)
 
@@ -672,7 +686,6 @@ def editar_tarea(request, tarea_id):
 def eliminar_tarea(request, tarea_id):
     t = get_object_or_404(Tarea, id=tarea_id)
     c_id = t.cliente.id
-    # BITÁCORA: Eliminación de tarea
     registrar_bitacora(request.user, t.cliente, 'eliminacion', f"Eliminó la tarea '{t.titulo}'.")
     t.delete()
     return redirect('detalle_cliente', cliente_id=c_id)
@@ -694,7 +707,10 @@ def generador_contratos(request, cliente_id):
         })
 
     plantilla = get_object_or_404(Plantilla, id=request.GET.get('plantilla_id') or request.POST.get('plantilla_id'))
-    doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
+    
+    # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+    doc = DocxTemplate(io.BytesIO(safe_read_file(plantilla.archivo)))
+    
     vars_en_doc = doc.get_undeclared_template_variables()
     memoria = cliente.datos_extra if isinstance(cliente.datos_extra, dict) else {}
     formulario = []
@@ -773,7 +789,6 @@ def generador_contratos(request, cliente_id):
         nuevo = Documento(cliente=cliente, carpeta=c_contratos, nombre_archivo=nombre, subido_por=request.user)
         nuevo.archivo.save(nombre, ContentFile(buffer.getvalue()))
         nuevo.save()
-        # BITÁCORA: Generación de contrato
         registrar_bitacora(request.user, cliente, 'generacion', f"Generó el contrato '{nombre}' desde la plantilla '{plantilla.nombre}'.")
         return redirect('visor_docx', documento_id=nuevo.id)
 
@@ -785,7 +800,8 @@ def visor_docx(request, documento_id):
     html = ""
     if doc.nombre_archivo.endswith('.docx'):
         try:
-            with doc.archivo.open() as f: html = mammoth.convert_to_html(f).value
+            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+            html = mammoth.convert_to_html(io.BytesIO(safe_read_file(doc.archivo))).value
         except Exception as e:
             logger.error(f"Error visualizando DOCX {documento_id}: {e}")
     return render(request, 'generador/visor.html', {'doc': doc, 'contenido_html': html})
@@ -889,9 +905,14 @@ def crear_variable_api(request):
 def api_convertir_html(request):
     if request.method == 'POST':
         try:
-            try: data = json.loads(request.body); html_content = data.get('html', '')
-            except: html_content = request.POST.get('html', '')
-            if not html_content: return JsonResponse({'error': 'No content'}, status=400)
+            try: 
+                data = json.loads(request.body)
+                html_content = data.get('html', '')
+            except: 
+                html_content = request.POST.get('html', '')
+                
+            if not html_content: 
+                return JsonResponse({'error': 'No content'}, status=400)
             
             TAGS_PDF_PERMITIDOS = [
                 'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
@@ -1200,9 +1221,7 @@ def convertir_a_cliente(request, cotizacion_id):
     c.cliente_convertido = cli
     c.save()
 
-    # BITÁCORA: Conversión de cotización a cliente
     registrar_bitacora(request.user, cli, 'creacion', f"Convirtió la cotización '{c.titulo}' en cliente y generó cuentas por cobrar.")
-
     messages.success(request, f"¡Trato cerrado! Se han generado las carpetas con sus subcarpetas de autorizaciones.")
     return redirect('detalle_cliente', cliente_id=cli.id)
 
@@ -1326,7 +1345,6 @@ def registrar_pago(request):
             referencia=request.POST.get('referencia'), 
             registrado_por=request.user
         )
-        # BITÁCORA: Registro de pago
         registrar_bitacora(
             request.user, pago.cuenta.cliente, 'pago',
             f"Registró pago de ${pago.monto:,.2f} vía {pago.metodo}. Ref: {pago.referencia or 'N/A'}."
@@ -1345,7 +1363,6 @@ def eliminar_finanza(request, id):
         return redirect('panel_finanzas')
     
     cx = get_object_or_404(CuentaPorCobrar, id=id)
-    # BITÁCORA: Eliminación de registro financiero
     registrar_bitacora(request.user, cx.cliente, 'eliminacion', f"Eliminó el registro financiero '{cx.concepto}' (${cx.monto_total:,.2f}).")
     cx.delete()
     messages.success(request, "Registro financiero eliminado correctamente.")
@@ -1439,11 +1456,13 @@ def agenda_legal(request):
 
 @login_required
 def api_eventos(request):
-    if not request.user.access_agenda: return JsonResponse([], safe=False)
+    if not request.user.access_agenda: 
+        return JsonResponse([], safe=False)
     start, end = request.GET.get('start'), request.GET.get('end')
     qs = Evento.objects.filter(inicio__range=[start, end]).select_related('cliente')
     
-    if request.user.rol != 'admin': qs = qs.filter(Q(usuario=request.user) | Q(cliente__in=request.user.clientes_asignados.all()))
+    if request.user.rol != 'admin': 
+        qs = qs.filter(Q(usuario=request.user) | Q(cliente__in=request.user.clientes_asignados.all()))
     
     eventos = []
     for e in qs:
@@ -1455,11 +1474,14 @@ def api_eventos(request):
 def mover_evento_api(request):
     if request.method == 'POST':
         try:
-            data = json.loads(request.body); evento = get_object_or_404(Evento, id=data.get('id'))
-            if request.user.rol != 'admin' and evento.usuario != request.user: return JsonResponse({'status': 'error', 'msg': 'Sin permiso'})
+            data = json.loads(request.body)
+            evento = get_object_or_404(Evento, id=data.get('id'))
+            if request.user.rol != 'admin' and evento.usuario != request.user: 
+                return JsonResponse({'status': 'error', 'msg': 'Sin permiso'})
             evento.inicio = data.get('start')
             if data.get('end'): evento.fin = data.get('end')
-            evento.save(); return JsonResponse({'status': 'ok'})
+            evento.save()
+            return JsonResponse({'status': 'ok'})
         except Exception as e: 
             logger.error(f"Error moviendo evento: {e}")
             return JsonResponse({'status': 'error', 'msg': str(e)})
@@ -1478,7 +1500,6 @@ def crear_evento(request):
             cliente=cliente, 
             descripcion=request.POST.get('descripcion')
         )
-        # BITÁCORA: Creación de evento en agenda
         if cliente:
             registrar_bitacora(request.user, cliente, 'agenda', f"Agendó el evento '{evento.titulo}' para el {inicio.strftime('%d/%m/%Y %H:%M')}.")
         messages.success(request, "Evento agendado.")
@@ -1488,7 +1509,6 @@ def crear_evento(request):
 def eliminar_evento(request, evento_id):
     evento = get_object_or_404(Evento, id=evento_id)
     if request.user.rol == 'admin' or evento.usuario == request.user:
-        # BITÁCORA: Eliminación de evento
         if evento.cliente:
             registrar_bitacora(request.user, evento.cliente, 'eliminacion', f"Eliminó el evento de agenda '{evento.titulo}'.")
         evento.delete()
@@ -1558,7 +1578,6 @@ def subir_archivo_requisito(request, carpeta_id):
                     nuevo_doc.save()
                     count += 1
 
-                # BITÁCORA: Subida de requisito específico
                 registrar_bitacora(request.user, cliente, 'subida', f"Actualizó el requisito '{nombre_requisito}' en {count} carpeta(s) como '{nuevo_nombre_formal}'.")
                 messages.success(request, f'✅ Archivo actualizado exitosamente en {count} carpeta(s) con el nombre: "{nuevo_nombre_formal}".')
 
@@ -1708,7 +1727,6 @@ def generar_link_externo(request, cliente_id):
     solicitud.save()
     
     link = request.build_absolute_uri(f'/portal-cliente/{solicitud.id}/')
-    # BITÁCORA: Generación de link externo
     registrar_bitacora(request.user, cliente, 'generacion', f"Generó link de carga externa (válido 72h).")
     messages.success(request, f"¡Link generado y expira en 72h! Copia y envía esto al cliente: {link}")
     return redirect('detalle_cliente', cliente_id=cliente.id)
@@ -1823,7 +1841,6 @@ def aprobar_archivo_temporal(request, temp_id):
                 subido_por=request.user 
             )
             
-        # BITÁCORA: Aprobación de archivo del portal externo
         registrar_bitacora(request.user, cliente, 'aprobacion', f"Aprobó el archivo del portal externo: '{nuevo_nombre_formal}'.")
         temp.delete()
         messages.success(request, f"Aprobado y distribuido: {nuevo_nombre_formal}")
@@ -1841,7 +1858,6 @@ def rechazar_archivo_temporal(request, temp_id):
     cliente = temp.solicitud.cliente
     cliente_id = cliente.id
     
-    # BITÁCORA: Rechazo de archivo del portal externo
     registrar_bitacora(request.user, cliente, 'rechazo', f"Rechazó el archivo del portal externo: '{nombre}'.")
     temp.archivo.delete()
     temp.delete()
@@ -1849,13 +1865,13 @@ def rechazar_archivo_temporal(request, temp_id):
     messages.warning(request, f"❌ Documento rechazado y eliminado: {nombre}")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
-# <--- CAMBIO PARA CLOUDINARY EN PREVIEW --->
+# <--- FUNCIONES DE PREVIEW REESCRITAS PARA CLOUDINARY --->
 @login_required
-def obtener_preview_archivo(request, archivo_id):
-    doc = get_object_or_404(Documento, id=archivo_id)
+def preview_archivo(request, documento_id):
+    doc = get_object_or_404(Documento, id=documento_id)
     ext = doc.nombre_archivo.split('.')[-1].lower()
     
-    # Asegurar que la URL sea segura y sin espacios que rompan el frame
+    # Asegurar URL de Cloudinary sin espacios
     url_segura = doc.archivo.url.replace("http://", "https://").replace(' ', '%20')
     
     data = {
@@ -1869,10 +1885,10 @@ def obtener_preview_archivo(request, archivo_id):
         if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']:
             data['tipo'] = 'imagen'
         elif ext in ['pdf', 'docx', 'xlsx', 'xls', 'csv']:
-            # Usar el visor de Google Docs para saltarse la restricción de Cloudinary
+            # Redireccionar el renderizado pesado a Google Docs Viewer
             url_codificada = urllib.parse.quote(url_segura)
             visor_url = f"https://docs.google.com/viewer?url={url_codificada}&embedded=true"
-            data['tipo'] = 'pdf' # Lo tratamos como pdf/iframe genérico en el frontend
+            data['tipo'] = 'pdf'
             data['url'] = visor_url
         elif ext in ['mp4', 'webm', 'ogg']:
             data['tipo'] = 'video'
@@ -1880,30 +1896,34 @@ def obtener_preview_archivo(request, archivo_id):
             data['tipo'] = 'audio'
         elif ext in ['txt', 'py', 'js', 'html', 'css', 'json', 'md']:
             data['tipo'] = 'texto'
-            data['html'] = doc.archivo.read().decode('utf-8', errors='ignore') 
+            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+            data['html'] = safe_read_file(doc.archivo).decode('utf-8', errors='ignore') 
         else:
             data['tipo'] = 'descarga'
 
     except Exception as e:
-        logger.error(f"Error generando preview {archivo_id}: {e}")
+        logger.error(f"Error generando preview {documento_id}: {e}")
         data['tipo'] = 'error'
 
     return JsonResponse(data)
 
-# <--- CAMBIO PARA CLOUDINARY EN DESCARGAS --->
+@login_required
+def obtener_preview_archivo(request, archivo_id):
+    """
+    Se mantiene este nombre de función adicional por si el frontend la llama en algún lugar.
+    Apunta directamente a la misma lógica corregida de arriba.
+    """
+    return preview_archivo(request, archivo_id)
+
+# <--- FIX CLOUDINARY: DESCARGA DIRECTA POR REDIRECCIÓN --->
 @login_required
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        # 1. Aseguramos que la URL sea HTTPS
-        url_segura = doc.archivo.url.replace("http://", "https://")
-        
-        # 2. Reemplazamos los espacios por "%20" para que la URL no se rompa
-        url_limpia = url_segura.replace(' ', '%20')
-        
-        # 3. Redirigimos directo a Cloudinary. Esto activa la descarga automática
-        # sin consumir memoria de tu servidor en Railway y funciona con el plan gratuito.
-        return redirect(url_limpia)
+        # Ya no obligamos al servidor de Railway a descargar el archivo de Cloudinary a la RAM
+        # Simplemente dirigimos al navegador del usuario a Cloudinary.
+        url_segura = doc.archivo.url.replace("http://", "https://").replace(' ', '%20')
+        return redirect(url_segura)
 
     except Exception as e:
         logger.error(f"Error crítico en descarga: {str(e)}")
@@ -1935,7 +1955,8 @@ def redactar_correo_autorizaciones(request, carpeta_id):
                 if doc_acuse and doc.id == doc_acuse.id:
                     continue
                 try:
-                    zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
+                    # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+                    zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
                 except Exception as e:
                     logger.warning(f"No se pudo adjuntar {doc.nombre_archivo}: {e}")
         buffer.seek(0)
@@ -1962,7 +1983,8 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         
         if doc_acuse:
             try:
-                email.attach(doc_acuse.nombre_archivo, doc_acuse.archivo.read(), 'application/pdf')
+                # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+                email.attach(doc_acuse.nombre_archivo, safe_read_file(doc_acuse.archivo), 'application/pdf')
             except Exception as e:
                 logger.warning(f"No se pudo adjuntar el físico del acuse: {e}")
 
@@ -2133,7 +2155,8 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
                     for doc in lista_adjuntos:
                         try:
-                            zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
+                            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+                            zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
                         except Exception as e:
                             logger.warning(f"Error comprimiendo {doc.nombre_archivo}: {e}")
                 zip_buffer.seek(0)
@@ -2175,7 +2198,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             email.send()
             messages.success(request, f"✅ Correo enviado exitosamente a {destinatario}")
             
-            # BITÁCORA: Envío de correo universal
             Bitacora.objects.create(
                 usuario=request.user, cliente=cliente, 
                 accion='envio_correo', 
@@ -2228,7 +2250,8 @@ def generar_contrato_final(request):
                 if key not in campos_ignorados:
                     contexto[key] = value
 
-            doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
+            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
+            doc = DocxTemplate(io.BytesIO(safe_read_file(plantilla.archivo)))
             doc.render(contexto)
 
             nombre_salida = request.POST.get('nombre_archivo_salida', 'Documento_Generado')
@@ -2314,7 +2337,6 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
             nuevo_acuse.archivo.save(nombre_acuse, ContentFile(pdf_content))
             nuevo_acuse.save()
 
-            # BITÁCORA: Preparación de acuse de entrega
             registrar_bitacora(request.user, cliente, 'generacion', f"Generó el acuse de entrega para la carpeta '{carpeta.nombre}'.")
 
             url_redactar = reverse('redactar_correo_autorizaciones', kwargs={'carpeta_id': carpeta.id})
