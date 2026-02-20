@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     # WhiteNoise PRIMERO, antes de staticfiles
     'whitenoise.runserver_nostatic',
 
-    # Cloudinary (cloudinary_storage antes de staticfiles)
-    'cloudinary_storage',
+    # ---> EL ORDEN CORRECTO ES ESTE: <---
     'django.contrib.staticfiles',
+    'cloudinary_storage',
     'cloudinary',
 
     # Librerías de Terceros

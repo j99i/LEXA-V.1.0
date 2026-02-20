@@ -35,6 +35,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # 6. Copiar el código del proyecto
 COPY . .
 
+# ---> NUEVO: Forzamos la creación de la carpeta para WhiteNoise
+RUN mkdir -p /app/staticfiles
+
 # 7. Recolectar archivos estáticos
 RUN SECRET_KEY=clave-temporal-para-build EMAIL_HOST_USER=dummy EMAIL_HOST_PASSWORD=dummy python manage.py collectstatic --noinput
 
