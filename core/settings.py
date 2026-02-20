@@ -29,13 +29,9 @@ else:
         raise ImproperlyConfigured("Falta la variable SECRET_KEY en entorno de producción.")
 
 # --- CORRECCIÓN DE SEGURIDAD 3: ALLOWED_HOSTS ---
-# Evita el '*' en producción. Lee una lista separada por comas del entorno.
-# Ejemplo en .env: ALLOWED_HOSTS=mi-app.railway.app,midominio.com
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app'])
 
-
-# Si usas Railway, es bueno agregar esto para evitar errores de CSRF en formularios
-# Nota: Ajusta esto a tus dominios reales cuando tengas la URL final
+# CSRF para Railway
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
@@ -50,34 +46,36 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.humanize',
     'django_apscheduler',
-    # --- CLOUDINARY (Importante: cloudinary_storage antes de staticfiles) ---
+
+    # ✅ FIX: whitenoise.runserver_nostatic PRIMERO, antes de staticfiles
+    # Sin esto, los archivos estáticos (logo, firma, etc.) no cargan en producción
+    'whitenoise.runserver_nostatic',
+
+    # --- CLOUDINARY (cloudinary_storage antes de staticfiles) ---
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
     # -----------------------------------------------------------------------
 
     # Librerías de Terceros
-    'whitenoise.runserver_nostatic', 
     'anymail',  # Para Resend
-    
+
     # Mis Aplicaciones
     'expedientes',
 ]
 
 
 # ==========================================
-# 3. MIDDLEWARE (Intermediarios)
+# 3. MIDDLEWARE
 # ==========================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    "whitenoise.middleware.WhiteNoiseMiddleware", 
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← Segunda posición, siempre
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    # NOTA: Si X_FRAME_OPTIONS = 'SAMEORIGIN' aún falla, puedes comentar la siguiente línea
-    # para desactivar la protección de clickjacking completamente (bajo tu riesgo):
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -85,7 +83,7 @@ ROOT_URLCONF = 'core.urls'
 
 
 # ==========================================
-# 4. TEMPLATES (Plantillas HTML)
+# 4. TEMPLATES
 # ==========================================
 TEMPLATES = [
     {
@@ -98,7 +96,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                # Tu procesador de notificaciones
                 'expedientes.context_processors.notificaciones_globales',
             ],
         },
@@ -109,9 +106,8 @@ WSGI_APPLICATION = 'core.wsgi.application'
 
 
 # ==========================================
-# 5. BASE DE DATOS (Configuración Híbrida)
+# 5. BASE DE DATOS
 # ==========================================
-# Por defecto usa SQLite (Local)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -119,7 +115,7 @@ DATABASES = {
     }
 }
 
-# Si existe DATABASE_URL (Railway/Nube), sobrescribe la configuración para usar PostgreSQL
+# Si existe DATABASE_URL (Railway), usa PostgreSQL
 if 'DATABASE_URL' in os.environ:
     db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
     DATABASES['default'].update(db_from_env)
@@ -131,13 +127,12 @@ if 'DATABASE_URL' in os.environ:
 AUTH_USER_MODEL = 'expedientes.Usuario'
 
 AUTH_PASSWORD_VALIDATORS = [
-    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator', },
-    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator', },
+    { 'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator' },
+    { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator' },
 ]
 
-# Redirecciones
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
 LOGOUT_REDIRECT_URL = 'login'
@@ -153,48 +148,48 @@ USE_TZ = True
 
 
 # ==========================================
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA (Whitenoise + Cloudinary)
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA
 # ==========================================
-STATIC_URL = 'static/'
 
-# Dónde buscar estáticos en desarrollo
+# ✅ FIX: STATIC_URL con slash inicial (sin él los estáticos no resuelven bien)
+STATIC_URL = '/static/'
+
+# Carpeta donde están tus estáticos en desarrollo (logo.png, firma.png, etc.)
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-# Dónde recolectar estáticos para producción (Railway usará esto)
+# Carpeta donde collectstatic reúne todo para producción
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Motor de almacenamiento para producción (Comprime y optimiza)
+# WhiteNoise comprime y sirve los estáticos en Railway
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# --- CONFIGURACIÓN DE MEDIA (CLOUDINARY) ---
+# --- CLOUDINARY para archivos subidos por usuarios (logos de clientes, docs, etc.) ---
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-    'SECURE': True,  # <--- CRÍTICO: Fuerza HTTPS en las URLs de imágenes/PDFs
+    'SECURE': True,  # Fuerza HTTPS en las URLs de Cloudinary
     'MEDIA_TAG': 'media',
 }
 
-# Si hay credenciales, usamos Cloudinary. Si no, seguimos en local.
+# Si hay credenciales de Cloudinary, úsalas. Si no, almacenamiento local.
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-    MEDIA_URL = '/media/'  # Cloudinary manejará la URL real automáticamente
+    MEDIA_URL = '/media/'
 else:
-    # Configuración Local Clásica
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # ==========================================
-# 9. SISTEMA DE CORREO (Vía API - RESEND)
+# 9. SISTEMA DE CORREO (Resend vía Anymail)
 # ==========================================
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 
 ANYMAIL = {
-   "RESEND_API_KEY": env('RESEND_API_KEY', default=''),
+    "RESEND_API_KEY": env('RESEND_API_KEY', default=''),
 }
 
-# CONFIGURACIÓN DEL REMITENTE
 DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="GESTIONES CORPAD <onboarding@resend.dev>")
 SERVER_EMAIL = env('DEFAULT_FROM_EMAIL', default="onboarding@resend.dev")
 
@@ -202,44 +197,39 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # ==========================================
-# 10. CONFIGURACIÓN GLOBAL DE IFRAMES (VISOR PDF)
+# 10. IFRAMES (Visor PDF)
 # ==========================================
-# Esto soluciona el error "refused to connect" en el visor.
-# Aplica tanto para local como producción.
 X_FRAME_OPTIONS = 'SAMEORIGIN'
-XS_SHARING_ALLOWED_METHODS = ['POST','GET','OPTIONS', 'PUT', 'DELETE']
+XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
 
 
 # ==========================================
-# 11. SEGURIDAD PARA PRODUCCIÓN (BLINDAJE)
+# 11. SEGURIDAD EN PRODUCCIÓN
 # ==========================================
-# Este bloque se activa SOLO si DEBUG=False (en Railway/Producción)
-
 if not DEBUG:
-    # 1. Forzar HTTPS siempre
+    # Forzar HTTPS
     SECURE_SSL_REDIRECT = True
-    # Confiar en el proxy de Railway
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-    
-    # 2. HSTS (Seguridad Estricta de Transporte)
+
+    # HSTS
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-    # 3. Cookies Seguras (Encriptadas)
+    # Cookies seguras
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    
-    # 4. Cabeceras extra contra ataques
+
+    # Headers extra
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
-# --- FIN DEL ARCHIVO ---
+
 # ==========================================
-# 12. CORRECCIÓN PARA WINDOWS (LOCAL)
+# 12. CORRECCIÓN MIMETYPES (Windows local)
 # ==========================================
 import mimetypes
 mimetypes.add_type("application/pdf", ".pdf", True)
 mimetypes.add_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx", True)
 mimetypes.add_type("image/svg+xml", ".svg", True)
-mimetypes.add_type("text/javascript", ".js", True) # Ayuda si tus JS no cargan
+mimetypes.add_type("text/javascript", ".js", True)
