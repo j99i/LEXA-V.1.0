@@ -22,7 +22,7 @@ else:
     except ImproperlyConfigured:
         raise ImproperlyConfigured("Falta la variable SECRET_KEY en entorno de producción.")
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app', 'portalgestionescorpad.up.railway.app'])
 
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     # WhiteNoise PRIMERO, antes de staticfiles
     'whitenoise.runserver_nostatic',
 
-    # ---> EL ORDEN CORRECTO ES ESTE: <---
+    # ---> ORDEN CORRECTO PARA CLOUDINARY <---
     'django.contrib.staticfiles',
     'cloudinary_storage',
     'cloudinary',
@@ -153,15 +153,30 @@ CLOUDINARY_STORAGE = {
     'MEDIA_TAG':                'media',
     'STATIC_TAG':               '',
     'UPLOAD_PREFIX':            'media',
-    'STATICFILES_MANIFEST_ROOT': os.path.join(BASE_DIR, 'staticfiles'),
 }
 
+# ---> NUEVO FORMATO STORAGES PARA DJANGO 5.0+ <---
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
-    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    STORAGES = {
+        "default": {
+            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
     MEDIA_URL = '/media/'
 else:
     MEDIA_URL = '/media/'
     MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
 
 # ==========================================
@@ -209,11 +224,3 @@ mimetypes.add_type("application/pdf", ".pdf", True)
 mimetypes.add_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx", True)
 mimetypes.add_type("image/svg+xml", ".svg", True)
 mimetypes.add_type("text/javascript", ".js", True)
-
-
-# ==========================================
-# 13. STATICFILES_STORAGE - AL FINAL
-# Usamos StaticFilesStorage básico para máxima compatibilidad
-# WhiteNoise sigue sirviendo los archivos vía middleware
-# ==========================================
-STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
