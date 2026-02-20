@@ -1,5 +1,5 @@
 # ==========================================
-# EXPEDIENTES/VIEWS.PY - VERSIÓN CORREGIDA Y PULIDA
+# EXPEDIENTES/VIEWS.PY - VERSIÓN CORREGIDA PARA NUBE (RAILWAY + CLOUDINARY)
 # Análisis Técnico Final + Backlog Sprint 1 (Fixes)
 # Bitácora completa en todas las acciones
 # ==========================================
@@ -708,7 +708,7 @@ def generador_contratos(request, cliente_id):
         })
 
     plantilla = get_object_or_404(Plantilla, id=request.GET.get('plantilla_id') or request.POST.get('plantilla_id'))
-    doc = DocxTemplate(plantilla.archivo.path)
+    doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
     vars_en_doc = doc.get_undeclared_template_variables()
     memoria = cliente.datos_extra if isinstance(cliente.datos_extra, dict) else {}
     formulario = []
@@ -1890,11 +1890,11 @@ def obtener_preview_archivo(request, archivo_id):
                 data['html'] = result.value
         elif ext in ['xlsx', 'xls', 'csv']:
             data['tipo'] = 'excel'
-            path = doc.archivo.path
+            archivo_bytes = doc.archivo.read()
             if ext == 'csv':
-                df = pd.read_csv(path)
+                df = pd.read_csv(io.BytesIO(archivo_bytes))
             else:
-                df = pd.read_excel(path)
+                df = pd.read_excel(io.BytesIO(archivo_bytes))
             
             tabla_html = df.head(50).to_html(classes='w-full text-sm text-left text-gray-500', border=0, index=False)
             tabla_html = tabla_html.replace('<thead>', '<thead class="text-xs text-gray-700 uppercase bg-gray-50">')
@@ -1907,8 +1907,7 @@ def obtener_preview_archivo(request, archivo_id):
             data['tipo'] = 'audio'
         elif ext in ['txt', 'py', 'js', 'html', 'css', 'json', 'md']:
             data['tipo'] = 'texto'
-            with open(doc.archivo.path, 'r', encoding='utf-8', errors='ignore') as f:
-                data['html'] = f.read()
+            data['html'] = doc.archivo.read().decode('utf-8', errors='ignore') 
         else:
             data['tipo'] = 'descarga'
 
@@ -1964,9 +1963,9 @@ def redactar_correo_autorizaciones(request, carpeta_id):
                 if doc_acuse and doc.id == doc_acuse.id:
                     continue
                 try:
-                    zip_file.write(doc.archivo.path, arcname=doc.nombre_archivo)
-                except FileNotFoundError:
-                    pass
+                    zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
+                except Exception as e:
+                    logger.warning(f"No se pudo adjuntar {doc.nombre_archivo}: {e}")
         buffer.seek(0)
 
         cuerpo_html = render_to_string('expedientes/email_autorizaciones_template.html', {
@@ -2162,9 +2161,9 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
                     for doc in lista_adjuntos:
                         try:
-                            zip_file.write(doc.archivo.path, arcname=doc.nombre_archivo)
-                        except FileNotFoundError:
-                            pass
+                            zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
+                        except Exception as e:
+                            logger.warning(f"Error comprimiendo {doc.nombre_archivo}: {e}")
                 zip_buffer.seek(0)
                 filename_adjunto = f"Autorizaciones_{cliente.nombre_empresa}_{timezone.now().date()}.zip"
 
@@ -2257,7 +2256,7 @@ def generar_contrato_final(request):
                 if key not in campos_ignorados:
                     contexto[key] = value
 
-            doc = DocxTemplate(plantilla.archivo.path)
+            doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
             doc.render(contexto)
 
             nombre_salida = request.POST.get('nombre_archivo_salida', 'Documento_Generado')
