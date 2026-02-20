@@ -143,18 +143,25 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# --- CLOUDINARY para archivos subidos por usuarios ---
+# --- CLOUDINARY solo para archivos subidos por usuarios (media) ---
+# ✅ STATIC_TAG vacío y UPLOAD_PREFIX = 'media' evitan que Cloudinary
+#    interfiera con los archivos estáticos (logo, firma, etc.)
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-    'SECURE': True,
-    'MEDIA_TAG': 'media',
+    'CLOUD_NAME':               env('CLOUDINARY_CLOUD_NAME', default=''),
+    'API_KEY':                  env('CLOUDINARY_API_KEY', default=''),
+    'API_SECRET':               env('CLOUDINARY_API_SECRET', default=''),
+    'SECURE':                   True,
+    'MEDIA_TAG':                'media',
+    'STATIC_TAG':               '',
+    'UPLOAD_PREFIX':            'media',
     'STATICFILES_MANIFEST_ROOT': os.path.join(BASE_DIR, 'staticfiles'),
 }
 
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
+    # Solo media va a Cloudinary
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    # ✅ Estáticos siempre con WhiteNoise, aunque Cloudinary esté activo
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
     MEDIA_URL = '/media/'
 else:
     MEDIA_URL = '/media/'
@@ -209,7 +216,7 @@ mimetypes.add_type("text/javascript", ".js", True)
 
 
 # ==========================================
-# 13. STATICFILES_STORAGE
-# ✅ AL FINAL para que cloudinary_storage no lo sobreescriba
+# 13. STATICFILES_STORAGE - AL FINAL
+# ✅ Aquí por si acaso cloudinary_storage lo sobreescribió arriba
 # ==========================================
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
