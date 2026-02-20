@@ -1929,17 +1929,20 @@ def descargar_archivo_oficial(request, archivo_id):
         content_type = 'application/pdf' if nombre.lower().endswith('.pdf') else 'application/octet-stream'
 
         if url.startswith('http://') or url.startswith('https://'):
-            # Le ponemos una "máscara" de navegador humano para evitar el error 401 de Cloudinary
+            # 1. CODIFICAMOS LA URL (Convierte espacios en %20 para que Python no colapse)
+            url_segura = urllib.parse.quote(url, safe="%/:=&?~#+!$,;'@()*[]")
+            
+            # 2. Máscara de navegador
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
-            req = urllib.request.Request(url, headers=headers)
+            req = urllib.request.Request(url_segura, headers=headers)
             
-            # El servidor descarga el archivo a escondidas
+            # 3. El servidor descarga el archivo a escondidas
             with urllib.request.urlopen(req) as response:
                 archivo_bytes = response.read()
             
-            # Te lo entregamos directamente desde tu propio dominio
+            # 4. Te lo entregamos directamente
             http_response = HttpResponse(archivo_bytes, content_type=content_type)
             http_response['Content-Disposition'] = f'attachment; filename="{nombre}"'
             return http_response
@@ -1949,9 +1952,10 @@ def descargar_archivo_oficial(request, archivo_id):
 
     except Exception as e:
         logger.error(f"Error en descarga archivo {archivo_id}: {e}")
-        messages.error(request, "Error al intentar descargar el archivo de la nube.")
+        # AHORA SÍ TE MOSTRARÁ EL ERROR EXACTO EN TU PANTALLA:
+        messages.error(request, f"Error al descargar (Código técnico): {str(e)}")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-
+    
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
