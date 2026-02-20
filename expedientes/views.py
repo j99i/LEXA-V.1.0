@@ -1922,22 +1922,22 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        url = doc.archivo.url
-        if url.startswith('http://') or url.startswith('https://'):
-            return redirect(url)
-        return FileResponse(
-            doc.archivo.open('rb'), 
-            as_attachment=True, 
-            filename=doc.nombre_archivo
-        )
-    except FileNotFoundError:
-        messages.error(request, "El archivo físico no se encuentra en el servidor.")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
+        # 1. Tu servidor va a Cloudinary de forma invisible y lee el archivo
+        archivo_bytes = doc.archivo.read()
+        
+        # 2. Le decimos al navegador qué tipo de archivo es
+        content_type = 'application/pdf' if doc.nombre_archivo.lower().endswith('.pdf') else 'application/octet-stream'
+        
+        # 3. Te lo entregamos forzando la descarga con su nombre original (.pdf)
+        response = HttpResponse(archivo_bytes, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{doc.nombre_archivo}"'
+        
+        return response
+        
     except Exception as e:
         logger.error(f"Error en descarga archivo {archivo_id}: {e}")
         messages.error(request, "Error al intentar descargar el archivo.")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
