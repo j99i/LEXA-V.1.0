@@ -901,8 +901,6 @@ def crear_variable_api(request):
             return JsonResponse({'status': 'error', 'msg': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'msg': 'Método no permitido'}, status=405)
 
-
-# <--- FIX 1A: ALLOWED_TAGS muy restrictivo rompe PDFs del diseñador ---
 @login_required
 def api_convertir_html(request):
     if request.method == 'POST':
@@ -1867,15 +1865,18 @@ def rechazar_archivo_temporal(request, temp_id):
     messages.warning(request, f"❌ Documento rechazado y eliminado: {nombre}")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
+# <--- CAMBIO PARA CLOUDINARY EN PREVIEW --->
 @login_required
 def obtener_preview_archivo(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     ext = doc.nombre_archivo.split('.')[-1].lower()
-    url = doc.archivo.url
+    
+    # Asegurar que la URL sea segura y sin espacios que rompan el frame
+    url_segura = doc.archivo.url.replace("http://", "https://").replace(' ', '%20')
     
     data = {
         'nombre': doc.nombre_archivo,
-        'url': url,
+        'url': url_segura,
         'tipo': 'desconocido',
         'html': ''
     }
@@ -1883,26 +1884,12 @@ def obtener_preview_archivo(request, archivo_id):
     try:
         if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']:
             data['tipo'] = 'imagen'
-        elif ext == 'pdf':
-            data['tipo'] = 'pdf'
-        elif ext == 'docx':
-            data['tipo'] = 'docx'
-            with doc.archivo.open() as docx_file:
-                result = mammoth.convert_to_html(docx_file)
-                data['html'] = result.value
-        elif ext in ['xlsx', 'xls', 'csv']:
-            data['tipo'] = 'excel'
-            archivo_bytes = doc.archivo.read()
-            if ext == 'csv':
-                df = pd.read_csv(io.BytesIO(archivo_bytes))
-            else:
-                df = pd.read_excel(io.BytesIO(archivo_bytes))
-            
-            tabla_html = df.head(50).to_html(classes='w-full text-sm text-left text-gray-500', border=0, index=False)
-            tabla_html = tabla_html.replace('<thead>', '<thead class="text-xs text-gray-700 uppercase bg-gray-50">')
-            tabla_html = tabla_html.replace('<th>', '<th class="px-6 py-3">')
-            tabla_html = tabla_html.replace('<td>', '<td class="px-6 py-4 border-b">')
-            data['html'] = tabla_html
+        elif ext in ['pdf', 'docx', 'xlsx', 'xls', 'csv']:
+            # Usar el visor de Google Docs para saltarse la restricción de Cloudinary
+            url_codificada = urllib.parse.quote(url_segura)
+            visor_url = f"https://docs.google.com/viewer?url={url_codificada}&embedded=true"
+            data['tipo'] = 'pdf' # Lo tratamos como pdf/iframe genérico en el frontend
+            data['url'] = visor_url
         elif ext in ['mp4', 'webm', 'ogg']:
             data['tipo'] = 'video'
         elif ext in ['mp3', 'wav']:
@@ -1919,27 +1906,24 @@ def obtener_preview_archivo(request, archivo_id):
 
     return JsonResponse(data)
 
-# <--- FIX 1C: Compatibilidad con entorno local y en R2/Cloudinary ---
+# <--- CAMBIO PARA CLOUDINARY EN DESCARGAS --->
 @login_required
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        # 1. Limpiamos el nombre para que tu computadora lo guarde bien
-        nombre = doc.nombre_archivo.replace(' ', '_')
-        content_type = 'application/pdf' if nombre.lower().endswith('.pdf') else 'application/octet-stream'
-
-        # 2. MOTOR NATIVO: Va a la nube, ignora si hay espacios y trae el archivo
-        archivo_bytes = doc.archivo.read()
-
-        # 3. Te lo entregamos en la aplicación ocultando a Cloudinary
-        response = HttpResponse(archivo_bytes, content_type=content_type)
-        response['Content-Disposition'] = f'attachment; filename="{nombre}"'
-        return response
+        # 1. Aseguramos que la URL sea HTTPS
+        url_segura = doc.archivo.url.replace("http://", "https://")
+        
+        # 2. Reemplazamos los espacios por "%20" para que la URL no se rompa
+        url_limpia = url_segura.replace(' ', '%20')
+        
+        # 3. Redirigimos directo a Cloudinary. Esto activa la descarga automática
+        # sin consumir memoria de tu servidor en Railway y funciona con el plan gratuito.
+        return redirect(url_limpia)
 
     except Exception as e:
         logger.error(f"Error crítico en descarga: {str(e)}")
-        # AHORA SÍ: Si falla, te dirá la verdad absoluta en la pantalla
-        messages.error(request, f"Error técnico (Cópialo y envíamelo): {str(e)}")
+        messages.error(request, f"Error técnico al descargar: {str(e)}")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
     
 @login_required
