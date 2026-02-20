@@ -137,46 +137,34 @@ USE_TZ = True
 
 
 # ==========================================
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA (FORZANDO CLOUDINARY)
 # ==========================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_ROOT = os.path.join(BASE_DIR, 'static')
 
-# --- CLOUDINARY solo para archivos subidos por usuarios (media) ---
+# ---> FORZAMOS LA CONEXIÓN A CLOUDINARY <---
+# Sin "defaults". Si falta una variable, Railway te avisará en el log de despliegue.
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME':               env('CLOUDINARY_CLOUD_NAME', default=''),
-    'API_KEY':                  env('CLOUDINARY_API_KEY', default=''),
-    'API_SECRET':               env('CLOUDINARY_API_SECRET', default=''),
+    'CLOUD_NAME':               env('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY':                  env('CLOUDINARY_API_KEY'),
+    'API_SECRET':               env('CLOUDINARY_API_SECRET'),
     'SECURE':                   True,
     'MEDIA_TAG':                'media',
     'STATIC_TAG':               '',
     'UPLOAD_PREFIX':            'media',
 }
 
-# ---> NUEVO FORMATO STORAGES PARA DJANGO 5.0+ <---
-if CLOUDINARY_STORAGE['CLOUD_NAME']:
-    STORAGES = {
-        "default": {
-            "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
-    MEDIA_URL = '/media/'
-else:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-    STORAGES = {
-        "default": {
-            "BACKEND": "django.core.files.storage.FileSystemStorage",
-        },
-        "staticfiles": {
-            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-        },
-    }
+STORAGES = {
+    "default": {
+        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
+    },
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+    },
+}
+MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
 
 
 # ==========================================
