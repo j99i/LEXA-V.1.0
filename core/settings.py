@@ -10,16 +10,10 @@ from django.core.exceptions import ImproperlyConfigured
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = environ.Env()
-# Lee el archivo .env si existe (para desarrollo local)
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 
-# --- CORRECCIÓN DE SEGURIDAD 1: DEBUG ---
-# Por defecto FALSE. Solo será True si el .env lo dice explícitamente.
-# IMPORTANTE: En tu PC, tu archivo .env debe tener: DEBUG=True
 DEBUG = env.bool('DEBUG', default=False)
 
-# --- CORRECCIÓN DE SEGURIDAD 2: SECRET_KEY ---
-# En producción (DEBUG=False), fallará si no hay clave. En local usa la insegura.
 if DEBUG:
     SECRET_KEY = env('SECRET_KEY', default='django-insecure-clave-desarrollo-temporal')
 else:
@@ -28,10 +22,8 @@ else:
     except ImproperlyConfigured:
         raise ImproperlyConfigured("Falta la variable SECRET_KEY en entorno de producción.")
 
-# --- CORRECCIÓN DE SEGURIDAD 3: ALLOWED_HOSTS ---
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app'])
 
-# CSRF para Railway
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
 
@@ -47,18 +39,16 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
     'django_apscheduler',
 
-    # ✅ FIX: whitenoise.runserver_nostatic PRIMERO, antes de staticfiles
-    # Sin esto, los archivos estáticos (logo, firma, etc.) no cargan en producción
+    # WhiteNoise PRIMERO, antes de staticfiles
     'whitenoise.runserver_nostatic',
 
-    # --- CLOUDINARY (cloudinary_storage antes de staticfiles) ---
+    # Cloudinary (cloudinary_storage antes de staticfiles)
     'cloudinary_storage',
     'django.contrib.staticfiles',
     'cloudinary',
-    # -----------------------------------------------------------------------
 
     # Librerías de Terceros
-    'anymail',  # Para Resend
+    'anymail',
 
     # Mis Aplicaciones
     'expedientes',
@@ -70,7 +60,7 @@ INSTALLED_APPS = [
 # ==========================================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # ← Segunda posición, siempre
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -115,7 +105,6 @@ DATABASES = {
     }
 }
 
-# Si existe DATABASE_URL (Railway), usa PostgreSQL
 if 'DATABASE_URL' in os.environ:
     db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
     DATABASES['default'].update(db_from_env)
@@ -150,29 +139,20 @@ USE_TZ = True
 # ==========================================
 # 8. ARCHIVOS ESTÁTICOS Y MEDIA
 # ==========================================
-
-# ✅ FIX: STATIC_URL con slash inicial (sin él los estáticos no resuelven bien)
 STATIC_URL = '/static/'
-
-# Carpeta donde están tus estáticos en desarrollo (logo.png, firma.png, etc.)
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-
-# Carpeta donde collectstatic reúne todo para producción
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# WhiteNoise comprime y sirve los estáticos en Railway
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
-
-# --- CLOUDINARY para archivos subidos por usuarios (logos de clientes, docs, etc.) ---
+# --- CLOUDINARY para archivos subidos por usuarios ---
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': env('CLOUDINARY_CLOUD_NAME', default=''),
     'API_KEY':    env('CLOUDINARY_API_KEY', default=''),
     'API_SECRET': env('CLOUDINARY_API_SECRET', default=''),
-    'SECURE': True,  # Fuerza HTTPS en las URLs de Cloudinary
+    'SECURE': True,
     'MEDIA_TAG': 'media',
+    'STATICFILES_MANIFEST_ROOT': os.path.join(BASE_DIR, 'staticfiles'),
 }
 
-# Si hay credenciales de Cloudinary, úsalas. Si no, almacenamiento local.
 if CLOUDINARY_STORAGE['CLOUD_NAME']:
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'
@@ -182,7 +162,7 @@ else:
 
 
 # ==========================================
-# 9. SISTEMA DE CORREO (Resend vía Anymail)
+# 9. CORREO (Resend vía Anymail)
 # ==========================================
 EMAIL_BACKEND = "anymail.backends.resend.EmailBackend"
 
@@ -207,29 +187,29 @@ XS_SHARING_ALLOWED_METHODS = ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE']
 # 11. SEGURIDAD EN PRODUCCIÓN
 # ==========================================
 if not DEBUG:
-    # Forzar HTTPS
     SECURE_SSL_REDIRECT = True
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-    # HSTS
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
-
-    # Cookies seguras
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-
-    # Headers extra
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
 
 
 # ==========================================
-# 12. CORRECCIÓN MIMETYPES (Windows local)
+# 12. MIMETYPES (Windows local)
 # ==========================================
 import mimetypes
 mimetypes.add_type("application/pdf", ".pdf", True)
 mimetypes.add_type("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx", True)
 mimetypes.add_type("image/svg+xml", ".svg", True)
 mimetypes.add_type("text/javascript", ".js", True)
+
+
+# ==========================================
+# 13. STATICFILES_STORAGE
+# ✅ AL FINAL para que cloudinary_storage no lo sobreescriba
+# ==========================================
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
