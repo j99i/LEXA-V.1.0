@@ -137,7 +137,7 @@ USE_TZ = True
 
 
 # ==========================================
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA (FORZANDO CLOUDINARY)
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA (CLOUDINARY DEFINITIVO)
 # ==========================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
@@ -145,7 +145,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_ROOT = os.path.join(BASE_DIR, 'static')
 
 # ---> FORZAMOS LA CONEXIÓN A CLOUDINARY <---
-# Sin "defaults". Si falta una variable, Railway te avisará en el log de despliegue.
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME':               env('CLOUDINARY_CLOUD_NAME'),
     'API_KEY':                  env('CLOUDINARY_API_KEY'),
@@ -164,7 +163,9 @@ STORAGES = {
         "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
-MEDIA_URL = f"https://res.cloudinary.com/{CLOUDINARY_STORAGE['CLOUD_NAME']}/"
+
+# MUY IMPORTANTE: Se deja local, Cloudinary generará las URLs correctas de forma interna
+MEDIA_URL = '/media/'
 
 
 # ==========================================
