@@ -1,6 +1,5 @@
 # ==========================================
-# EXPEDIENTES/VIEWS.PY - VERSIÓN COMPLETA Y CORREGIDA (RAILWAY + CLOUDINARY)
-# Análisis Técnico Final + Escudo Anti-Cloudinary
+# EXPEDIENTES/VIEWS.PY - VERSIÓN AMAZON S3 (AWS)
 # ==========================================
 import io
 import os
@@ -11,7 +10,6 @@ import re
 import base64
 import logging 
 from functools import wraps 
-import urllib.request
 import urllib.parse
 # Librerías de seguridad
 import bleach
@@ -67,28 +65,12 @@ from .models import (
 # --- Utilidades ---
 from .utils import generar_pdf_response
 
-# <--- CONFIGURACIÓN DEL LOGGER ---
 logger = logging.getLogger(__name__)
 
-# <--- VARIABLES DE ENTORNO SEGURAS ---
 EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', 'maribel.aldana@gestionescorpad.com')
 URL_PORTAL = os.environ.get('URL_PORTAL', 'https://portalgestionescorpad.up.railway.app')
 FIRMA_NOMBRE_DEFAULT = os.environ.get('FIRMA_NOMBRE_DEFAULT', 'Lic. Maribel Aldana Santos')
 FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Gestiones Corpad | Directora General')
-
-
-# ==========================================
-# FUNCIÓN ESCUDO PARA CLOUDINARY
-# ==========================================
-def safe_read_file(file_field):
-    """
-    Lee archivos desde Cloudinary saltándose los bloqueos de seguridad y errores por espacios en nombres.
-    Esto salva el servidor de colapsar al generar ZIPs, adjuntar a correos o leer archivos Word en la nube.
-    """
-    url_segura = file_field.url.replace("http://", "https://").replace(' ', '%20')
-    req = urllib.request.Request(url_segura, headers={'User-Agent': 'Mozilla/5.0'})
-    with urllib.request.urlopen(req) as response:
-        return response.read()
 
 
 # <--- DECORADOR CENTRALIZADO DE PERMISOS ---
@@ -106,7 +88,6 @@ def requiere_permiso(permiso):
 
 # <--- HELPER CENTRALIZADO DE BITÁCORA ---
 def registrar_bitacora(usuario, cliente, accion, descripcion):
-    """Registra cualquier acción en la bitácora del cliente de forma segura."""
     try:
         Bitacora.objects.create(
             usuario=usuario,
@@ -564,8 +545,8 @@ def descargar_carpeta_zip(request, carpeta_id):
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for file in Documento.objects.filter(carpeta=carpeta):
             try: 
-                # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-                zip_file.writestr(file.nombre_archivo, safe_read_file(file.archivo))
+                # En S3, leer el archivo es seguro de forma nativa
+                zip_file.writestr(file.nombre_archivo, file.archivo.read())
             except Exception as e: 
                 logger.warning(f"No se pudo incluir {file.nombre_archivo} en ZIP de carpeta {carpeta.id}: {e}")
     
@@ -603,8 +584,8 @@ def acciones_masivas_drive(request):
             with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for doc in docs:
                     try: 
-                        # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-                        zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
+                        # En S3 .read() funciona nativamente sin crashear
+                        zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                     except Exception as e:
                         logger.warning(f"Error zipping {doc.id} en acciones masivas: {e}")
             registrar_bitacora(request.user, cliente, 'descarga', f"Descargó selección de {docs.count()} archivo(s) en ZIP.")
@@ -708,8 +689,8 @@ def generador_contratos(request, cliente_id):
 
     plantilla = get_object_or_404(Plantilla, id=request.GET.get('plantilla_id') or request.POST.get('plantilla_id'))
     
-    # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-    doc = DocxTemplate(io.BytesIO(safe_read_file(plantilla.archivo)))
+    # En S3 leemos nativamente
+    doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
     
     vars_en_doc = doc.get_undeclared_template_variables()
     memoria = cliente.datos_extra if isinstance(cliente.datos_extra, dict) else {}
@@ -800,8 +781,8 @@ def visor_docx(request, documento_id):
     html = ""
     if doc.nombre_archivo.endswith('.docx'):
         try:
-            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-            html = mammoth.convert_to_html(io.BytesIO(safe_read_file(doc.archivo))).value
+            # En S3 leemos nativamente
+            html = mammoth.convert_to_html(io.BytesIO(doc.archivo.read())).value
         except Exception as e:
             logger.error(f"Error visualizando DOCX {documento_id}: {e}")
     return render(request, 'generador/visor.html', {'doc': doc, 'contenido_html': html})
@@ -1865,14 +1846,14 @@ def rechazar_archivo_temporal(request, temp_id):
     messages.warning(request, f"❌ Documento rechazado y eliminado: {nombre}")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
-# <--- FUNCIONES DE PREVIEW REESCRITAS PARA CLOUDINARY --->
+# <--- FUNCIONES DE PREVIEW OPTIMIZADAS PARA S3 --->
 @login_required
 def preview_archivo(request, documento_id):
     doc = get_object_or_404(Documento, id=documento_id)
     ext = doc.nombre_archivo.split('.')[-1].lower()
     
-    # Asegurar URL de Cloudinary sin espacios
-    url_segura = doc.archivo.url.replace("http://", "https://").replace(' ', '%20')
+    # En S3 simplemente usamos su URL nativa
+    url_segura = doc.archivo.url
     
     data = {
         'nombre': doc.nombre_archivo,
@@ -1896,8 +1877,8 @@ def preview_archivo(request, documento_id):
             data['tipo'] = 'audio'
         elif ext in ['txt', 'py', 'js', 'html', 'css', 'json', 'md']:
             data['tipo'] = 'texto'
-            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-            data['html'] = safe_read_file(doc.archivo).decode('utf-8', errors='ignore') 
+            # En S3 leemos nativamente
+            data['html'] = doc.archivo.read().decode('utf-8', errors='ignore') 
         else:
             data['tipo'] = 'descarga'
 
@@ -1909,21 +1890,16 @@ def preview_archivo(request, documento_id):
 
 @login_required
 def obtener_preview_archivo(request, archivo_id):
-    """
-    Se mantiene este nombre de función adicional por si el frontend la llama en algún lugar.
-    Apunta directamente a la misma lógica corregida de arriba.
-    """
     return preview_archivo(request, archivo_id)
 
-# <--- FIX CLOUDINARY: DESCARGA DIRECTA POR REDIRECCIÓN --->
+# <--- DESCARGA DIRECTA OPTIMIZADA PARA S3 --->
 @login_required
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        # Ya no obligamos al servidor de Railway a descargar el archivo de Cloudinary a la RAM
-        # Simplemente dirigimos al navegador del usuario a Cloudinary.
-        url_segura = doc.archivo.url.replace("http://", "https://").replace(' ', '%20')
-        return redirect(url_segura)
+        # En AWS la mejor práctica de rendimiento es redirigir, 
+        # esto ahorra RAM en tu servidor de Railway
+        return redirect(doc.archivo.url)
 
     except Exception as e:
         logger.error(f"Error crítico en descarga: {str(e)}")
@@ -1955,8 +1931,8 @@ def redactar_correo_autorizaciones(request, carpeta_id):
                 if doc_acuse and doc.id == doc_acuse.id:
                     continue
                 try:
-                    # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-                    zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
+                    # En S3 .read() funciona nativamente
+                    zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                 except Exception as e:
                     logger.warning(f"No se pudo adjuntar {doc.nombre_archivo}: {e}")
         buffer.seek(0)
@@ -1983,8 +1959,8 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         
         if doc_acuse:
             try:
-                # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-                email.attach(doc_acuse.nombre_archivo, safe_read_file(doc_acuse.archivo), 'application/pdf')
+                # En S3 .read() funciona nativamente
+                email.attach(doc_acuse.nombre_archivo, doc_acuse.archivo.read(), 'application/pdf')
             except Exception as e:
                 logger.warning(f"No se pudo adjuntar el físico del acuse: {e}")
 
@@ -2155,8 +2131,8 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
                     for doc in lista_adjuntos:
                         try:
-                            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-                            zip_file.writestr(doc.nombre_archivo, safe_read_file(doc.archivo))
+                            # En S3 leemos nativamente
+                            zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                         except Exception as e:
                             logger.warning(f"Error comprimiendo {doc.nombre_archivo}: {e}")
                 zip_buffer.seek(0)
@@ -2250,8 +2226,8 @@ def generar_contrato_final(request):
                 if key not in campos_ignorados:
                     contexto[key] = value
 
-            # <--- FIX CLOUDINARY: USAMOS SAFE_READ_FILE --->
-            doc = DocxTemplate(io.BytesIO(safe_read_file(plantilla.archivo)))
+            # En S3 leemos nativamente
+            doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
             doc.render(contexto)
 
             nombre_salida = request.POST.get('nombre_archivo_salida', 'Documento_Generado')

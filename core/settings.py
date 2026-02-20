@@ -42,10 +42,10 @@ INSTALLED_APPS = [
     # WhiteNoise PRIMERO, antes de staticfiles
     'whitenoise.runserver_nostatic',
 
-    # ---> ORDEN CORRECTO PARA CLOUDINARY <---
     'django.contrib.staticfiles',
-    'cloudinary_storage',
-    'cloudinary',
+    
+    # ---> ALMACENAMIENTO AWS S3 <---
+    'storages',
 
     # Librerías de Terceros
     'anymail',
@@ -137,35 +137,48 @@ USE_TZ = True
 
 
 # ==========================================
-# 8. ARCHIVOS ESTÁTICOS Y MEDIA (CLOUDINARY DEFINITIVO)
+# 8. ARCHIVOS ESTÁTICOS Y MEDIA (AMAZON S3)
 # ==========================================
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 WHITENOISE_ROOT = os.path.join(BASE_DIR, 'static')
 
-# ---> FORZAMOS LA CONEXIÓN A CLOUDINARY <---
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME':               env('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY':                  env('CLOUDINARY_API_KEY'),
-    'API_SECRET':               env('CLOUDINARY_API_SECRET'),
-    'SECURE':                   True,
-    'MEDIA_TAG':                'media',
-    'STATIC_TAG':               '',
-    'UPLOAD_PREFIX':            'media',
-}
+# ---> CONFIGURACIÓN DINÁMICA DE ALMACENAMIENTO <---
+# Si Railway tiene las variables de AWS, usará S3. Si estás en local sin llaves, guardará normal.
+if env('AWS_ACCESS_KEY_ID', default=''):
+    AWS_ACCESS_KEY_ID = env('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env('AWS_STORAGE_BUCKET_NAME')
+    AWS_S3_REGION_NAME = env('AWS_S3_REGION_NAME', default='us-east-1')
+    
+    AWS_S3_FILE_OVERWRITE = False
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
-    },
-}
+    STORAGES = {
+        "default": {
+            "BACKEND": "storages.backends.s3boto3.S3Boto3Storage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
+else:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage",
+        },
+    }
 
-# MUY IMPORTANTE: Se deja local, Cloudinary generará las URLs correctas de forma interna
 MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 
 # ==========================================
