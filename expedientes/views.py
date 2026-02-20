@@ -1923,39 +1923,23 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        url = doc.archivo.url
+        # 1. Limpiamos el nombre
         nombre = doc.nombre_archivo.replace(' ', '_')
-        
         content_type = 'application/pdf' if nombre.lower().endswith('.pdf') else 'application/octet-stream'
 
-        if url.startswith('http://') or url.startswith('https://'):
-            # 1. CODIFICAMOS LA URL (Convierte espacios en %20 para que Python no colapse)
-            url_segura = urllib.parse.quote(url, safe="%/:=&?~#+!$,;'@()*[]")
-            
-            # 2. Máscara de navegador
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-            }
-            req = urllib.request.Request(url_segura, headers=headers)
-            
-            # 3. El servidor descarga el archivo a escondidas
-            with urllib.request.urlopen(req) as response:
-                archivo_bytes = response.read()
-            
-            # 4. Te lo entregamos directamente
-            http_response = HttpResponse(archivo_bytes, content_type=content_type)
-            http_response['Content-Disposition'] = f'attachment; filename="{nombre}"'
-            return http_response
-            
-        else:
-            return FileResponse(doc.archivo.open('rb'), as_attachment=True, filename=nombre)
+        # 2. Leemos el archivo usando el motor nativo de Django. 
+        # Esto usa tu API_SECRET de Cloudinary automáticamente, por lo que NUNCA habrá Error 401.
+        archivo_bytes = doc.archivo.read()
+
+        # 3. Te entregamos el archivo directamente a ti, ocultando Cloudinary
+        response = HttpResponse(archivo_bytes, content_type=content_type)
+        response['Content-Disposition'] = f'attachment; filename="{nombre}"'
+        return response
 
     except Exception as e:
         logger.error(f"Error en descarga archivo {archivo_id}: {e}")
-        # AHORA SÍ TE MOSTRARÁ EL ERROR EXACTO EN TU PANTALLA:
-        messages.error(request, f"Error al descargar (Código técnico): {str(e)}")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-    
+        messages.error(request, f"El archivo ya no existe físicamente en la nube.")
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)    
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
