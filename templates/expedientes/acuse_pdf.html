@@ -23,7 +23,7 @@
             color: #2D1B4B; 
             font-size: 10pt;
             line-height: 1.5;
-            background-color: #ffffff; /* Fondo blanco puro para impresión limpia */
+            background-color: #ffffff;
             margin: 0;
             padding: 0;
         }
@@ -51,14 +51,14 @@
         }
         .location-date { font-size: 9pt; color: #4B5563; font-weight: 500; }
 
-        /* --- TARJETAS DE INFORMACIÓN (Con estilo mejorado) --- */
+        /* --- TARJETAS DE INFORMACIÓN --- */
         .info-container { overflow: hidden; margin-bottom: 30px; }
         
         .info-box {
             float: left; width: 48%;
-            background-color: #F8F9FA; /* Gris muy suave */
+            background-color: #F8F9FA;
             border: 1px solid #E9ECEF;
-            border-radius: 8px; /* Bordes menos redondeados, más serio */
+            border-radius: 8px;
             padding: 18px;
             box-sizing: border-box;
         }
@@ -66,7 +66,7 @@
         .info-box.right {
             float: right;
             background-color: #ffffff;
-            border: 1px dashed #A855F7; /* Borde punteado morado */
+            border: 1px dashed #A855F7;
         }
 
         .card-label {
@@ -97,7 +97,7 @@
 
         .data-table { 
             width: 100%; border-collapse: collapse; margin-bottom: 20px; 
-            table-layout: fixed; /* Clave para no romper diseño */
+            table-layout: fixed;
         }
         .data-table thead { display: table-header-group; }
         .data-table tr { page-break-inside: avoid; }
@@ -110,7 +110,7 @@
             padding: 12px; border-bottom: 1px solid #E5E7EB; vertical-align: top; 
             word-wrap: break-word;
         }
-        .data-table tr:nth-child(even) { background-color: #F9FAFB; } /* Zebra striping sutil */
+        .data-table tr:nth-child(even) { background-color: #F9FAFB; }
 
         .doc-name { font-weight: 600; color: #2D1B4B; font-size: 9.5pt; display: block; margin-bottom: 4px; }
         .doc-vence { 
@@ -124,7 +124,7 @@
         ul.checklist li { margin-bottom: 4px; position: relative; font-size: 9pt; color: #4B5563; }
         ul.checklist li:before { 
             content: "✓"; position: absolute; left: -15px; 
-            color: #10B981; /* Verde éxito */
+            color: #10B981; 
             font-weight: bold; 
         }
         .empty-state { font-size: 9pt; color: #9CA3AF; font-style: italic; }
@@ -167,11 +167,7 @@
 
     <div class="header">
         <div class="header-left">
-            {% if base_url %}
-                <img src="{{ base_url }}static/img/logo.png" class="logo-img" alt="Corpad">
-            {% else %}
-                <img src="{% static 'img/logo.png' %}" class="logo-img" alt="Corpad">
-            {% endif %}
+            <img src="{{ base_url }}static/img/logo.png" class="logo-img" alt="Corpad">
             <span class="brand-name">CORPAD</span>
         </div>
         <div class="header-right">
@@ -259,11 +255,7 @@
     {% endif %}
 
     <div class="footer-section">
-        {% if base_url %}
-            <img src="{{ base_url }}static/img/firma_full.png" class="signature-img" alt="Firma">
-        {% else %}
-            <img src="{% static 'img/firma_full.png' %}" class="signature-img" alt="Firma">
-        {% endif %}
+        <img src="{{ base_url }}static/img/firma_full.png" class="signature-img" alt="Firma">
 
         <div class="signature-line"></div>
         <div class="signer-name">Lic. Maribel Aldana Santos</div>
