@@ -16,6 +16,7 @@ from functools import wraps
 # Librerías de seguridad (Sprint 1 y 2)
 import bleach
 import magic
+import urllib.request
 
 from .models import Plantilla
 from django.utils.text import slugify
