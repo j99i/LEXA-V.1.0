@@ -138,19 +138,15 @@
         /* --- FIRMA (ESTILO FINAL) --- */
         .firma { 
             text-align: center; 
-            margin-top: 40px; /* Espacio superior adecuado */
+            margin-top: 40px; 
             page-break-inside: avoid; 
         }
 
         .firma-imagen { 
-            height: 100px; /* Tamaño de la firma */
+            height: 100px; 
             width: auto; 
             display: block; 
-            
-            /* Margen positivo abajo para separarla de la línea */
             margin: 0 auto 10px auto; 
-            
-            /* Efecto "Multiply" para eliminar el fondo blanco y parecer tinta */
             mix-blend-mode: multiply; 
             opacity: 0.95; 
         }
@@ -180,11 +176,7 @@
         
         <div class="header">
             <div class="header-left">
-                {% if base_url %}
-                    <img src="{{ base_url }}static/img/logo.png" class="logo-img">
-                {% else %}
-                    <img src="{% static 'img/logo.png' %}" class="logo-img">
-                {% endif %}
+                <img src="file:///app/staticfiles/img/logo.png" class="logo-img">
                 <h1 class="brand-name">CORPAD</h1>
             </div>
             <div class="header-right">
@@ -305,11 +297,7 @@
         </div>
 
         <div class="firma">
-            {% if base_url %}
-                <img src="{{ base_url }}static/img/firma_full.png" class="firma-imagen" alt="Firma">
-            {% else %}
-                <img src="{% static 'img/firma_full.png' %}" class="firma-imagen" alt="Firma">
-            {% endif %}
+            <img src="file:///app/staticfiles/img/firma_full.png" class="firma-imagen" alt="Firma">
             
             <div class="firma-linea"></div>
             <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
