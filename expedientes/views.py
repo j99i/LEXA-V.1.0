@@ -1924,32 +1924,28 @@ def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
         url = doc.archivo.url
-        nombre = doc.nombre_archivo
+        # Limpiamos el nombre para que no tenga espacios que rompan la URL
+        nombre = doc.nombre_archivo.replace(' ', '_') 
         
-        # 1. Definimos que es un PDF u otro archivo
-        content_type = 'application/pdf' if nombre.lower().endswith('.pdf') else 'application/octet-stream'
-
-        # 2. Si el archivo está en Cloudinary (empieza con http/https)
+        # 1. Si el archivo está en Cloudinary
         if url.startswith('http://') or url.startswith('https://'):
-            # Tu servidor va a buscar el archivo a la nube de forma invisible
-            req = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-            with urllib.request.urlopen(req) as response:
-                archivo_bytes = response.read()
+            if '/upload/' in url:
+                # Usamos el comando nativo de Cloudinary: "fl_attachment"
+                # Esto le dice al navegador "Descarga el archivo, no cambies de página".
+                url_descarga = url.replace('/upload/', f'/upload/fl_attachment:{nombre}/')
+                return redirect(url_descarga)
+            else:
+                return redirect(url)
             
-            # Te entrega el archivo directamente en tu página
-            http_response = HttpResponse(archivo_bytes, content_type=content_type)
-            http_response['Content-Disposition'] = f'attachment; filename="{nombre}"'
-            return http_response
-            
-        # 3. Por si algún archivo viejo quedó guardado en el disco local
+        # 2. Por si algún archivo viejo quedó guardado en el disco local
         else:
+            from django.http import FileResponse
             return FileResponse(doc.archivo.open('rb'), as_attachment=True, filename=nombre)
 
     except Exception as e:
         logger.error(f"Error en descarga archivo {archivo_id}: {e}")
         messages.error(request, f"Error al intentar descargar el archivo. Código: {str(e)}")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-    
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)    
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
