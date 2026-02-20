@@ -38,6 +38,8 @@ class Usuario(AbstractUser):
     access_contratos = models.BooleanField(default=False)
     access_disenador = models.BooleanField(default=False)
     access_agenda = models.BooleanField(default=False)
+    access_gastos = models.BooleanField(default=False)   # NUEVO
+    access_qr = models.BooleanField(default=False) 
 
     clientes_asignados = models.ManyToManyField('Cliente', blank=True, related_name='abogados_asignados')
 
@@ -45,7 +47,7 @@ class Usuario(AbstractUser):
         if self.rol == 'admin':
             self.is_staff = True
             self.is_superuser = True
-            for field in ['can_create_client', 'can_edit_client', 'can_delete_client', 'can_upload_files', 'can_manage_users', 'access_finanzas', 'access_cotizaciones', 'access_contratos', 'access_disenador', 'access_agenda']:
+            for field in ['can_create_client', 'can_edit_client', 'can_delete_client', 'can_upload_files', 'can_manage_users', 'access_finanzas', 'access_cotizaciones', 'access_contratos', 'access_disenador', 'access_agenda', 'access_gastos', 'access_qr']:
                 setattr(self, field, True)
         super().save(*args, **kwargs)
 

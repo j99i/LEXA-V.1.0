@@ -56,11 +56,15 @@
             <li class="mr-2">
                 <button class="inline-block p-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600" id="history-tab" onclick="switchTab('history')">
                     <i class="fas fa-history mr-2"></i> Bitácora
+                    {% if historial %}
+                    <span class="ml-1 bg-purple-100 text-purple-700 text-[10px] font-black px-2 py-0.5 rounded-full">{{ historial|length }}</span>
+                    {% endif %}
                 </button>
             </li>
         </ul>
     </div>
 
+    {# ==================== TAB: EXPEDIENTE ==================== #}
     <div id="drive-content" class="animate__animated animate__fadeIn">
         
         <div class="flex justify-between items-center mb-4">
@@ -111,7 +115,6 @@
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
                 <i class="fas fa-search-dollar text-9xl text-white"></i>
             </div>
-
             <div class="flex justify-between items-center mb-6 relative z-10">
                 <div>
                     <h3 class="text-xl font-black text-white flex items-center gap-3">
@@ -121,7 +124,6 @@
                     <p class="text-gray-300 text-sm mt-1">El cliente ha enviado <strong>{{ archivos_pendientes.count }}</strong> archivos para revisión.</p>
                 </div>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
                 {% for temp in archivos_pendientes %}
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl hover:bg-white/20 transition-all group">
@@ -131,12 +133,8 @@
                         </div>
                         <span class="text-[10px] text-gray-300 font-mono">{{ temp.fecha_subida|date:"d M H:i" }}</span>
                     </div>
-                    
-                    <h4 class="font-bold text-white text-sm mb-1 truncate" title="{{ temp.nombre_requisito }}">
-                        {{ temp.nombre_requisito }}
-                    </h4>
+                    <h4 class="font-bold text-white text-sm mb-1 truncate" title="{{ temp.nombre_requisito }}">{{ temp.nombre_requisito }}</h4>
                     <p class="text-xs text-gray-400 mb-4">Pendiente de validación</p>
-
                     <button onclick="abrirModalAuditoria('{{ temp.id }}', '{{ temp.nombre_requisito }}', '{{ temp.archivo.url }}')" 
                        class="w-full bg-white text-[#2D1B4B] hover:bg-yellow-400 font-bold py-2 rounded-lg text-xs transition-colors shadow-lg flex items-center justify-center gap-2">
                         <i class="fas fa-microscope"></i> AUDITAR AHORA
@@ -154,14 +152,13 @@
                 {% for carpeta in carpetas %}
                 <div class="rounded-xl p-4 border shadow-sm relative transition-all hover:shadow-md 
                     {% if carpeta.nombre == 'Autorizaciones liberadas' %}
-                        bg-red-50 border-red-300 shadow-red-100 group-special
+                        bg-red-50 border-red-300 shadow-red-100
                     {% else %}
                         bg-gray-50 border-gray-200 
                     {% endif %}">
                     
                     <div class="flex items-center justify-between mb-4 pb-2 border-b 
                         {% if carpeta.nombre == 'Autorizaciones liberadas' %}border-red-200{% else %}border-gray-200{% endif %}">
-                        
                         <div class="flex items-center gap-3">
                             {% if carpeta.nombre == 'Autorizaciones liberadas' %}
                                 <i class="fas fa-shield-alt text-2xl text-red-500 animate-pulse"></i>
@@ -182,7 +179,6 @@
                             {% for item in detalle %}
                             <div class="flex justify-between items-center bg-white p-2 rounded-lg border 
                                     {% if item.estado == 'ok' %}border-green-200 bg-green-50{% else %}border-red-100 bg-red-50{% endif %}">
-                                
                                 <div class="flex items-center gap-2 overflow-hidden">
                                     {% if item.estado == 'ok' %}
                                         <div class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm"><i class="fas fa-check"></i></div>
@@ -191,13 +187,10 @@
                                     {% endif %}
                                     <span class="text-[10px] font-bold text-gray-600 leading-tight truncate" title="{{ item.nombre }}">{{ item.nombre }}</span>
                                 </div>
-
                                 <div class="shrink-0 flex gap-1">
                                     {% if item.estado == 'ok' %}
                                         <button onclick="abrirPreview('{{ item.doc.id }}')" class="w-6 h-6 rounded bg-white text-gray-500 border border-gray-200 hover:text-[#A855F7] flex items-center justify-center transition-colors"><i class="fas fa-eye text-[10px]"></i></button>
-                                        
                                         <button onclick="abrirModalMover('{{ item.doc.id }}', '{{ item.doc.nombre_archivo }}')" class="w-6 h-6 rounded bg-white text-blue-400 border border-gray-200 hover:text-blue-600 flex items-center justify-center transition-colors"><i class="fas fa-exchange-alt text-[10px]"></i></button>
-                                        
                                         <a href="{% url 'eliminar_archivo_drive' item.doc.id %}" onclick="return confirm('¿Eliminar documento? Volverá a estado ROJO.')" class="w-6 h-6 rounded bg-white text-red-300 border border-gray-200 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fas fa-trash text-[10px]"></i></a>
                                     {% else %}
                                         <button onclick="abrirModalRequisito('{{ carpeta.id }}', '{{ item.nombre }}')" class="px-2 py-1 bg-[#2D1B4B] text-white text-[9px] font-bold rounded hover:bg-[#A855F7] transition-colors shadow-sm">SUBIR</button>
@@ -249,9 +242,7 @@
                             <td class="py-3 text-gray-500 text-xs">{{ doc.fecha_subida|date:"d/m/y" }}</td>
                             <td class="py-3 text-right">
                                 <button type="button" onclick="abrirPreview('{{ doc.id }}')" class="text-gray-400 hover:text-[#A855F7] mx-1"><i class="fas fa-eye"></i></button>
-                                
                                 <a href="{% url 'descargar_archivo_oficial' doc.id %}" class="text-gray-400 hover:text-[#2D1B4B] mx-1" title="Descargar"><i class="fas fa-download"></i></a>
-                                
                                 <button type="button" onclick="abrirModalMover('{{ doc.id }}', '{{ doc.nombre_archivo }}')" class="text-blue-400 hover:text-blue-600 mx-1"><i class="fas fa-exchange-alt"></i></button>
                                 {% if user.can_delete_client or user.rol == 'admin' %}
                                 <a href="{% url 'eliminar_archivo_drive' doc.id %}" onclick="return confirm('¿Estás seguro de eliminar este archivo?')" class="text-red-300 hover:text-red-500 mx-1"><i class="fas fa-trash"></i></a>
@@ -270,6 +261,7 @@
         </div>
     </div>
 
+    {# ==================== TAB: AGENDA ==================== #}
     <div id="rec-content" class="hidden animate__animated animate__fadeIn">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
@@ -318,25 +310,245 @@
         </div>
     </div>
 
+    {# ==================== TAB: BITÁCORA ==================== #}
     <div id="history-content" class="hidden animate__animated animate__fadeIn">
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-[#2D1B4B] mb-6 border-b pb-4"><i class="fas fa-list-alt mr-2"></i> Auditoría</h3>
-            <table class="w-full text-left border-collapse">
-                <thead><tr class="text-xs text-gray-400 border-b"><th class="py-2">Fecha</th><th>Usuario</th><th>Acción</th><th>Detalle</th></tr></thead>
-                <tbody class="text-sm">
-                    {% for b in historial %}
-                    <tr class="border-b hover:bg-gray-50">
-                        <td class="py-3 font-bold text-gray-500 text-xs">{{ b.fecha|date:"d M, H:i" }}</td>
-                        <td class="py-3 font-bold text-[#2D1B4B] text-xs">{{ b.usuario.username }}</td>
-                        <td class="py-3"><span class="bg-gray-100 px-2 py-1 rounded text-[10px] font-bold">{{ b.accion|upper }}</span></td>
-                        <td class="py-3 text-gray-600 text-xs">{{ b.descripcion }}</td>
-                    </tr>
-                    {% empty %}<tr><td colspan="4" class="text-center text-gray-400 py-4">Sin registros.</td></tr>{% endfor %}
-                </tbody>
-            </table>
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h3 class="text-lg font-bold text-[#2D1B4B]">
+                    <i class="fas fa-list-alt mr-2"></i> Bitácora de Actividad
+                </h3>
+                <span class="text-xs text-gray-400 font-bold">{{ historial|length }} registro(s)</span>
+            </div>
+
+            {# --- Leyenda de colores --- #}
+            <div class="flex flex-wrap gap-2 mb-6">
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700"><i class="fas fa-circle text-[8px]"></i> Subida</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-red-700"><i class="fas fa-circle text-[8px]"></i> Eliminación</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><i class="fas fa-circle text-[8px]"></i> Edición</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700"><i class="fas fa-circle text-[8px]"></i> Pago</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700"><i class="fas fa-circle text-[8px]"></i> Generación</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700"><i class="fas fa-circle text-[8px]"></i> Correo</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-teal-100 text-teal-700"><i class="fas fa-circle text-[8px]"></i> Creación</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600"><i class="fas fa-circle text-[8px]"></i> Otros</span>
+            </div>
+
+            {% if historial %}
+            <div class="space-y-2">
+                {% for b in historial %}
+
+                {# Determinar color según acción #}
+                {% if b.accion == 'subida' %}
+                    {% with color="green" icono="fa-cloud-upload-alt" %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas {{ icono }} text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-green-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+                    {% endwith %}
+
+                {% elif b.accion == 'eliminacion' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-trash text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-red-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'edicion' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-pen text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-blue-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'pago' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-yellow-100 bg-yellow-50/50 hover:bg-yellow-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-dollar-sign text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-yellow-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'generacion' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-magic text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-purple-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'envio_correo' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-orange-100 bg-orange-50/50 hover:bg-orange-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-envelope text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-orange-700 uppercase tracking-wide">CORREO ENVIADO</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'creacion' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-teal-100 bg-teal-50/50 hover:bg-teal-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-teal-100 text-teal-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-plus text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-teal-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'descarga' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-indigo-100 bg-indigo-50/50 hover:bg-indigo-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-download text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-indigo-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'tarea' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-pink-100 bg-pink-50/50 hover:bg-pink-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-pink-100 text-pink-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-check-square text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-pink-700 uppercase tracking-wide">TAREA</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'movimiento' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-cyan-100 bg-cyan-50/50 hover:bg-cyan-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-cyan-100 text-cyan-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-exchange-alt text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-cyan-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'aprobacion' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-emerald-100 bg-emerald-50/50 hover:bg-emerald-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-thumbs-up text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-emerald-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% elif b.accion == 'rechazo' %}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-rose-100 bg-rose-50/50 hover:bg-rose-50 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-thumbs-down text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-rose-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+
+                {% else %}
+                    {# Cualquier otra acción — color gris genérico #}
+                    <div class="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
+                        <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0 mt-0.5">
+                            <i class="fas fa-info text-xs"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between gap-2 flex-wrap">
+                                <span class="text-xs font-black text-gray-600 uppercase tracking-wide">{{ b.accion }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                            </div>
+                            <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                            <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
+                        </div>
+                    </div>
+                {% endif %}
+
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-20 text-gray-300">
+                <i class="fas fa-history text-5xl mb-4 opacity-40"></i>
+                <p class="font-bold text-sm">Sin actividad registrada aún.</p>
+                <p class="text-xs mt-1">Las acciones realizadas en este expediente aparecerán aquí.</p>
+            </div>
+            {% endif %}
         </div>
     </div>
-    
+
+    {# ==================== BARRA MASIVA ==================== #}
     <div id="barra-masiva" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#2D1B4B] text-white px-6 py-3 rounded-full shadow-2xl items-center gap-6 z-40">
         <span class="font-bold text-sm"><span id="conteo-sel">0</span> seleccionados</span>
         <div class="flex gap-2">
@@ -349,6 +561,8 @@
     </div>
 </div>
 
+{# ==================== MODALES ==================== #}
+
 <div id="modal-preview" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
     <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden relative flex flex-col shadow-2xl">
         <div class="bg-[#2D1B4B] p-4 flex justify-between items-center shrink-0">
@@ -358,8 +572,7 @@
                 <button onclick="cerrarPreview()" class="text-white hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
             </div>
         </div>
-        <div id="preview-body" class="flex-1 bg-gray-100 overflow-hidden relative flex items-center justify-center">
-        </div>
+        <div id="preview-body" class="flex-1 bg-gray-100 overflow-hidden relative flex items-center justify-center"></div>
     </div>
 </div>
 
@@ -383,16 +596,13 @@
         <form action="{% url 'subir_archivo_drive' cliente.id %}" method="POST" enctype="multipart/form-data">
             {% csrf_token %}
             {% if carpeta_actual %}<input type="hidden" name="carpeta_id" value="{{ carpeta_actual.id }}">{% endif %}
-            
             <label class="block mb-2 text-xs font-bold text-gray-400">Seleccionar Archivo(s):</label>
             <input type="file" name="archivo" multiple class="w-full p-3 bg-gray-50 rounded-xl mb-4">
-            
             <label class="block mb-2 text-xs font-bold text-[#A855F7]">¿Tiene Vencimiento? (Opcional):</label>
             <div class="flex items-center gap-2 mb-6 bg-purple-50 p-2 rounded-xl border border-purple-100">
                 <i class="fas fa-calendar-alt text-[#A855F7] ml-2"></i>
                 <input type="date" name="fecha_vencimiento" class="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-600 font-bold">
             </div>
-
             <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] transition-colors">SUBIR</button>
         </form>
     </div>
@@ -461,7 +671,6 @@
 <div id="modal-auditoria" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
     <div class="w-full max-w-6xl h-[90vh] flex flex-col md:flex-row bg-white rounded-2xl overflow-hidden shadow-2xl relative">
         <button onclick="cerrarModalAuditoria()" class="absolute top-4 right-4 z-50 bg-black/50 text-white w-10 h-10 rounded-full hover:bg-red-500 transition-colors flex items-center justify-center"><i class="fas fa-times"></i></button>
-
         <div class="flex-1 bg-gray-100 relative flex items-center justify-center p-4 border-r border-gray-200">
             <div id="auditoria-loader" class="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
                 <div class="flex flex-col items-center">
@@ -471,7 +680,6 @@
             </div>
             <iframe id="auditoria-viewer" src="" class="w-full h-full shadow-lg bg-white rounded-lg border-none"></iframe>
         </div>
-
         <div class="w-full md:w-80 bg-white p-8 flex flex-col justify-between shrink-0">
             <div>
                 <h6 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">AUDITANDO:</h6>
@@ -505,15 +713,14 @@
     function switchTab(id) {
         ['drive', 'rec', 'history'].forEach(t => {
             document.getElementById(t + '-content').classList.add('hidden');
-            document.getElementById(t + '-tab').classList.remove('border-[#A855F7]', 'text-[#2D1B4B]');
+            document.getElementById(t + '-tab').classList.remove('border-[#A855F7]', 'text-[#2D1B4B]', 'font-bold');
             document.getElementById(t + '-tab').classList.add('text-gray-400', 'border-transparent');
         });
         document.getElementById(id + '-content').classList.remove('hidden');
-        document.getElementById(id + '-tab').classList.add('border-[#A855F7]', 'text-[#2D1B4B]');
+        document.getElementById(id + '-tab').classList.add('border-[#A855F7]', 'text-[#2D1B4B]', 'font-bold');
         document.getElementById(id + '-tab').classList.remove('text-gray-400', 'border-transparent');
     }
 
-    // Funciones Masivas
     function toggleTodos(s) { document.querySelectorAll('.doc-check').forEach(c => c.checked = s.checked); verificarSeleccion(); }
     function verificarSeleccion() { 
         const c = document.querySelectorAll('.doc-check:checked').length; 
@@ -524,13 +731,11 @@
     function ejecutarMasivo(a) { if(a==='eliminar' && !confirm('¿Seguro?'))return; document.getElementById('input-accion').value=a; document.getElementById('form-masivo').submit(); }
     function cerrarMasivo() { document.querySelectorAll('.doc-check').forEach(c => c.checked=false); verificarSeleccion(); }
     
-    // --- Lógica del Preview Universal ---
     function abrirPreview(id) {
         const modal = document.getElementById('modal-preview');
         const body = document.getElementById('preview-body');
         const title = document.getElementById('preview-title');
         const downloadBtn = document.getElementById('preview-download');
-
         modal.classList.remove('hidden'); 
         modal.classList.add('flex');
         body.innerHTML = '<div class="flex flex-col items-center justify-center h-full"><i class="fas fa-circle-notch fa-spin text-5xl text-[#2D1B4B] mb-4"></i><p class="text-gray-500 font-bold">Procesando archivo...</p></div>';
@@ -539,11 +744,8 @@
             .then(response => response.json())
             .then(data => {
                 title.innerText = data.nombre;
-                
                 downloadBtn.href = `/archivo/descargar/${id}/`; 
-                
                 let contenidoHTML = '';
-
                 if (data.tipo === 'imagen') {
                     contenidoHTML = `<div class="flex items-center justify-center h-full bg-black/5"><img src="${data.url}" class="max-w-full max-h-full object-contain shadow-lg rounded"></div>`;
                 } else if (data.tipo === 'pdf') {
@@ -564,13 +766,11 @@
                 body.innerHTML = contenidoHTML;
             })
             .catch(error => {
-                console.error('Error:', error);
                 body.innerHTML = '<div class="flex items-center justify-center h-full text-red-500 font-bold">Error al cargar el archivo.</div>';
             });
     }
     function cerrarPreview() { document.getElementById('modal-preview').classList.add('hidden'); }
 
-    // Helpers Modales
     function modalCrearCarpeta() { document.getElementById('modal-carpeta').classList.remove('hidden'); document.getElementById('modal-carpeta').classList.add('flex'); }
     function modalSubirArchivo() { document.getElementById('modal-archivo').classList.remove('hidden'); document.getElementById('modal-archivo').classList.add('flex'); }
 
@@ -595,7 +795,6 @@
     }
     function cerrarModalRequisito() { document.getElementById('modal-requisito').classList.add('hidden'); document.getElementById('modal-requisito').classList.remove('flex'); }
 
-    // Auditoría
     function abrirModalAuditoria(id, nombre, url) {
         const modal = document.getElementById('modal-auditoria');
         const viewer = document.getElementById('auditoria-viewer');
@@ -603,7 +802,6 @@
         const titulo = document.getElementById('auditoria-titulo');
         const btnAprobar = document.getElementById('btn-auditoria-aprobar');
         const btnRechazar = document.getElementById('btn-auditoria-rechazar');
-
         viewer.classList.add('hidden'); loader.classList.remove('hidden');
         titulo.innerText = nombre; viewer.src = url;
         btnAprobar.href = `/aprobar-archivo/${id}/`;

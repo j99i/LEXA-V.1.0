@@ -73,6 +73,14 @@
                         <span>📅 Agenda Legal</span>
                     </label>
                     <label class="check-item">
+                    <input type="checkbox" name="access_gastos" {% if u.access_gastos %}checked{% endif %}>
+                        <span>🧾 Módulo de Gastos y XML</span>
+                    </label>
+                     <label class="check-item">
+                     <input type="checkbox" name="access_qr" {% if u.access_qr %}checked{% endif %}>
+                        <span>📱 Generador de QR</span>
+                    </label>
+                    <label class="check-item">
                         <input type="checkbox" name="access_contratos" {% if u.access_contratos %}checked{% endif %}>
                         <span>⚖️ Generador de Contratos</span>
                     </label>

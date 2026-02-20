@@ -70,6 +70,7 @@
                 <p class="text-xs text-gray-400 mb-6">Controla a qué secciones principales puede acceder este usuario.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                     <label class="check-card">
                         <div class="flex items-start gap-3">
                             <input type="checkbox" name="access_cotizaciones" {% if u.access_cotizaciones %}checked{% endif %}>
@@ -119,6 +120,28 @@
                             </div>
                         </div>
                     </label>
+
+                    {# --- NUEVOS MÓDULOS --- #}
+                    <label class="check-card">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" name="access_gastos" {% if u.access_gastos %}checked{% endif %}>
+                            <div>
+                                <span class="check-title">🧾 Módulo de Gastos y XML</span>
+                                <span class="check-desc">Cargar facturas XML del SAT, visualizar resumen de gastos por mes y exportar reportes a Excel.</span>
+                            </div>
+                        </div>
+                    </label>
+
+                    <label class="check-card">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" name="access_qr" {% if u.access_qr %}checked{% endif %}>
+                            <div>
+                                <span class="check-title">📱 Generador de QR</span>
+                                <span class="check-desc">Crear códigos QR personalizados con colores de marca para compartir enlaces o información.</span>
+                            </div>
+                        </div>
+                    </label>
+
                 </div>
             </div>
 
@@ -173,7 +196,9 @@
 
                 {# Permiso peligroso separado #}
                 <div class="border-t border-gray-200 pt-4">
-                    <p class="text-[10px] font-bold text-red-400 uppercase mb-3"><i class="fas fa-exclamation-triangle mr-1"></i> Zona de Riesgo</p>
+                    <p class="text-[10px] font-bold text-red-400 uppercase mb-3">
+                        <i class="fas fa-exclamation-triangle mr-1"></i> Zona de Riesgo
+                    </p>
                     <label class="check-card border-red-200 bg-red-50/50 hover:border-red-300">
                         <div class="flex items-start gap-3">
                             <input type="checkbox" name="can_delete_client" {% if u.can_delete_client %}checked{% endif %}>
@@ -191,7 +216,11 @@
                 <h3 class="text-lg font-bold text-[#1A2238] mb-2">
                     <i class="fas fa-eye mr-2"></i> Información Visible
                 </h3>
-                <p class="text-xs text-gray-400 mb-4">Nota: Los datos de contacto del cliente (nombre del contacto, teléfono y email) <strong>solo son visibles para el Administrador</strong>. Los demás usuarios únicamente verán el nombre de la empresa.</p>
+                <p class="text-xs text-gray-400 mb-4">
+                    Nota: Los datos de contacto del cliente (nombre del contacto, teléfono y email) 
+                    <strong>solo son visibles para el Administrador</strong>. 
+                    Los demás usuarios únicamente verán el nombre de la empresa.
+                </p>
                 
                 <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
                     <div class="flex items-start gap-3">
@@ -218,10 +247,14 @@
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-[#1A2238]"><i class="fas fa-briefcase mr-2"></i> Clientes Visibles</h3>
+                        <h3 class="text-lg font-bold text-[#1A2238]">
+                            <i class="fas fa-briefcase mr-2"></i> Clientes Visibles
+                        </h3>
                         <p class="text-xs text-gray-400 mt-1">Solo podrá ver los expedientes de los clientes marcados aquí.</p>
                     </div>
-                    <button type="button" onclick="seleccionarTodos()" class="text-xs font-bold text-[#C0A062] hover:underline">Seleccionar / Deseleccionar Todos</button>
+                    <button type="button" onclick="seleccionarTodos()" class="text-xs font-bold text-[#C0A062] hover:underline">
+                        Seleccionar / Deseleccionar Todos
+                    </button>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto custom-scrollbar p-2 border border-gray-100 rounded-xl bg-gray-50">
@@ -263,7 +296,6 @@
     .input-form { width: 100%; padding: 0.75rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; color: #1F2937; border: 1px solid transparent; outline: none; }
     .input-form:focus { border-color: #C0A062; background-color: #fff; }
 
-    /* Card-style checkboxes con descripción */
     .check-card {
         display: block;
         padding: 16px;

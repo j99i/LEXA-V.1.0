@@ -1,6 +1,7 @@
 # ==========================================
 # EXPEDIENTES/VIEWS.PY - VERSIÓN CORREGIDA Y PULIDA
 # Análisis Técnico Final + Backlog Sprint 1 (Fixes)
+# Bitácora completa en todas las acciones
 # ==========================================
 import io
 import os
@@ -76,10 +77,6 @@ FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Gestiones Corpad | 
 
 # <--- DECORADOR CENTRALIZADO DE PERMISOS ---
 def requiere_permiso(permiso):
-    """
-    Verifica si el usuario es admin O tiene el permiso específico.
-    Si no, redirige al dashboard con un mensaje de error.
-    """
     def decorator(view_func):
         @wraps(view_func)
         def _wrapped_view(request, *args, **kwargs):
@@ -89,6 +86,19 @@ def requiere_permiso(permiso):
             return redirect('dashboard')
         return _wrapped_view
     return decorator
+
+# <--- HELPER CENTRALIZADO DE BITÁCORA ---
+def registrar_bitacora(usuario, cliente, accion, descripcion):
+    """Registra cualquier acción en la bitácora del cliente de forma segura."""
+    try:
+        Bitacora.objects.create(
+            usuario=usuario,
+            cliente=cliente,
+            accion=accion,
+            descripcion=descripcion
+        )
+    except Exception as e:
+        logger.warning(f"No se pudo registrar bitácora [{accion}]: {e}")
 
 
 # ==========================================
@@ -180,7 +190,7 @@ def editar_usuario(request, user_id):
         permisos = ['can_create_client', 'can_edit_client', 'can_delete_client', 
                     'can_upload_files', 'can_view_documents', 'can_manage_users',
                     'access_finanzas', 'access_cotizaciones', 'access_contratos', 
-                    'access_disenador', 'access_agenda']
+                    'access_disenador', 'access_agenda', 'access_gastos', 'access_qr']
         
         for p in permisos:
             setattr(user_obj, p, request.POST.get(p) == 'on')
@@ -266,6 +276,8 @@ def nuevo_cliente(request):
         )
         if request.user.rol != 'admin':
             request.user.clientes_asignados.add(c)
+        # BITÁCORA: Creación de cliente
+        registrar_bitacora(request.user, c, 'creacion', f"Dio de alta al cliente '{c.nombre_empresa}'.")
         return redirect('dashboard')
     return render(request, 'nuevo_cliente.html')
 
@@ -273,6 +285,9 @@ def nuevo_cliente(request):
 @requiere_permiso('can_delete_client')
 def eliminar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
+    nombre = cliente.nombre_empresa
+    # BITÁCORA: antes de eliminar para que no falle el FK
+    registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó el cliente '{nombre}' y todos sus datos.")
     cliente.delete()
     messages.success(request, "Cliente eliminado.")
     return redirect('dashboard')
@@ -354,7 +369,8 @@ def editar_cliente(request, cliente_id):
         
         cliente.datos_extra = datos_nuevos
         cliente.save()
-        Bitacora.objects.create(usuario=request.user, cliente=cliente, accion='edicion', descripcion="Actualizó datos.")
+        # BITÁCORA: Edición de cliente
+        registrar_bitacora(request.user, cliente, 'edicion', "Actualizó datos del cliente.")
         messages.success(request, "Cliente actualizado.")
         return redirect('detalle_cliente', cliente_id=cliente.id)
 
@@ -391,7 +407,11 @@ def crear_carpeta(request, cliente_id):
     if request.method == 'POST':
         padre_id = request.POST.get('padre_id')
         padre = get_object_or_404(Carpeta, id=padre_id) if padre_id else None
-        Carpeta.objects.create(nombre=request.POST.get('nombre'), cliente_id=cliente_id, padre=padre)
+        carpeta = Carpeta.objects.create(nombre=request.POST.get('nombre'), cliente_id=cliente_id, padre=padre)
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        # BITÁCORA: Creación de carpeta
+        ubicacion = f"dentro de '{padre.nombre}'" if padre else "en la raíz del expediente"
+        registrar_bitacora(request.user, cliente, 'creacion', f"Creó la carpeta '{carpeta.nombre}' {ubicacion}.")
         if padre: return redirect('detalle_carpeta', cliente_id=cliente_id, carpeta_id=padre.id)
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
@@ -399,17 +419,26 @@ def crear_carpeta(request, cliente_id):
 @requiere_permiso('can_delete_client')
 def eliminar_carpeta(request, carpeta_id):
     c = get_object_or_404(Carpeta, id=carpeta_id)
+    cliente = c.cliente
+    nombre_carpeta = c.nombre
     url_destino = 'detalle_carpeta' if c.padre else 'detalle_cliente'
     kwargs = {'cliente_id': c.cliente.id}
     if c.padre: kwargs['carpeta_id'] = c.padre.id
+    # BITÁCORA: Eliminación de carpeta
+    registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó la carpeta '{nombre_carpeta}' y todo su contenido.")
     c.delete()
     return redirect(url_destino, **kwargs)
 
 @login_required
 def crear_expediente(request, cliente_id):
     if request.method == 'POST':
-        f = Carpeta.objects.create(nombre=f"EXP {request.POST.get('num_expediente')}: {request.POST.get('titulo')}", cliente_id=cliente_id, es_expediente=True)
-        Expediente.objects.create(cliente_id=cliente_id, num_expediente=request.POST.get('num_expediente'), titulo=request.POST.get('titulo'), carpeta=f)
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        num_exp = request.POST.get('num_expediente')
+        titulo = request.POST.get('titulo')
+        f = Carpeta.objects.create(nombre=f"EXP {num_exp}: {titulo}", cliente_id=cliente_id, es_expediente=True)
+        Expediente.objects.create(cliente_id=cliente_id, num_expediente=num_exp, titulo=titulo, carpeta=f)
+        # BITÁCORA: Creación de expediente
+        registrar_bitacora(request.user, cliente, 'creacion', f"Creó el expediente #{num_exp}: {titulo}.")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
 @login_required
@@ -428,6 +457,7 @@ def subir_archivo_drive(request, cliente_id):
 
         eventos_to_create = []
         archivos_guardados = 0
+        nombres_guardados = []
 
         for f in archivos:
             try:
@@ -474,11 +504,18 @@ def subir_archivo_drive(request, cliente_id):
             
             nuevo_doc.save()
             archivos_guardados += 1
+            nombres_guardados.append(f.name)
 
         if eventos_to_create:
             Evento.objects.bulk_create(eventos_to_create)
 
         if archivos_guardados > 0:
+            # BITÁCORA: Subida de archivos
+            ubicacion = f"en '{carpeta.nombre}'" if carpeta else "en la raíz"
+            registrar_bitacora(
+                request.user, cliente, 'subida',
+                f"Subió {archivos_guardados} archivo(s) {ubicacion}: {', '.join(nombres_guardados)}."
+            )
             messages.success(request, f"{archivos_guardados} archivo(s) subido(s) correctamente.")
         
         if carpeta:
@@ -492,8 +529,10 @@ def subir_archivo_drive(request, cliente_id):
 def eliminar_archivo_drive(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     c_id, padre_id = doc.cliente.id, doc.carpeta.id if doc.carpeta else None
-    Bitacora.objects.create(usuario=request.user, cliente=doc.cliente, accion='eliminacion', descripcion=f"Eliminó {doc.nombre_archivo}")
-    doc.archivo.delete(); doc.delete()
+    # BITÁCORA: Eliminación de archivo
+    registrar_bitacora(request.user, doc.cliente, 'eliminacion', f"Eliminó el archivo '{doc.nombre_archivo}'.")
+    doc.archivo.delete()
+    doc.delete()
     if padre_id: return redirect('detalle_carpeta', cliente_id=c_id, carpeta_id=padre_id)
     return redirect('detalle_cliente', cliente_id=c_id)
 
@@ -510,7 +549,8 @@ def descargar_carpeta_zip(request, carpeta_id):
             except Exception as e: 
                 logger.warning(f"No se pudo incluir {file.nombre_archivo} en ZIP de carpeta {carpeta.id}: {e}")
     
-    Bitacora.objects.create(usuario=request.user, cliente=carpeta.cliente, accion='descarga', descripcion=f"Descargó ZIP: {carpeta.nombre}")
+    # BITÁCORA: Descarga de carpeta ZIP
+    registrar_bitacora(request.user, carpeta.cliente, 'descarga', f"Descargó ZIP completo de la carpeta '{carpeta.nombre}'.")
     buffer.seek(0)
     response = HttpResponse(buffer, content_type='application/zip')
     response['Content-Disposition'] = f'attachment; filename="{carpeta.nombre}.zip"'
@@ -525,11 +565,18 @@ def acciones_masivas_drive(request):
         if not docs: return redirect(request.META.get('HTTP_REFERER'))
         
         cliente = docs.first().cliente
+
         if accion == 'eliminar':
-            if not (request.user.can_delete_client or request.user.rol == 'admin'): return redirect(request.META.get('HTTP_REFERER'))
+            if not (request.user.can_delete_client or request.user.rol == 'admin'): 
+                return redirect(request.META.get('HTTP_REFERER'))
             count = docs.count()
-            for doc in docs: doc.archivo.delete(); doc.delete()
-            Bitacora.objects.create(usuario=request.user, cliente=cliente, accion='eliminacion', descripcion=f"Eliminó {count} archivos masivamente.")
+            nombres = list(docs.values_list('nombre_archivo', flat=True))
+            for doc in docs: 
+                doc.archivo.delete()
+                doc.delete()
+            # BITÁCORA: Eliminación masiva
+            resumen = ', '.join(nombres[:5]) + ('...' if len(nombres) > 5 else '')
+            registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó {count} archivo(s) masivamente: {resumen}.")
             messages.success(request, f"Se eliminaron {count} archivos.")
         
         elif accion == 'descargar':
@@ -539,8 +586,8 @@ def acciones_masivas_drive(request):
                     try: zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                     except Exception as e:
                         logger.warning(f"Error zipping {doc.id} en acciones masivas: {e}")
-
-            Bitacora.objects.create(usuario=request.user, cliente=cliente, accion='descarga', descripcion=f"Descargó selección ZIP.")
+            # BITÁCORA: Descarga masiva
+            registrar_bitacora(request.user, cliente, 'descarga', f"Descargó selección de {docs.count()} archivo(s) en ZIP.")
             buffer.seek(0)
             response = HttpResponse(buffer, content_type='application/zip')
             response['Content-Disposition'] = f'attachment; filename="Seleccion.zip"'
@@ -564,6 +611,36 @@ def preview_archivo(request, documento_id):
             data['html'] = "Error de lectura en servidor."
     return JsonResponse(data)
 
+@login_required
+def mover_archivo_drive(request, archivo_id):
+    doc = get_object_or_404(Documento, id=archivo_id)
+    
+    if not (request.user.can_edit_client or request.user.can_upload_files or request.user.rol == 'admin'):
+        messages.error(request, "No tienes permiso para mover archivos.")
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
+
+    if request.method == 'POST':
+        destino_id = request.POST.get('carpeta_destino')
+        origen_nombre = doc.carpeta.nombre if doc.carpeta else "Raíz"
+        
+        if destino_id == 'ROOT':
+            doc.carpeta = None
+            nombre_destino = "Carpeta Raíz"
+        else:
+            carpeta_destino = get_object_or_404(Carpeta, id=destino_id)
+            doc.carpeta = carpeta_destino
+            nombre_destino = carpeta_destino.nombre
+            
+        doc.save()
+        # BITÁCORA: Movimiento de archivo
+        registrar_bitacora(
+            request.user, doc.cliente, 'movimiento',
+            f"Movió '{doc.nombre_archivo}' de '{origen_nombre}' a '{nombre_destino}'."
+        )
+        messages.success(request, f"Archivo movido a: {nombre_destino}")
+        
+    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
 # ==========================================
 # 5. TAREAS
 # ==========================================
@@ -571,10 +648,15 @@ def preview_archivo(request, documento_id):
 @login_required
 def gestionar_tarea(request, cliente_id):
     if request.method == 'POST':
-        Tarea.objects.create(
-            cliente_id=cliente_id, titulo=request.POST.get('titulo'),
-            fecha_limite=request.POST.get('fecha_limite'), prioridad=request.POST.get('prioridad')
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        tarea = Tarea.objects.create(
+            cliente_id=cliente_id, 
+            titulo=request.POST.get('titulo'),
+            fecha_limite=request.POST.get('fecha_limite'), 
+            prioridad=request.POST.get('prioridad')
         )
+        # BITÁCORA: Creación de tarea
+        registrar_bitacora(request.user, cliente, 'tarea', f"Creó la tarea '{tarea.titulo}' con vencimiento {tarea.fecha_limite}.")
     return redirect('detalle_cliente', cliente_id=cliente_id)
 
 @login_required
@@ -582,22 +664,30 @@ def toggle_tarea(request, tarea_id):
     t = get_object_or_404(Tarea, id=tarea_id)
     t.completada = not t.completada
     t.save()
+    # BITÁCORA: Cambio de estado de tarea
+    estado = "completó" if t.completada else "reabrió"
+    registrar_bitacora(request.user, t.cliente, 'tarea', f"{estado.capitalize()} la tarea '{t.titulo}'.")
     return redirect('detalle_cliente', cliente_id=t.cliente.id)
 
 @login_required
 def editar_tarea(request, tarea_id):
     t = get_object_or_404(Tarea, id=tarea_id)
     if request.method == 'POST':
+        titulo_anterior = t.titulo
         t.titulo = request.POST.get('titulo')
         t.fecha_limite = request.POST.get('fecha_limite')
         t.prioridad = request.POST.get('prioridad')
         t.save()
+        # BITÁCORA: Edición de tarea
+        registrar_bitacora(request.user, t.cliente, 'tarea', f"Editó la tarea '{titulo_anterior}' → '{t.titulo}'.")
     return redirect('detalle_cliente', cliente_id=t.cliente.id)
 
 @login_required
 def eliminar_tarea(request, tarea_id):
     t = get_object_or_404(Tarea, id=tarea_id)
     c_id = t.cliente.id
+    # BITÁCORA: Eliminación de tarea
+    registrar_bitacora(request.user, t.cliente, 'eliminacion', f"Eliminó la tarea '{t.titulo}'.")
     t.delete()
     return redirect('detalle_cliente', cliente_id=c_id)
 
@@ -697,7 +787,8 @@ def generador_contratos(request, cliente_id):
         nuevo = Documento(cliente=cliente, carpeta=c_contratos, nombre_archivo=nombre, subido_por=request.user)
         nuevo.archivo.save(nombre, ContentFile(buffer.getvalue()))
         nuevo.save()
-        Bitacora.objects.create(usuario=request.user, cliente=cliente, accion='generacion', descripcion=f"Generó contrato: {nombre}")
+        # BITÁCORA: Generación de contrato
+        registrar_bitacora(request.user, cliente, 'generacion', f"Generó el contrato '{nombre}' desde la plantilla '{plantilla.nombre}'.")
         return redirect('visor_docx', documento_id=nuevo.id)
 
     return render(request, 'generador/llenar.html', {'cliente': cliente, 'plantilla': plantilla, 'variables': formulario})
@@ -812,17 +903,12 @@ def crear_variable_api(request):
 # <--- FIX 1A: ALLOWED_TAGS muy restrictivo rompe PDFs del diseñador ---
 @login_required
 def api_convertir_html(request):
-    """
-    Convierte HTML a PDF. 
-    Aplica lista ampliada de tags y atributos permitidos para no romper los PDFs del diseñador.
-    """
     if request.method == 'POST':
         try:
             try: data = json.loads(request.body); html_content = data.get('html', '')
             except: html_content = request.POST.get('html', '')
             if not html_content: return JsonResponse({'error': 'No content'}, status=400)
             
-            # --- Lista extendida de tags y atributos permitidos ---
             TAGS_PDF_PERMITIDOS = [
                 'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
                 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
@@ -855,7 +941,6 @@ def api_convertir_html(request):
             logger.error(f"Error api_convertir_html: {e}")
             return JsonResponse({'error': str(e)}, status=500)
     return JsonResponse({'status': 'error', 'message': 'Only POST allowed'}, status=405)
-# ------------------------------------------------------------------------
 
 # ==========================================
 # 7. COTIZACIONES Y SERVICIOS
@@ -1067,7 +1152,6 @@ def convertir_a_cliente(request, cotizacion_id):
                 cliente=cli, 
                 defaults={'es_expediente': False}
             )
-            
             Carpeta.objects.get_or_create(
                 nombre="Autorizaciones liberadas",
                 cliente=cli,
@@ -1131,6 +1215,9 @@ def convertir_a_cliente(request, cotizacion_id):
     c.estado = 'aceptada'
     c.cliente_convertido = cli
     c.save()
+
+    # BITÁCORA: Conversión de cotización a cliente
+    registrar_bitacora(request.user, cli, 'creacion', f"Convirtió la cotización '{c.titulo}' en cliente y generó cuentas por cobrar.")
 
     messages.success(request, f"¡Trato cerrado! Se han generado las carpetas con sus subcarpetas de autorizaciones.")
     return redirect('detalle_cliente', cliente_id=cli.id)
@@ -1201,7 +1288,6 @@ def eliminar_cotizacion(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion, id=cotizacion_id)
     cotizacion_id_ref = cotizacion.id 
     cotizacion.delete()
-    
     messages.success(request, f"La cotización #{cotizacion_id_ref} fue eliminada exitosamente.")
     return redirect('lista_cotizaciones')
 
@@ -1209,11 +1295,9 @@ def eliminar_cotizacion(request, cotizacion_id):
 # 8. FINANZAS (OPTIMIZADO)
 # ==========================================
 
-# <--- FIX 1B: N+1 en panel_finanzas (prefetch ignorado por .all() en loop) ---
 @login_required
 @requiere_permiso('access_finanzas')
 def panel_finanzas(request):
-    # prefetch_related carga todo en 2 queries (clientes + cuentas)
     clientes_con_actividad = (
         Cliente.objects
         .filter(cuentas__isnull=False)
@@ -1226,8 +1310,6 @@ def panel_finanzas(request):
     total_global_cobrado = 0
 
     for cli in clientes_con_actividad:
-        # list() fuerza el uso del caché del prefetch
-        # sin list(), .all() hace una nueva query por cliente
         cuentas = list(cli.cuentas.all())
         
         deuda = sum(c.saldo_pendiente for c in cuentas)
@@ -1249,14 +1331,21 @@ def panel_finanzas(request):
         'total_por_cobrar': total_global_pendiente,
         'total_cobrado': total_global_cobrado
     })
-# -----------------------------------------------------------------------------
 
 @login_required
 def registrar_pago(request):
     if request.method == 'POST':
-        Pago.objects.create(
-            cuenta_id=request.POST.get('cuenta_id'), monto=Decimal(request.POST.get('monto')),
-            metodo=request.POST.get('metodo'), referencia=request.POST.get('referencia'), registrado_por=request.user
+        pago = Pago.objects.create(
+            cuenta_id=request.POST.get('cuenta_id'), 
+            monto=Decimal(request.POST.get('monto')),
+            metodo=request.POST.get('metodo'), 
+            referencia=request.POST.get('referencia'), 
+            registrado_por=request.user
+        )
+        # BITÁCORA: Registro de pago
+        registrar_bitacora(
+            request.user, pago.cuenta.cliente, 'pago',
+            f"Registró pago de ${pago.monto:,.2f} vía {pago.metodo}. Ref: {pago.referencia or 'N/A'}."
         )
     return redirect('panel_finanzas')
 
@@ -1272,6 +1361,8 @@ def eliminar_finanza(request, id):
         return redirect('panel_finanzas')
     
     cx = get_object_or_404(CuentaPorCobrar, id=id)
+    # BITÁCORA: Eliminación de registro financiero
+    registrar_bitacora(request.user, cx.cliente, 'eliminacion', f"Eliminó el registro financiero '{cx.concepto}' (${cx.monto_total:,.2f}).")
     cx.delete()
     messages.success(request, "Registro financiero eliminado correctamente.")
     return redirect('panel_finanzas')
@@ -1395,7 +1486,17 @@ def crear_evento(request):
     if request.method == 'POST':
         inicio = timezone.make_aware(timezone.datetime.strptime(f"{request.POST.get('fecha')} {request.POST.get('hora')}", "%Y-%m-%d %H:%M"))
         cliente = get_object_or_404(Cliente, id=request.POST.get('cliente_id')) if request.POST.get('cliente_id') else None
-        Evento.objects.create(usuario=request.user, titulo=request.POST.get('titulo'), inicio=inicio, tipo=request.POST.get('tipo'), cliente=cliente, descripcion=request.POST.get('descripcion'))
+        evento = Evento.objects.create(
+            usuario=request.user, 
+            titulo=request.POST.get('titulo'), 
+            inicio=inicio, 
+            tipo=request.POST.get('tipo'), 
+            cliente=cliente, 
+            descripcion=request.POST.get('descripcion')
+        )
+        # BITÁCORA: Creación de evento en agenda
+        if cliente:
+            registrar_bitacora(request.user, cliente, 'agenda', f"Agendó el evento '{evento.titulo}' para el {inicio.strftime('%d/%m/%Y %H:%M')}.")
         messages.success(request, "Evento agendado.")
     return redirect('agenda_legal')
 
@@ -1403,7 +1504,11 @@ def crear_evento(request):
 def eliminar_evento(request, evento_id):
     evento = get_object_or_404(Evento, id=evento_id)
     if request.user.rol == 'admin' or evento.usuario == request.user:
-        evento.delete(); return JsonResponse({'status': 'ok'})
+        # BITÁCORA: Eliminación de evento
+        if evento.cliente:
+            registrar_bitacora(request.user, evento.cliente, 'eliminacion', f"Eliminó el evento de agenda '{evento.titulo}'.")
+        evento.delete()
+        return JsonResponse({'status': 'ok'})
     return JsonResponse({'status': 'error'}, status=403)
 
 @login_required
@@ -1469,6 +1574,8 @@ def subir_archivo_requisito(request, carpeta_id):
                     nuevo_doc.save()
                     count += 1
 
+                # BITÁCORA: Subida de requisito específico
+                registrar_bitacora(request.user, cliente, 'subida', f"Actualizó el requisito '{nombre_requisito}' en {count} carpeta(s) como '{nuevo_nombre_formal}'.")
                 messages.success(request, f'✅ Archivo actualizado exitosamente en {count} carpeta(s) con el nombre: "{nuevo_nombre_formal}".')
 
             except Exception as e:
@@ -1549,30 +1656,7 @@ Gestiones Cordpad
     return redirect('detalle_cliente', cliente_id=cliente.id)
 
 @login_required
-def mover_archivo_drive(request, archivo_id):
-    doc = get_object_or_404(Documento, id=archivo_id)
-    
-    if not (request.user.can_edit_client or request.user.can_upload_files or request.user.rol == 'admin'):
-        messages.error(request, "No tienes permiso para mover archivos.")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-
-    if request.method == 'POST':
-        destino_id = request.POST.get('carpeta_destino')
-        
-        if destino_id == 'ROOT':
-            doc.carpeta = None
-            nombre_destino = "Carpeta Raíz"
-        else:
-            carpeta_destino = get_object_or_404(Carpeta, id=destino_id)
-            doc.carpeta = carpeta_destino
-            nombre_destino = carpeta_destino.nombre
-            
-        doc.save()
-        messages.success(request, f"Archivo movido a: {nombre_destino}")
-        
-    return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
-
-@login_required
+@requiere_permiso('access_qr')
 def generador_qr(request):
     qr_url = None
     data = ""
@@ -1640,6 +1724,8 @@ def generar_link_externo(request, cliente_id):
     solicitud.save()
     
     link = request.build_absolute_uri(f'/portal-cliente/{solicitud.id}/')
+    # BITÁCORA: Generación de link externo
+    registrar_bitacora(request.user, cliente, 'generacion', f"Generó link de carga externa (válido 72h).")
     messages.success(request, f"¡Link generado y expira en 72h! Copia y envía esto al cliente: {link}")
     return redirect('detalle_cliente', cliente_id=cliente.id)
 
@@ -1753,6 +1839,8 @@ def aprobar_archivo_temporal(request, temp_id):
                 subido_por=request.user 
             )
             
+        # BITÁCORA: Aprobación de archivo del portal externo
+        registrar_bitacora(request.user, cliente, 'aprobacion', f"Aprobó el archivo del portal externo: '{nuevo_nombre_formal}'.")
         temp.delete()
         messages.success(request, f"Aprobado y distribuido: {nuevo_nombre_formal}")
         
@@ -1766,8 +1854,11 @@ def aprobar_archivo_temporal(request, temp_id):
 def rechazar_archivo_temporal(request, temp_id):
     temp = get_object_or_404(ArchivoTemporal, id=temp_id)
     nombre = temp.nombre_requisito
-    cliente_id = temp.solicitud.cliente.id
+    cliente = temp.solicitud.cliente
+    cliente_id = cliente.id
     
+    # BITÁCORA: Rechazo de archivo del portal externo
+    registrar_bitacora(request.user, cliente, 'rechazo', f"Rechazó el archivo del portal externo: '{nombre}'.")
     temp.archivo.delete()
     temp.delete()
     
@@ -1827,16 +1918,14 @@ def obtener_preview_archivo(request, archivo_id):
 
     return JsonResponse(data)
 
-# <--- FIX 1C: Compatibilidad con entorno local y en R2 ---
+# <--- FIX 1C: Compatibilidad con entorno local y en R2/Cloudinary ---
 @login_required
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
         url = doc.archivo.url
-        # Si la URL es absoluta (https://...) ya estamos en R2 → redirect directo
         if url.startswith('http://') or url.startswith('https://'):
             return redirect(url)
-        # Si es relativa, aún estamos en almacenamiento local → servir el archivo
         return FileResponse(
             doc.archivo.open('rb'), 
             as_attachment=True, 
@@ -1849,7 +1938,6 @@ def descargar_archivo_oficial(request, archivo_id):
         logger.error(f"Error en descarga archivo {archivo_id}: {e}")
         messages.error(request, "Error al intentar descargar el archivo.")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-# -------------------------------------------------------------------------
 
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
@@ -2116,10 +2204,11 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
             email.send()
             messages.success(request, f"✅ Correo enviado exitosamente a {destinatario}")
             
+            # BITÁCORA: Envío de correo universal
             Bitacora.objects.create(
                 usuario=request.user, cliente=cliente, 
                 accion='envio_correo', 
-                descripcion=f"Envió correo ({tipo_correo}): {asunto}"
+                descripcion=f"Envió correo ({tipo_correo}) a {destinatario}: {asunto}"
             )
 
         except Exception as e:
@@ -2182,7 +2271,6 @@ def generar_contrato_final(request):
             response['Content-Disposition'] = f'attachment; filename="{nombre_salida}"'
 
             doc.save(response)
-
             return response
 
         except Exception as e:
@@ -2255,6 +2343,9 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
             nuevo_acuse.archivo.save(nombre_acuse, ContentFile(pdf_content))
             nuevo_acuse.save()
 
+            # BITÁCORA: Preparación de acuse de entrega
+            registrar_bitacora(request.user, cliente, 'generacion', f"Generó el acuse de entrega para la carpeta '{carpeta.nombre}'.")
+
             url_redactar = reverse('redactar_correo_autorizaciones', kwargs={'carpeta_id': carpeta.id})
             return redirect(f"{url_redactar}?acuse_id={nuevo_acuse.id}")
 
@@ -2270,6 +2361,7 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
     })
 
 @login_required
+@requiere_permiso('access_gastos')
 def modulo_gastos(request):
     if request.method == 'POST' and request.FILES.getlist('xml_files'):
         archivos = request.FILES.getlist('xml_files')
