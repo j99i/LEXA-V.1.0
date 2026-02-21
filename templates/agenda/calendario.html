@@ -1,83 +1,100 @@
 {% extends 'base.html' %}
+
 {% block content %}
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
 
-<div class="h-[calc(100vh-100px)] flex gap-6 animate__animated animate__fadeIn">
+<div class="h-[calc(100vh-120px)] flex flex-col md:flex-row gap-6 animate__animated animate__fadeIn px-2">
     
-    <div class="w-80 flex-shrink-0 flex flex-col gap-6">
+    <div class="w-full md:w-80 flex-shrink-0 flex flex-col gap-6">
         
-        <button onclick="abrirModalCrear()" class="bg-[#2D1B4B] text-white p-4 rounded-2xl shadow-lg hover:bg-[#A855F7] transition-all flex items-center justify-center gap-3 w-full group">
-            <div class="bg-[#A855F7] w-8 h-8 rounded-full flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-                <i class="fas fa-plus"></i>
+        <button onclick="openModal('modal-evento')" class="bg-[#2D1B4B] text-white p-5 rounded-[1.5rem] shadow-xl hover:bg-[#A855F7] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-4 w-full group">
+            <div class="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center text-white group-hover:bg-white group-hover:text-[#A855F7] transition-all shadow-inner">
+                <i class="fas fa-calendar-plus text-lg"></i>
             </div>
-            <span class="font-bold tracking-widest text-sm">AGENDAR EVENTO</span>
+            <span class="font-black tracking-[0.1em] text-xs uppercase">Agendar Evento</span>
         </button>
 
-        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex-1 overflow-y-auto custom-scrollbar">
-            <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 flex items-center gap-2">
+        <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100 flex-1 overflow-y-auto custom-scrollbar relative">
+            <h3 class="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-6 flex items-center gap-2 border-b border-gray-50 pb-2">
                 <i class="fas fa-gavel text-red-500"></i> Próximas Audiencias
             </h3>
             
-            <div class="space-y-4">
+            <div class="space-y-6">
                 {% for aud in proximas_audiencias %}
-                <div class="relative pl-4 border-l-2 border-red-500">
-                    <p class="text-xs font-bold text-red-500 mb-1">{{ aud.inicio|date:"d M - H:i" }}</p>
-                    <p class="text-sm font-black text-[#2D1B4B] leading-tight">{{ aud.titulo }}</p>
-                    <p class="text-[10px] text-gray-400 mt-1">{{ aud.cliente.nombre_empresa }}</p>
+                <div class="relative pl-5 group cursor-default">
+                    <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-full group-hover:w-1.5 transition-all"></div>
+                    
+                    <p class="text-[10px] font-black text-red-500 mb-1 uppercase tracking-tighter">{{ aud.inicio|date:"d M — H:i" }} hrs</p>
+                    <p class="text-sm font-black text-[#2D1B4B] leading-tight group-hover:text-[#A855F7] transition-colors">{{ aud.titulo }}</p>
+                    <p class="text-[11px] font-bold text-gray-400 mt-1 flex items-center gap-1">
+                        <i class="fas fa-building text-[9px]"></i> {{ aud.cliente.nombre_empresa|default:"Sin cliente" }}
+                    </p>
                 </div>
                 {% empty %}
-                <p class="text-xs text-gray-300 italic">No hay audiencias próximas.</p>
+                <div class="text-center py-10 opacity-30">
+                    <i class="fas fa-calendar-check text-4xl mb-2"></i>
+                    <p class="text-xs font-bold">Sin audiencias cercanas</p>
+                </div>
                 {% endfor %}
             </div>
 
-            <div class="mt-8 pt-6 border-t border-gray-100">
-                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4">Leyenda</h3>
-                <div class="space-y-2 text-xs font-bold text-gray-500">
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-red-500"></div> Audiencia</div>
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-amber-500"></div> Vencimiento</div>
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-blue-500"></div> Reunión</div>
-                    <div class="flex items-center gap-2"><div class="w-3 h-3 rounded-full bg-emerald-500"></div> Trámite</div>
+            <div class="mt-10 pt-6 border-t border-gray-100">
+                <h3 class="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-4">Referencia de Colores</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500"><div class="w-2.5 h-2.5 rounded-full bg-red-500 shadow-sm shadow-red-200"></div> Audiencia</div>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500"><div class="w-2.5 h-2.5 rounded-full bg-amber-500 shadow-sm shadow-amber-200"></div> Vence</div>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500"><div class="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-sm shadow-blue-200"></div> Reunión</div>
+                    <div class="flex items-center gap-2 text-[10px] font-bold text-gray-500"><div class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-200"></div> Trámite</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="flex-1 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden">
-        <div id='calendar' class="h-full font-sans text-sm"></div>
+    <div class="flex-1 bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100 relative overflow-hidden">
+        <div id='calendar' class="h-full"></div>
     </div>
 
 </div>
 
-<div id="modal-evento" class="fixed inset-0 bg-[#2D1B4B]/90 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-md m-4 shadow-2xl relative animate__animated animate__zoomIn">
-        <button onclick="document.getElementById('modal-evento').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+<div id="modal-evento" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-evento')" class="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
+            <i class="fas fa-times text-xl"></i>
+        </button>
         
-        <h3 class="text-2xl font-black text-[#2D1B4B] mb-1">Nuevo Evento</h3>
-        <p class="text-xs text-gray-400 mb-6 uppercase tracking-widest">Agenda Inteligente</p>
+        <div class="flex items-center gap-4 mb-6">
+            <div class="w-12 h-12 bg-purple-50 text-[#A855F7] rounded-2xl flex items-center justify-center text-xl">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <div>
+                <h3 class="text-2xl font-black text-[#2D1B4B] font-serif leading-tight">Nuevo Evento</h3>
+                <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Agenda Corporativa</p>
+            </div>
+        </div>
         
         <form action="{% url 'crear_evento' %}" method="POST" class="space-y-4">
             {% csrf_token %}
             
             <div>
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Título</label>
-                <input type="text" name="titulo" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none focus:ring-2 focus:ring-[#A855F7]" placeholder="Ej. Audiencia Inicial..." required>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Asunto / Título</label>
+                <input type="text" name="titulo" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all" placeholder="Ej. Audiencia Inicial..." required>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Fecha</label>
-                    <input type="date" name="fecha" id="input-fecha" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none" required>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Fecha</label>
+                    <input type="date" name="fecha" id="input-fecha" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all" required>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Hora</label>
-                    <input type="time" name="hora" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none" required>
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Hora</label>
+                    <input type="time" name="hora" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all" required>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Tipo</label>
-                    <select name="tipo" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Categoría</label>
+                    <select name="tipo" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all cursor-pointer">
                         <option value="audiencia">🔴 Audiencia</option>
                         <option value="vencimiento">🟠 Vencimiento</option>
                         <option value="reunion" selected>🔵 Reunión</option>
@@ -86,8 +103,8 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cliente</label>
-                    <select name="cliente_id" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none">
+                    <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Cliente Vinculado</label>
+                    <select name="cliente_id" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all cursor-pointer">
                         <option value="">-- Personal --</option>
                         {% for c in clientes %}
                         <option value="{{ c.id }}">{{ c.nombre_empresa }}</option>
@@ -97,123 +114,161 @@
             </div>
 
             <div>
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Notas Adicionales</label>
-                <textarea name="descripcion" rows="2" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border-none outline-none resize-none"></textarea>
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Notas / Descripción</label>
+                <textarea name="descripcion" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl font-medium text-[#2D1B4B] border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-all resize-none" placeholder="Opcional..."></textarea>
             </div>
 
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-bold hover:bg-[#A855F7] shadow-lg transition-all mt-2">
-                AGENDAR AHORA
+            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-4 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] transition-all transform hover:-translate-y-1">
+                Confirmar Registro
             </button>
         </form>
     </div>
 </div>
 
-<div id="modal-detalle" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative">
-        <button onclick="document.getElementById('modal-detalle').classList.add('hidden')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
+<div id="modal-detalle" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 p-4">
+    <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm m-4 shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-detalle')" class="absolute top-6 right-6 text-gray-300 hover:text-red-500">
+            <i class="fas fa-times text-xl"></i>
+        </button>
         
-        <div id="detalle-header" class="mb-4 border-l-4 border-gray-300 pl-4">
-            <p id="det-tipo" class="text-[10px] font-black uppercase tracking-widest text-gray-400">TIPO</p>
-            <h3 id="det-titulo" class="text-xl font-black text-[#2D1B4B]">Título</h3>
+        <div id="detalle-header" class="mb-6 border-l-4 border-[#A855F7] pl-5">
+            <p id="det-tipo" class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">TIPO</p>
+            <h3 id="det-titulo" class="text-2xl font-black text-[#2D1B4B] font-serif leading-tight">Título</h3>
         </div>
 
-        <div class="space-y-3 mb-6">
-            <div class="flex items-center gap-3 text-sm text-gray-600">
-                <i class="fas fa-clock w-5 text-center"></i>
-                <span id="det-fecha" class="font-bold">Fecha y Hora</span>
+        <div class="space-y-4 mb-8">
+            <div class="flex items-center gap-4 text-sm text-[#2D1B4B]">
+                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shadow-inner">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <span id="det-fecha" class="font-black text-xs uppercase tracking-wider">Fecha y Hora</span>
             </div>
-            <div class="flex items-center gap-3 text-sm text-gray-600">
-                <i class="fas fa-briefcase w-5 text-center"></i>
-                <span id="det-cliente" class="font-bold">Cliente</span>
+            <div class="flex items-center gap-4 text-sm text-[#2D1B4B]">
+                <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shadow-inner">
+                    <i class="fas fa-briefcase"></i>
+                </div>
+                <span id="det-cliente" class="font-black text-xs uppercase tracking-wider">Cliente</span>
             </div>
-            <div class="bg-gray-50 p-3 rounded-xl text-xs text-gray-500 italic mt-2" id="det-desc">
+            <div class="bg-gray-50 p-5 rounded-[1.5rem] text-xs text-gray-600 border border-gray-100 italic leading-relaxed" id="det-desc">
                 Sin descripción.
             </div>
         </div>
 
-        <button id="btn-eliminar" class="w-full bg-red-50 text-red-600 py-3 rounded-xl font-bold hover:bg-red-100 transition-all border border-red-100 flex items-center justify-center gap-2">
-            <i class="fas fa-trash"></i> Eliminar Evento
+        <button id="btn-eliminar" class="w-full bg-red-50 text-red-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border-2 border-red-100 hover:border-red-500 flex items-center justify-center gap-3 group">
+            <i class="fas fa-trash group-hover:animate-bounce"></i> Eliminar Evento permanentemente
         </button>
     </div>
 </div>
 
 <script>
+    // --- GESTIÓN DE SEGURIDAD DJANGO ---
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
-        var calendarEl = document.getElementById('calendar');
-        var calendar = new FullCalendar.Calendar(calendarEl, {
+        const calendarEl = document.getElementById('calendar');
+        const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
             locale: 'es',
+            firstDay: 1, // Lunes inicio de semana
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                right: 'dayGridMonth,timeGridWeek'
             },
             buttonText: {
                 today: 'Hoy',
                 month: 'Mes',
-                week: 'Semana',
-                day: 'Día'
+                week: 'Semana'
             },
-            events: '/agenda/api/', // API DE DJANGO
-            editable: true, // DRAG & DROP ACTIVADO
+            events: '/agenda/api/', 
+            editable: true,
             selectable: true,
+            dayMaxEvents: true, // +mas eventos si hay muchos
             
-            // Acción: Clic en día vacío -> Crear
             dateClick: function(info) {
                 document.getElementById('input-fecha').value = info.dateStr;
-                abrirModalCrear();
+                openModal('modal-evento');
             },
 
-            // Acción: Clic en evento -> Ver Detalle
             eventClick: function(info) {
                 mostrarDetalle(info.event);
             },
 
-            // Acción: Arrastrar y Soltar -> Guardar en BD
             eventDrop: function(info) {
                 actualizarFecha(info.event);
+            },
+            
+            // Estilizar eventos al renderizar
+            eventDidMount: function(info) {
+                // Agregar sombreado sutil
+                info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
             }
         });
         calendar.render();
     });
 
-    function abrirModalCrear() {
-        document.getElementById('modal-evento').classList.remove('hidden');
-        document.getElementById('modal-evento').classList.add('flex');
-    }
-
     function mostrarDetalle(event) {
         document.getElementById('det-titulo').innerText = event.title;
-        document.getElementById('det-fecha').innerText = event.start.toLocaleString();
-        document.getElementById('det-cliente').innerText = event.extendedProps.cliente;
-        document.getElementById('det-tipo').innerText = event.extendedProps.tipo.toUpperCase();
+        // Formatear fecha legible
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+        document.getElementById('det-fecha').innerText = event.start.toLocaleDateString('es-ES', options);
+        
+        document.getElementById('det-cliente').innerText = event.extendedProps.cliente || "Evento Personal";
+        document.getElementById('det-tipo').innerText = event.extendedProps.tipo ? event.extendedProps.tipo.toUpperCase() : "GENERAL";
         document.getElementById('det-desc').innerText = event.extendedProps.descripcion || "Sin notas adicionales.";
         
-        // Configurar botón eliminar
+        // Reset color del borde según tipo
+        const header = document.getElementById('detalle-header');
+        const tipoColores = {
+            'audiencia': '#ef4444',
+            'vencimiento': '#f59e0b',
+            'reunion': '#3b82f6',
+            'tramite': '#10b981'
+        };
+        header.style.borderColor = tipoColores[event.extendedProps.tipo] || '#d1d5db';
+
         const btn = document.getElementById('btn-eliminar');
         btn.onclick = function() {
-            if(confirm('¿Eliminar este evento?')) {
-                fetch(`/agenda/eliminar/${event.id}/`)
+            if(confirm('⚠️ ¿Estás seguro de eliminar este evento? Esta acción es definitiva.')) {
+                fetch(`/agenda/eliminar/${event.id}/`, {
+                    method: 'POST',
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') } // Seguridad CSRF
+                })
                 .then(res => res.json())
                 .then(data => {
                     if(data.status === 'ok') {
                         event.remove();
-                        document.getElementById('modal-detalle').classList.add('hidden');
+                        closeModal('modal-detalle');
                     } else {
-                        alert("No tienes permiso para eliminar este evento.");
+                        alert("Error: No tienes permisos para esta acción.");
                     }
                 });
             }
         };
 
-        document.getElementById('modal-detalle').classList.remove('hidden');
-        document.getElementById('modal-detalle').classList.add('flex');
+        openModal('modal-detalle');
     }
 
     function actualizarFecha(event) {
         fetch('/agenda/mover/', {
             method: 'POST',
-            headers: {'Content-Type': 'application/json'},
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken') // Seguridad CSRF
+            },
             body: JSON.stringify({
                 id: event.id,
                 start: event.start.toISOString(),
@@ -221,22 +276,58 @@
             })
         }).then(res => res.json()).then(data => {
             if(data.status !== 'ok') {
-                alert("Error al mover: " + data.msg);
-                event.revert(); // Regresar a posición original si falla
+                alert("Error de sincronización: El servidor rechazó el cambio.");
+                location.reload(); // Recargar para revertir visualmente
             }
         });
     }
 </script>
 
 <style>
-    /* Personalización FullCalendar estilo Corpad Morado */
-    .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #2D1B4B; }
-    .fc-button-primary { background-color: #2D1B4B !important; border-color: #2D1B4B !important; font-weight: bold; border-radius: 0.5rem !important; }
-    .fc-button-primary:hover { background-color: #A855F7 !important; border-color: #A855F7 !important; }
-    .fc-daygrid-day-number { color: #2D1B4B; font-weight: bold; }
-    .fc-col-header-cell-cushion { color: #A855F7; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
-    .fc-event { border: none; border-radius: 4px; font-size: 0.75rem; font-weight: bold; padding: 2px; cursor: pointer; transition: transform 0.1s; }
-    .fc-event:hover { transform: scale(1.02); }
-    .fc-day-today { background-color: #F3F4F6 !important; }
+    /* RE-ESTILIZADO FULLCALENDAR PREMIUM */
+    :root {
+        --fc-border-color: #f3f4f6;
+        --fc-today-bg-color: #f8fafc;
+        --fc-button-bg-color: #2D1B4B;
+        --fc-button-border-color: #2D1B4B;
+        --fc-button-hover-bg-color: #A855F7;
+        --fc-button-active-bg-color: #A855F7;
+    }
+    
+    .fc { font-family: 'Lato', sans-serif; }
+    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #2D1B4B; font-size: 1.5rem; }
+    
+    .fc .fc-button { 
+        text-transform: uppercase; 
+        font-size: 10px !important; 
+        font-weight: 900 !important; 
+        letter-spacing: 1px; 
+        padding: 10px 15px !important; 
+        border-radius: 12px !important;
+        transition: all 0.2s;
+    }
+
+    .fc-event { 
+        border: none !important; 
+        padding: 3px 6px !important; 
+        border-radius: 8px !important; 
+        font-size: 10px !important; 
+        font-weight: 900 !important;
+        cursor: pointer !important;
+    }
+
+    /* Colores por tipo inyectados por FullCalendar */
+    .fc-event-audiencia { background-color: #ef4444 !important; }
+    .fc-event-vencimiento { background-color: #f59e0b !important; }
+    .fc-event-reunion { background-color: #3b82f6 !important; }
+    .fc-event-tramite { background-color: #10b981 !important; }
+
+    .fc-daygrid-day-top { flex-direction: row !important; padding: 5px; }
+    .fc-daygrid-day-number { font-weight: 900; color: #2D1B4B; font-size: 0.8rem; }
+    .fc-col-header-cell { background-color: #fafafa; padding: 10px 0 !important; }
+    .fc-col-header-cell-cushion { color: #9CA3AF !important; font-size: 9px !important; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 1px; }
+    
+    .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
 </style>
 {% endblock %}

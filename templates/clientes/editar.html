@@ -1,105 +1,170 @@
 {% extends 'base.html' %}
-{% load custom_filters %} {% block content %}
+{% load custom_filters %}
+
+{% block content %}
 <div class="max-w-5xl mx-auto animate__animated animate__fadeIn">
     
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-black text-[#2D1B4B]">Editar Cliente: <span class="text-[#A855F7]">{{ c.nombre_empresa }}</span></h2>
-        <a href="{% url 'detalle_cliente' c.id %}" class="text-gray-500 font-bold hover:text-[#2D1B4B]">Cancelar</a>
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-black text-[#2D1B4B] font-serif">Editar Cliente</h2>
+            <p class="text-gray-500 text-sm mt-1 uppercase tracking-widest font-bold">Identificador: <span class="text-[#A855F7]">{{ c.nombre_empresa }}</span></p>
+        </div>
+        <a href="{% url 'detalle_cliente' c.id %}" class="px-5 py-2.5 rounded-xl border border-gray-200 text-gray-500 font-bold hover:bg-gray-50 hover:text-[#2D1B4B] transition-all text-xs uppercase tracking-widest">
+            <i class="fas fa-times mr-2"></i> Cancelar
+        </a>
     </div>
 
-    <form method="POST" enctype="multipart/form-data" class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
+    <form method="POST" enctype="multipart/form-data" id="form-editar-cliente" class="bg-white p-8 md:p-10 rounded-[2.5rem] shadow-xl border border-gray-100 relative">
         {% csrf_token %}
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             
-            <div class="space-y-6">
-                <h3 class="text-lg font-bold text-[#2D1B4B] border-b pb-2">Datos Generales</h3>
+            <div class="space-y-8">
+                <h3 class="text-xs font-black text-[#2D1B4B] uppercase tracking-[0.2em] border-b border-gray-100 pb-3 flex items-center gap-2">
+                    <i class="fas fa-id-card text-[#A855F7]"></i> Perfil Corporativo
+                </h3>
                 
-                <div class="flex items-center gap-4">
-                    <div class="w-20 h-20 rounded-xl bg-gray-100 overflow-hidden border flex items-center justify-center">
+                <div class="flex items-center gap-6 bg-gray-50 p-4 rounded-2xl border border-gray-100">
+                    <div class="w-24 h-24 rounded-2xl bg-white overflow-hidden border-2 border-gray-100 flex items-center justify-center shadow-inner shrink-0 group relative">
                         {% if c.logo %}
-                        <img src="{{ c.logo.url }}" class="w-full h-full object-cover">
+                            <img src="{{ c.logo.url }}" id="img-preview" class="w-full h-full object-contain p-1">
                         {% else %}
-                        <i class="fas fa-building text-3xl text-gray-300"></i>
+                            <i class="fas fa-building text-3xl text-gray-200" id="img-icon"></i>
+                            <img src="" id="img-preview" class="w-full h-full object-contain p-1 hidden">
                         {% endif %}
                     </div>
-                    <div>
-                        <label class="block text-xs font-bold text-gray-400 mb-1">Cambiar Logo</label>
-                        <input type="file" name="logo" class="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#2D1B4B] file:text-white hover:file:bg-[#A855F7] transition-all">
+                    <div class="flex-1">
+                        <label for="input_logo" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Imagen de Marca (Logo)</label>
+                        <input type="file" id="input_logo" name="logo" accept="image/*" onchange="previewImage(this)"
+                               class="block w-full text-[10px] text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#2D1B4B] file:text-white hover:file:bg-[#A855F7] cursor-pointer transition-all">
                     </div>
                 </div>
 
-                <div>
-                    <label class="label-form">Nombre / Razón Social</label>
-                    <input type="text" name="nombre_empresa" value="{{ c.nombre_empresa }}" class="input-form">
-                </div>
-                <div>
-                    <label class="label-form">Contacto Principal</label>
-                    <input type="text" name="nombre_contacto" value="{{ c.nombre_contacto }}" class="input-form">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
+                <div class="space-y-5">
                     <div>
-                        <label class="label-form">Email</label>
-                        <input type="email" name="email" value="{{ c.email }}" class="input-form">
+                        <label for="id_nombre_empresa" class="label-form">Nombre / Razón Social <span class="text-red-400">*</span></label>
+                        <input type="text" id="id_nombre_empresa" name="nombre_empresa" value="{{ c.nombre_empresa }}" class="input-form" required>
                     </div>
                     <div>
-                        <label class="label-form">Teléfono</label>
-                        <input type="text" name="telefono" value="{{ c.telefono }}" class="input-form">
+                        <label for="id_nombre_contacto" class="label-form">Contacto Principal (Atención a)</label>
+                        <input type="text" id="id_nombre_contacto" name="nombre_contacto" value="{{ c.nombre_contacto }}" class="input-form" placeholder="Ej. Lic. Alberto García">
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label for="id_email" class="label-form">Email de Notificaciones</label>
+                            <input type="email" id="id_email" name="email" value="{{ c.email }}" class="input-form" placeholder="cliente@empresa.com">
+                        </div>
+                        <div>
+                            <label for="id_telefono" class="label-form">Teléfono Directo</label>
+                            <input type="text" id="id_telefono" name="telefono" value="{{ c.telefono }}" class="input-form" placeholder="+52 ...">
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="flex justify-between items-center border-b pb-2">
-                    <h3 class="text-lg font-bold text-[#A855F7]">Información Adicional</h3>
+            <div class="space-y-8">
+                <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+                    <h3 class="text-xs font-black text-[#A855F7] uppercase tracking-[0.2em] flex items-center gap-2">
+                        <i class="fas fa-plus-circle"></i> Campos Adicionales
+                    </h3>
                     {% if user.rol == 'admin' %}
-                    <a href="{% url 'configurar_campos' %}" class="text-[10px] bg-gray-100 hover:bg-gray-200 px-2 py-1 rounded text-gray-500 font-bold">
-                        <i class="fas fa-cog"></i> Configurar Campos
+                    <a href="{% url 'configurar_campos' %}" class="text-[9px] font-black uppercase tracking-widest bg-gray-100 hover:bg-purple-100 hover:text-[#A855F7] px-3 py-1.5 rounded-lg text-gray-500 transition-all">
+                        <i class="fas fa-cog mr-1"></i> Configurar
                     </a>
                     {% endif %}
                 </div>
 
+                <div class="space-y-5 bg-gray-50/50 p-6 rounded-3xl border border-gray-50">
                 {% if campos_dinamicos %}
                     {% for campo in campos_dinamicos %}
                     <div>
-                        <label class="label-form">{{ campo.nombre }}</label>
+                        <label for="custom_{{ campo.id }}" class="label-form">{{ campo.nombre }}</label>
                         
                         {% if campo.tipo == 'textarea' %}
-                            <textarea name="custom_{{ campo.id }}" rows="3" class="input-form">{{ datos_existentes|get_item:campo.nombre }}</textarea>
+                            <textarea id="custom_{{ campo.id }}" name="custom_{{ campo.id }}" rows="3" 
+                                      class="input-form resize-none custom-scrollbar">{{ datos_existentes|get_item:campo.nombre }}</textarea>
                         {% else %}
-                            <input type="{{ campo.tipo }}" name="custom_{{ campo.id }}" value="{{ datos_existentes|get_item:campo.nombre }}" class="input-form">
+                            <input type="{{ campo.tipo }}" id="custom_{{ campo.id }}" name="custom_{{ campo.id }}" 
+                                   value="{{ datos_existentes|get_item:campo.nombre }}" class="input-form shadow-sm">
                         {% endif %}
                     </div>
                     {% endfor %}
                 {% else %}
-                    <div class="text-center py-10 bg-gray-50 rounded-xl">
-                        <p class="text-gray-400 text-sm">No hay campos extra configurados.</p>
+                    <div class="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl">
+                        <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-3 shadow-sm">
+                            <i class="fas fa-database text-gray-200"></i>
+                        </div>
+                        <p class="text-gray-400 text-xs font-bold leading-relaxed px-6">No hay campos extra configurados para este despacho.</p>
                         {% if user.rol == 'admin' %}
-                        <a href="{% url 'configurar_campos' %}" class="text-[#A855F7] font-bold text-xs hover:underline">Agregar RFC, CURP, etc.</a>
+                        <a href="{% url 'configurar_campos' %}" class="text-[#A855F7] font-black text-[10px] uppercase tracking-widest mt-4 inline-block hover:underline">Habilitar RFC o CURP</a>
                         {% endif %}
                     </div>
                 {% endif %}
+                </div>
             </div>
 
         </div>
 
-        <div class="flex justify-end pt-8 mt-6 border-t border-gray-100 gap-4">
+        <div class="flex flex-col md:flex-row justify-between items-center pt-10 mt-10 border-t border-gray-100 gap-6">
+            
             {% if user.can_delete_client or user.rol == 'admin' %}
-            <a href="{% url 'eliminar_cliente' c.id %}" onclick="return confirm('¿Seguro? Se borrará TODO el expediente.')" class="text-red-500 font-bold text-sm flex items-center px-4 hover:bg-red-50 rounded-xl transition-colors">
-                <i class="fas fa-trash mr-2"></i> Eliminar Cliente
-            </a>
+            <button type="button" onclick="confirmarEliminarCliente()" class="group flex items-center gap-2 text-red-400 hover:text-red-600 font-black text-[10px] uppercase tracking-widest px-4 py-2 rounded-xl hover:bg-red-50 transition-all focus:outline-none">
+                <i class="fas fa-trash-alt group-hover:animate-bounce"></i> Eliminar Cliente y Expediente
+            </button>
+            {% else %}
+            <div></div>
             {% endif %}
             
-            <button type="submit" class="bg-[#2D1B4B] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-[#A855F7] transition-all">
+            <button type="submit" class="w-full md:w-auto bg-[#2D1B4B] text-white px-12 py-4 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-[#A855F7] hover:shadow-purple-500/30 transition-all transform hover:-translate-y-1 focus:ring-4 focus:ring-purple-200">
                 GUARDAR CAMBIOS
             </button>
         </div>
     </form>
 </div>
 
+{% if user.can_delete_client or user.rol == 'admin' %}
+<form id="form-delete-client" method="POST" action="{% url 'eliminar_cliente' c.id %}" class="hidden">
+    {% csrf_token %}
+</form>
+{% endif %}
+
 <style>
-    .label-form { display: block; font-size: 0.75rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; margin-bottom: 0.5rem; }
-    .input-form { width: 100%; padding: 0.75rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; color: #1F2937; border: 1px solid transparent; outline: none; transition: all 0.2s; }
-    .input-form:focus { border-color: #A855F7; background-color: #fff; box-shadow: 0 0 0 4px rgba(168, 85, 247, 0.1); }
+    /* Estilos estandarizados */
+    .label-form { display: block; font-size: 0.7rem; font-weight: 900; color: #9CA3AF; text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em; margin-left: 0.25rem; }
+    .input-form { width: 100%; padding: 0.85rem 1rem; background-color: #F9FAFB; border-radius: 1rem; font-weight: 700; color: #2D1B4B; border: 2px solid transparent; outline: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+    .input-form:focus { border-color: #A855F7; background-color: #fff; box-shadow: 0 10px 15px -3px rgba(168, 85, 247, 0.1); }
+    .input-form::placeholder { color: #D1D5DB; font-weight: 500; }
 </style>
+
+<script>
+    // 1. Previsualización de Logo en tiempo real
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            const preview = document.getElementById('img-preview');
+            const icon = document.getElementById('img-icon');
+            
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                if(icon) icon.classList.add('hidden');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // 2. Confirmación de Eliminación Segura
+    function confirmarEliminarCliente() {
+        const confirmacion = confirm(
+            "⚠️ ¡ATENCIÓN! ESTA ACCIÓN ES IRREVERSIBLE ⚠️\n\n" +
+            "Estás a punto de eliminar a: {{ c.nombre_empresa }}\n" +
+            "Se borrarán permanentemente sus expedientes, archivos subidos y registros financieros.\n\n" +
+            "¿Deseas continuar?"
+        );
+        
+        if (confirmacion) {
+            document.getElementById('form-delete-client').submit();
+        }
+    }
+</script>
 {% endblock %}
