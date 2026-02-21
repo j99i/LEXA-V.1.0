@@ -619,6 +619,7 @@ def mover_archivo_drive(request, archivo_id):
 
     if request.method == 'POST':
         destino_id = request.POST.get('carpeta_destino')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') # NUEVO: Capturar fecha
         origen_nombre = doc.carpeta.nombre if doc.carpeta else "Raíz"
         
         if destino_id == 'ROOT':
@@ -629,6 +630,26 @@ def mover_archivo_drive(request, archivo_id):
             doc.carpeta = carpeta_destino
             nombre_destino = carpeta_destino.nombre
             
+        # NUEVO: Si nos mandan fecha de vencimiento al mover, la guardamos y creamos alertas
+        if fecha_vencimiento: 
+            doc.fecha_vencimiento = fecha_vencimiento
+            fecha_fin = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+            alertas = [(20, '⚠️ Vence en 20 días'), (10, '🟠 Vence en 10 días'), (5, '🔴 URGENTE: Vence en 5 días')]
+            eventos_to_create = []
+            for dias_antes, prefijo in alertas:
+                fecha_alerta = fecha_fin - timedelta(days=dias_antes)
+                if fecha_alerta >= timezone.now().date():
+                    eventos_to_create.append(Evento(
+                        cliente=doc.cliente,
+                        usuario=request.user,
+                        titulo=f"{prefijo}: {doc.nombre_archivo}",
+                        inicio=datetime.combine(fecha_alerta, datetime.min.time()),
+                        fin=datetime.combine(fecha_alerta, datetime.min.time()) + timedelta(hours=1),
+                        descripcion=f"Recordatorio automático de vencimiento para el documento: {doc.nombre_archivo}"
+                    ))
+            if eventos_to_create:
+                Evento.objects.bulk_create(eventos_to_create)
+
         doc.save()
         registrar_bitacora(
             request.user, doc.cliente, 'movimiento',
@@ -637,7 +658,6 @@ def mover_archivo_drive(request, archivo_id):
         messages.success(request, f"Archivo movido a: {nombre_destino}")
         
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
-
 # ==========================================
 # 5. TAREAS
 # ==========================================
@@ -1535,6 +1555,7 @@ def subir_archivo_requisito(request, carpeta_id):
         cliente = carpeta_origen.cliente
         archivo = request.FILES.get('archivo')
         nombre_requisito = request.POST.get('nombre_requisito')
+        fecha_vencimiento = request.POST.get('fecha_vencimiento') # NUEVO: Capturar fecha
 
         if archivo and nombre_requisito:
             try:
@@ -1570,6 +1591,27 @@ def subir_archivo_requisito(request, carpeta_id):
                         nombre_archivo=nuevo_nombre_formal,
                         subido_por=request.user
                     )
+
+                    # NUEVO: Guardar fecha y alertas
+                    if fecha_vencimiento: 
+                        nuevo_doc.fecha_vencimiento = fecha_vencimiento
+                        fecha_fin = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
+                        alertas = [(20, '⚠️ Vence en 20 días'), (10, '🟠 Vence en 10 días'), (5, '🔴 URGENTE: Vence en 5 días')]
+                        eventos_to_create = []
+                        for dias_antes, prefijo in alertas:
+                            fecha_alerta = fecha_fin - timedelta(days=dias_antes)
+                            if fecha_alerta >= timezone.now().date():
+                                eventos_to_create.append(Evento(
+                                    cliente=cliente,
+                                    usuario=request.user,
+                                    titulo=f"{prefijo}: {nuevo_doc.nombre_archivo}",
+                                    inicio=datetime.combine(fecha_alerta, datetime.min.time()),
+                                    fin=datetime.combine(fecha_alerta, datetime.min.time()) + timedelta(hours=1),
+                                    descripcion=f"Recordatorio automático de vencimiento para el documento: {nuevo_doc.nombre_archivo}"
+                                ))
+                        if eventos_to_create:
+                            Evento.objects.bulk_create(eventos_to_create)
+
                     nuevo_doc.save()
                     count += 1
 
@@ -1585,7 +1627,6 @@ def subir_archivo_requisito(request, carpeta_id):
         return redirect('detalle_cliente', cliente_id=cliente.id)
     
     return redirect('dashboard')
-
 @login_required
 def enviar_recordatorio_documentacion(request, cliente_id):
     cliente = get_object_or_404(Cliente.objects.prefetch_related('carpetas_drive'), id=cliente_id)
