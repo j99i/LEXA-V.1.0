@@ -21,7 +21,7 @@
         }
 
         /* Estilos Inputs Morados */
-        .input-group:focus-within i { color: #A855F7; transform: scale(1.1); }
+        .input-group:focus-within i.input-icon { color: #A855F7; transform: scale(1.1); }
         .input-group:focus-within div.border-b-2 { width: 100%; border-color: #A855F7; }
         .smooth-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
@@ -82,66 +82,73 @@
                     {% endfor %}
                 {% endif %}
 
-                <form method="POST" class="space-y-6">
+                <form method="POST" class="space-y-6" id="registerForm">
                     {% csrf_token %}
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="input-group relative group">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Nombre</label>
+                            <label for="id_first_name" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Nombre</label>
                             <div class="relative flex items-center">
-                                <input type="text" name="first_name" class="w-full py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Tu nombre" required>
+                                <input type="text" id="id_first_name" name="first_name" class="w-full py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Tu nombre" required>
                             </div>
                             <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                         </div>
                         <div class="input-group relative group">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Apellidos</label>
+                            <label for="id_last_name" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Apellidos</label>
                             <div class="relative flex items-center">
-                                <input type="text" name="last_name" class="w-full py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Tus apellidos" required>
+                                <input type="text" id="id_last_name" name="last_name" class="w-full py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Tus apellidos" required>
                             </div>
                             <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                         </div>
                     </div>
 
                     <div class="input-group relative group">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Usuario</label>
+                        <label for="id_username" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Usuario</label>
                         <div class="relative flex items-center">
-                            <i class="fas fa-user text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                            <input type="text" name="username" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Elige un nombre de usuario" required>
+                            <i class="fas fa-user input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                            <input type="text" id="id_username" name="username" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Elige un nombre de usuario" required>
                         </div>
                         <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                     </div>
 
                     <div class="input-group relative group">
-                        <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Correo Electrónico</label>
+                        <label for="id_email" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Correo Electrónico</label>
                         <div class="relative flex items-center">
-                            <i class="fas fa-envelope text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                            <input type="email" name="email" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="correo@empresa.com" required>
+                            <i class="fas fa-envelope input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                            <input type="email" id="id_email" name="email" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="correo@empresa.com" required>
                         </div>
                         <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="input-group relative group">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Contraseña</label>
+                            <label for="id_pass1" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Contraseña</label>
                             <div class="relative flex items-center">
-                                <i class="fas fa-lock text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                                <input type="password" name="pass1" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="••••••••" required>
+                                <i class="fas fa-lock input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                                <input type="password" id="id_pass1" name="pass1" minlength="8" class="w-full px-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="••••••••" required>
+                                <button type="button" onclick="togglePassword('id_pass1', 'eyeIcon1')" class="absolute right-0 text-gray-400 hover:text-[#A855F7] focus:outline-none smooth-transition">
+                                    <i id="eyeIcon1" class="fas fa-eye"></i>
+                                </button>
                             </div>
                             <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                         </div>
                         <div class="input-group relative group">
-                            <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Confirmar</label>
+                            <label for="id_pass2" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Confirmar</label>
                             <div class="relative flex items-center">
-                                <i class="fas fa-check-circle text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                                <input type="password" name="pass2" class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="••••••••" required>
+                                <i class="fas fa-check-circle input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                                <input type="password" id="id_pass2" name="pass2" minlength="8" class="w-full px-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="••••••••" required>
+                                <button type="button" onclick="togglePassword('id_pass2', 'eyeIcon2')" class="absolute right-0 text-gray-400 hover:text-[#A855F7] focus:outline-none smooth-transition">
+                                    <i id="eyeIcon2" class="fas fa-eye"></i>
+                                </button>
                             </div>
                             <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                         </div>
                     </div>
 
                     <div class="pt-4">
-                        <button type="submit" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:text-[#2D1B4B] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group">
-                            Enviar Solicitud <i class="fas fa-paper-plane ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
+                        <button type="submit" id="submitBtn" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:text-white hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group flex items-center justify-center">
+                            <span id="btnText">Enviar Solicitud</span> 
+                            <i id="btnIcon" class="fas fa-paper-plane ml-2 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all"></i>
                         </button>
                     </div>
                 </form>
@@ -155,5 +162,39 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Función para mostrar/ocultar contraseña
+        function togglePassword(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // Simulación de carga al enviar el formulario
+        document.getElementById('registerForm').addEventListener('submit', function() {
+            const btn = document.getElementById('submitBtn');
+            const btnText = document.getElementById('btnText');
+            const btnIcon = document.getElementById('btnIcon');
+            
+            // Prevenir múltiples envíos
+            btn.disabled = true;
+            btn.classList.add('opacity-80', 'cursor-not-allowed');
+            btn.classList.remove('hover:-translate-y-1', 'hover:bg-[#A855F7]', 'hover:shadow-xl');
+            
+            // Cambiar texto e ícono
+            btnText.innerText = 'Procesando...';
+            btnIcon.className = 'fas fa-spinner fa-spin ml-2 opacity-100';
+        });
+    </script>
 </body>
 </html>

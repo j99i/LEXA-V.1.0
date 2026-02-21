@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Solicitud Enviada | AppLegal Cloud</title>
+    <title>Solicitud Enviada | Gestiones Corpad</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -20,7 +20,7 @@
         }
     </style>
 </head>
-<body class="h-screen w-full bg-[#2D1B4B] flex items-center justify-center p-4 relative overflow-hidden">
+<body class="min-h-screen w-full bg-[#2D1B4B] flex items-center justify-center p-4 relative overflow-hidden">
     
     <div class="absolute inset-0 bg-pattern"></div>
     <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#A855F7] rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
@@ -39,25 +39,35 @@
             </div>
             
             <h2 class="text-3xl font-black text-[#2D1B4B] font-serif mb-2">¡Solicitud Recibida!</h2>
-            <p class="text-[#A855F7] font-bold text-xs tracking-widest uppercase mb-6">FOLIO: PENDIENTE-{{ request.user.id|default:'NEW' }}</p>
+            
+            <p class="text-[#A855F7] font-bold text-xs tracking-widest uppercase mb-6">
+                Ref: {% if request.user.id %}ID-{{ request.user.id }}{% else %}REG-PROCESS{% endif %}
+            </p>
             
             <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
                 <p class="text-gray-600 text-sm leading-relaxed">
-                    Tu cuenta ha sido creada exitosamente y se encuentra en estado <strong class="text-[#2D1B4B]">Pendiente de Aprobación</strong>.
+                    Tu información ha sido enviada. Tu cuenta se encuentra actualmente <strong class="text-[#2D1B4B]">Pendiente de Aprobación</strong>.
                 </p>
                 <div class="w-full h-[1px] bg-gray-200 my-4"></div>
-                <p class="text-xs text-gray-400">
-                    Un administrador revisará tu solicitud y activará tus permisos. Te notificaremos cuando puedas acceder.
-                </p>
+                <div class="text-left space-y-3">
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-info-circle text-[#A855F7] mt-1"></i>
+                        <p class="text-xs text-gray-500">Revisaremos tu perfil en un lapso de 24 a 48 horas hábiles.</p>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <i class="fas fa-envelope-open-text text-[#A855F7] mt-1"></i>
+                        <p class="text-xs text-gray-500">Recibirás un correo electrónico cuando el acceso sea concedido.</p>
+                    </div>
+                </div>
             </div>
             
             <a href="{% url 'login' %}" class="block w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:text-white transition-all duration-300 transform hover:-translate-y-1">
-                Volver al Inicio
+                <i class="fas fa-chevron-left mr-2 text-[10px]"></i> Volver al Inicio
             </a>
             
         </div>
         
-        <div class="bg-gray-50 py-3 text-center border-t border-gray-100">
+        <div class="bg-gray-50 py-4 text-center border-t border-gray-100">
             <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Gestiones Corpad Security</span>
         </div>
     </div>

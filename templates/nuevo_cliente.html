@@ -1,37 +1,112 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="max-w-2xl mx-auto bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-    <h2 class="text-2xl font-bold mb-6 text-gray-800">Registrar Nuevo Cliente</h2>
-    <form method="POST" enctype="multipart/form-data" class="space-y-4">
-        {% csrf_token %}
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Nombre de la Empresa</label>
-            <input type="text" name="nombre_empresa" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50 focus:border-[#A855F7] focus:ring-[#A855F7]">
+<div class="max-w-2xl mx-auto animate__animated animate__fadeIn">
+    <div class="flex items-center gap-4 mb-8">
+        <div class="w-12 h-12 bg-[#2D1B4B] rounded-2xl flex items-center justify-center text-white shadow-lg">
+            <i class="fas fa-building text-xl"></i>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Contacto Principal</label>
-                <input type="text" name="nombre_contacto" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50">
+        <div>
+            <h2 class="text-2xl font-black text-[#2D1B4B] font-serif">Registrar Nuevo Cliente</h2>
+            <p class="text-xs text-gray-400 uppercase tracking-widest font-bold">Gestión de Directorio Corporativo</p>
+        </div>
+    </div>
+
+    <div class="bg-white p-8 md:p-10 rounded-[2rem] shadow-xl border border-gray-50 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-[#A855F7] opacity-5 rounded-full -mr-16 -mt-16"></div>
+
+        <form method="POST" enctype="multipart/form-data" class="space-y-6" id="clientForm">
+            {% csrf_token %}
+            
+            <div class="input-group relative group">
+                <label for="id_nombre_empresa" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Nombre de la Empresa</label>
+                <div class="relative flex items-center">
+                    <i class="fas fa-briefcase text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                    <input type="text" id="id_nombre_empresa" name="nombre_empresa" required 
+                        class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 transition-all" 
+                        placeholder="Ej. Corpad Solutions S.A.">
+                </div>
+                <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] transition-all duration-300 group-focus-within:w-full"></div>
             </div>
-            <div>
-                <label class="block text-sm font-medium text-gray-700">Teléfono</label>
-                <input type="text" name="telefono" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50">
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="input-group relative group">
+                    <label for="id_nombre_contacto" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Contacto Principal</label>
+                    <div class="relative flex items-center">
+                        <i class="fas fa-user-tie text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                        <input type="text" id="id_nombre_contacto" name="nombre_contacto" required 
+                            class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 transition-all" 
+                            placeholder="Nombre del representante">
+                    </div>
+                    <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] transition-all duration-300 group-focus-within:w-full"></div>
+                </div>
+
+                <div class="input-group relative group">
+                    <label for="id_telefono" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Teléfono de Contacto</label>
+                    <div class="relative flex items-center">
+                        <i class="fas fa-phone text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                        <input type="tel" id="id_telefono" name="telefono" 
+                            class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 transition-all" 
+                            placeholder="+52 ...">
+                    </div>
+                    <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] transition-all duration-300 group-focus-within:w-full"></div>
+                </div>
             </div>
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Email Corporativo</label>
-            <input type="email" name="email" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm p-2 bg-gray-50">
-        </div>
-        <div>
-            <label class="block text-sm font-medium text-gray-700">Logo del Cliente</label>
-            <input type="file" name="logo" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#2D1B4B] file:text-white hover:file:bg-[#A855F7] transition-all">
-        </div>
-        <div class="pt-4">
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-lg font-bold hover:bg-[#A855F7] transition-all">
-                GUARDAR EN LA NUBE
-            </button>
-        </div>
-    </form>
+
+            <div class="input-group relative group">
+                <label for="id_email" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block">Email Corporativo</label>
+                <div class="relative flex items-center">
+                    <i class="fas fa-envelope text-gray-300 absolute left-0 text-sm smooth-transition"></i>
+                    <input type="email" id="id_email" name="email" required 
+                        class="w-full pl-6 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 transition-all" 
+                        placeholder="contacto@empresa.com">
+                </div>
+                <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] transition-all duration-300 group-focus-within:w-full"></div>
+            </div>
+
+            <div class="space-y-3">
+                <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider block">Logo de Identidad</label>
+                <div class="flex items-center gap-5 p-4 border-2 border-dashed border-gray-100 rounded-2xl hover:border-[#A855F7] transition-colors group">
+                    <div id="preview-container" class="w-16 h-16 bg-gray-50 rounded-xl flex items-center justify-center overflow-hidden border border-gray-100">
+                        <i id="placeholder-icon" class="fas fa-image text-gray-300 text-xl"></i>
+                        <img id="image-preview" src="#" alt="Preview" class="hidden w-full h-full object-cover">
+                    </div>
+                    <div class="flex-1">
+                        <input type="file" id="id_logo" name="logo" accept="image/*" onchange="previewImage(this)"
+                            class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[10px] file:font-black file:uppercase file:bg-[#2D1B4B] file:text-white hover:file:bg-[#A855F7] file:cursor-pointer file:transition-all">
+                        <p class="text-[9px] text-gray-400 mt-2 italic">Formatos permitidos: PNG, JPG. Máx 2MB.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6 flex flex-col md:flex-row gap-4">
+                <button type="submit" class="flex-1 bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] transform hover:-translate-y-1 transition-all duration-300 group">
+                    <i class="fas fa-cloud-upload-alt mr-2 group-hover:animate-bounce"></i> Guardar en la Nube
+                </button>
+                <a href="#" class="px-8 py-4 bg-gray-50 text-gray-400 rounded-xl font-black text-xs tracking-[0.2em] uppercase text-center hover:bg-gray-100 transition-all">
+                    Cancelar
+                </a>
+            </div>
+        </form>
+    </div>
 </div>
+
+<script>
+    function previewImage(input) {
+        const preview = document.getElementById('image-preview');
+        const icon = document.getElementById('placeholder-icon');
+        const container = document.getElementById('preview-container');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                preview.src = e.target.result;
+                preview.classList.remove('hidden');
+                icon.classList.add('hidden');
+                container.classList.add('border-[#A855F7]');
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+</script>
 {% endblock %}
