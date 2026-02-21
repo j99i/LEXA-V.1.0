@@ -2284,6 +2284,20 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
                     'fecha_vencimiento': doc.fecha_vencimiento
                 })
 
+            # --- TRUCO DE VELOCIDAD: Convertir imágenes a Base64 ---
+            logo_b64 = ""
+            firma_b64 = ""
+            logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
+            firma_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'firma_full.png')
+            
+            if os.path.exists(logo_path):
+                with open(logo_path, "rb") as img_file:
+                    logo_b64 = base64.b64encode(img_file.read()).decode('utf-8')
+                    
+            if os.path.exists(firma_path):
+                with open(firma_path, "rb") as img_file:
+                    firma_b64 = base64.b64encode(img_file.read()).decode('utf-8')
+
             context_pdf = {
                 'cliente': cliente,
                 'carpeta': carpeta,
@@ -2294,11 +2308,14 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
                 'municipio': municipio,
                 'estado': estado,
                 'fecha_emision': timezone.now(),
-                'base_url': request.build_absolute_uri('/')
+                # Pasamos las imágenes codificadas en lugar de URLs
+                'logo_b64': logo_b64,
+                'firma_b64': firma_b64,
             }
             
             html_string = render_to_string('expedientes/acuse_pdf.html', context_pdf)
-            html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+            # Ya no necesita el base_url porque las imágenes van por dentro
+            html = weasyprint.HTML(string=html_string)
             pdf_content = html.write_pdf()
 
             nombre_acuse = f"ACUSE ENTREGA {cliente.nombre_empresa}.pdf"
