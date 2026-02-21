@@ -1930,10 +1930,16 @@ def redactar_correo_autorizaciones(request, carpeta_id):
     if acuse_id:
         doc_acuse = Documento.objects.filter(id=acuse_id).first()
 
+    # URL base para cargar el logo en el correo
+    domain = URL_PORTAL
+    logo_url = f"{domain}/static/img/logo.png"
+
     if request.method == 'POST':
         asunto = request.POST.get('asunto')
         mensaje_usuario = request.POST.get('mensaje')
         destinatario = request.POST.get('destinatario')
+        firma_nombre = request.POST.get('firma_nombre', FIRMA_NOMBRE_DEFAULT)
+        firma_cargo = request.POST.get('firma_cargo', FIRMA_CARGO_DEFAULT)
         
         acuse_id_post = request.POST.get('acuse_id_hidden')
         if acuse_id_post:
@@ -1951,22 +1957,28 @@ def redactar_correo_autorizaciones(request, carpeta_id):
                     logger.warning(f"No se pudo adjuntar {doc.nombre_archivo}: {e}")
         buffer.seek(0)
 
-        cuerpo_html = render_to_string('expedientes/email_autorizaciones_template.html', {
+        # Usamos la plantilla universal para que tenga el mismo diseño que las cotizaciones
+        cuerpo_html = render_to_string('correo/email_body_universal.html', {
             'cliente': cliente,
-            'usuario': request.user,
-            'mensaje_usuario': mensaje_usuario,
-            'archivos': carpeta.documentos.exclude(id=doc_acuse.id if doc_acuse else None)
+            'tipo_correo': 'autorizaciones',
+            'mensaje': mensaje_usuario,
+            'lista_adjuntos': carpeta.documentos.exclude(id=doc_acuse.id if doc_acuse else None),
+            'firma_nombre': firma_nombre,
+            'firma_cargo': firma_cargo,
+            'logo_url': logo_url,
         })
         
-        email = EmailMessage(
+        text_body = strip_tags(cuerpo_html)
+        
+        email = EmailMultiAlternatives(
             subject=asunto,
-            body=cuerpo_html,
+            body=text_body,
             from_email=settings.DEFAULT_FROM_EMAIL,
             to=[destinatario],
             cc=[request.user.email], 
             reply_to=[EMAIL_REPLY_TO] 
         )
-        email.content_subtype = "html"
+        email.attach_alternative(cuerpo_html, "text/html")
         
         nombre_zip = f"Evidencias_{cliente.nombre_empresa}.zip"
         email.attach(nombre_zip, buffer.getvalue(), 'application/zip')

@@ -66,16 +66,32 @@
             </div>
         </div>
 
-        <div class="mb-8 group">
+        <div class="mb-6 group">
             <label for="input_mensaje" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1 cursor-pointer group-focus-within:text-[#A855F7] transition-colors">
                 Cuerpo del Mensaje: <span class="text-red-400">*</span>
             </label>
-            <textarea id="input_mensaje" name="mensaje" rows="10" required
+            <textarea id="input_mensaje" name="mensaje" rows="8" required
                       class="w-full p-5 bg-white rounded-2xl border-2 border-gray-200 focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 shadow-inner font-sans text-sm leading-relaxed text-[#2D1B4B] outline-none transition-all resize-y custom-scrollbar">{{ mensaje }}</textarea>
             
             <div class="flex justify-end items-center gap-1 mt-2 text-gray-400 opacity-70">
                 <i class="fas fa-paint-brush text-[10px]"></i>
-                <p class="text-[10px] italic">Se aplicará formato corporativo HTML y firma digital automáticamente.</p>
+                <p class="text-[10px] italic">Se aplicará formato corporativo HTML automáticamente.</p>
+            </div>
+        </div>
+
+        <div class="bg-gray-50 p-5 rounded-2xl mb-8 border border-gray-100 shadow-inner">
+            <label class="block text-[10px] font-black text-[#2D1B4B] uppercase tracking-widest mb-3">
+                <i class="fas fa-signature mr-1 text-[#A855F7]"></i> Datos de la Firma
+            </label>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <input type="text" name="firma_nombre" value="Lic. Maribel Aldana Santos" required
+                           class="w-full p-3 bg-white rounded-xl font-bold text-xs text-[#2D1B4B] border border-gray-200 focus:border-[#A855F7] transition-all outline-none shadow-sm" placeholder="Nombre completo">
+                </div>
+                <div>
+                    <input type="text" name="firma_cargo" value="Gestiones Corpad | Directora General" required
+                           class="w-full p-3 bg-white rounded-xl text-xs text-gray-500 border border-gray-200 focus:border-[#A855F7] transition-all outline-none shadow-sm" placeholder="Cargo">
+                </div>
             </div>
         </div>
 
