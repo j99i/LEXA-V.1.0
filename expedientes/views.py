@@ -278,10 +278,23 @@ def nuevo_cliente(request):
         )
         if request.user.rol != 'admin':
             request.user.clientes_asignados.add(c)
+
+        # Lógica para conservar solo las carpetas seleccionadas
+        carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
+        carpetas_base = [
+            'CARPETA ADMINISTRATIVA', 'LICENCIA DE FUNCIONAMIENTO', 
+            'PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL', 'PROTECCIÓN CIVIL MUNICIPAL', 
+            'PROTECCIÓN CIVIL ESTATAL', 'MEDIO AMBIENTE', 'REGISTRO AMBIENTAL ESTATAL', 
+            'CEDULA DE ZONIFICACIÓN', 'LICENCIA DE USO DE SUELO'
+        ]
+        
+        for nombre_carpeta in carpetas_base:
+            if nombre_carpeta not in carpetas_seleccionadas:
+                Carpeta.objects.filter(cliente=c, nombre=nombre_carpeta).delete()
+
         registrar_bitacora(request.user, c, 'creacion', f"Dio de alta al cliente '{c.nombre_empresa}'.")
         return redirect('dashboard')
     return render(request, 'nuevo_cliente.html')
-
 @login_required
 @requiere_permiso('can_delete_client')
 def eliminar_cliente(request, cliente_id):
@@ -1127,23 +1140,25 @@ def convertir_a_cliente(request, cotizacion_id):
             request.user.clientes_asignados.add(cli)
 
     carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
-    carpetas_base = ['LICENCIA', 'FUNCIONAMIENTO', 'PROTECCIÓN CIVIL']
     
+    # Lista EXACTA de carpetas base definidas en tu signal
+    carpetas_base = [
+        'CARPETA ADMINISTRATIVA',
+        'LICENCIA DE FUNCIONAMIENTO',
+        'PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL',
+        'PROTECCIÓN CIVIL MUNICIPAL',
+        'PROTECCIÓN CIVIL ESTATAL',
+        'MEDIO AMBIENTE',
+        'REGISTRO AMBIENTAL ESTATAL',
+        'CEDULA DE ZONIFICACIÓN',
+        'LICENCIA DE USO DE SUELO'
+    ]
+
+    # El signal ya creó todas las carpetas automáticamente al hacer '.create()', 
+    # así que aquí borramos las que el usuario NO seleccionó en el modal
     for nombre_carpeta in carpetas_base:
         if nombre_carpeta not in carpetas_seleccionadas:
             Carpeta.objects.filter(cliente=cli, nombre=nombre_carpeta).delete()
-        else:
-            carpeta_padre, created = Carpeta.objects.get_or_create(
-                nombre=nombre_carpeta, 
-                cliente=cli, 
-                defaults={'es_expediente': False}
-            )
-            Carpeta.objects.get_or_create(
-                nombre="Autorizaciones liberadas",
-                cliente=cli,
-                padre=carpeta_padre,
-                defaults={'es_expediente': False}
-            )
     
     carpeta_cotizaciones, _ = Carpeta.objects.get_or_create(nombre="Cotizaciones", cliente=cli, defaults={'es_expediente': False})
 
@@ -1203,9 +1218,8 @@ def convertir_a_cliente(request, cotizacion_id):
     c.save()
 
     registrar_bitacora(request.user, cli, 'creacion', f"Convirtió la cotización '{c.titulo}' en cliente y generó cuentas por cobrar.")
-    messages.success(request, f"¡Trato cerrado! Se han generado las carpetas con sus subcarpetas de autorizaciones.")
+    messages.success(request, f"¡Trato cerrado! Se han generado las carpetas seleccionadas con sus subcarpetas de autorizaciones.")
     return redirect('detalle_cliente', cliente_id=cli.id)
-
 @login_required
 def enviar_cotizacion_email(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
