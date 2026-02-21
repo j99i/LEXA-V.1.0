@@ -1,31 +1,96 @@
-<div style="font-family: Arial, sans-serif; color: #333; line-height: 1.6;">
+<!DOCTYPE html>
+<html lang="es" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Autorizaciones Liberadas</title>
     
-    <div style="background-color: #2D1B4B; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-        <h2 style="color: white; margin: 0;">Autorizaciones Liberadas</h2>
-    </div>
+    <style type="text/css">
+        body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
+        table, td { mso-table-lspace: 0pt; mso-table-rspace: 0pt; }
+        img { -ms-interpolation-mode: bicubic; border: 0; height: auto; line-height: 100%; outline: none; text-decoration: none; }
+        table { border-collapse: collapse !important; }
+        body { height: 100% !important; margin: 0 !important; padding: 0 !important; width: 100% !important; background-color: #F3F4F6; }
+        /* Evitar que Apple ponga azules los enlaces por defecto */
+        a[x-apple-data-detectors] { color: inherit !important; text-decoration: none !important; font-size: inherit !important; font-family: inherit !important; font-weight: inherit !important; line-height: inherit !important; }
+    </style>
+</head>
+<body style="background-color: #F3F4F6; margin: 0 !important; padding: 0 !important;">
 
-    <div style="padding: 20px; border: 1px solid #ddd; border-top: none;">
-        
-        <div style="margin-bottom: 20px;">
-            {{ mensaje_usuario|linebreaks }}
-        </div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F3F4F6; padding: 40px 20px; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;">
+        <tr>
+            <td align="center">
+                
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; background-color: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #E5E7EB; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);">
+                    
+                    <tr>
+                        <td style="background-color: #2D1B4B; padding: 35px 40px; text-align: center;">
+                            <h2 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">Autorizaciones Liberadas</h2>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td style="padding: 40px; color: #374151; font-size: 15px; line-height: 1.6;">
+                            
+                            <div style="margin-bottom: 30px; color: #1F2937;">
+                                {{ mensaje_usuario|linebreaks }}
+                            </div>
 
-        <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
-            <p style="font-weight: bold; margin-top: 0; color: #555;">Documentos incluidos en el ZIP:</p>
-            <ul style="margin-bottom: 0;">
-                {% for doc in archivos %}
-                <li style="color: #2D1B4B;">{{ doc.nombre_archivo }}</li>
-                {% endfor %}
-            </ul>
-        </div>
+                            <div style="background-color: #FAF5FF; border-left: 4px solid #A855F7; padding: 20px; border-radius: 0 8px 8px 0; margin-bottom: 35px;">
+                                <p style="font-weight: 900; margin-top: 0; margin-bottom: 12px; color: #2D1B4B; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                    Documentos incluidos en el ZIP adjunto:
+                                </p>
+                                
+                                <ul style="margin: 0; padding-left: 20px; color: #4B5563;">
+                                    {% for doc in archivos %}
+                                    <li style="margin-bottom: 6px;">
+                                        <strong style="color: #374151;">{{ doc.nombre_archivo }}</strong>
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
 
-        <div style="border-top: 1px solid #eee; padding-top: 20px; font-size: 0.9em; color: #666;">
-            <p style="font-weight: bold; color: #2D1B4B; margin: 0;">{{ usuario.first_name }} {{ usuario.last_name }}</p>
-            <p style="margin: 0;">Gestión Legal & Corporativa</p>
-            {% if usuario.email %}
-            <p style="margin: 0;">{{ usuario.email }}</p>
-            {% endif %}
-            <p style="margin: 0; color: #A855F7;">Enviado desde Cordpad Legal App</p>
-        </div>
-    </div>
-</div>
+                            <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border-top: 2px solid #F3F4F6; padding-top: 25px;">
+                                <tr>
+                                    <td style="font-size: 14px; color: #6B7280; line-height: 1.5;">
+                                        <p style="font-weight: 900; color: #2D1B4B; margin: 0; font-size: 16px;">
+                                            {{ usuario.first_name }} {{ usuario.last_name }}
+                                        </p>
+                                        <p style="margin: 2px 0 0 0; font-weight: bold; color: #A855F7;">
+                                            Gestión Legal & Corporativa
+                                        </p>
+                                        
+                                        {% if usuario.email %}
+                                        <p style="margin: 5px 0 0 0;">
+                                            <a href="mailto:{{ usuario.email }}" style="color: #6B7280; text-decoration: none;">
+                                                {{ usuario.email }}
+                                            </a>
+                                        </p>
+                                        {% endif %}
+                                        
+                                        <p style="margin: 20px 0 0 0; font-size: 10px; color: #9CA3AF; text-transform: uppercase; letter-spacing: 1px;">
+                                            Enviado a través de <strong style="color: #A855F7;">Gestiones Corpad</strong>
+                                        </p>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+                </table>
+                
+                <table width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px;">
+                    <tr>
+                        <td style="padding: 20px; text-align: center; font-size: 11px; color: #9CA3AF; line-height: 1.5;">
+                            Este es un mensaje automático generado por el sistema. Por favor, asegúrate de descargar tus archivos de forma segura.
+                        </td>
+                    </tr>
+                </table>
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>
