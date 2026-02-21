@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize %}
 
 {% block titulo_pagina %}Gestión de Propuestas{% endblock %}
 
@@ -11,7 +11,7 @@
             <h1 class="text-3xl font-black text-[#2D1B4B] font-serif mb-1">Cotizaciones</h1>
             <p class="text-gray-500 font-medium text-sm">Historial y estado de tus propuestas comerciales.</p>
         </div>
-        <a href="{% url 'nueva_cotizacion' %}" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2 uppercase tracking-wider">
+        <a href="{% url 'nueva_cotizacion' %}" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
             <i class="fas fa-plus"></i> Nueva Cotización
         </a>
     </div>
@@ -19,9 +19,17 @@
     {% if messages %}
         <div class="mb-6 space-y-2">
             {% for message in messages %}
-                <div class="p-4 rounded-xl shadow-sm border-l-4 flex items-center gap-3 {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-800{% elif message.tags == 'error' %}bg-red-50 border-red-500 text-red-800{% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}">
-                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
-                    <span class="font-bold text-sm">{{ message }}</span>
+                <div class="p-4 rounded-xl shadow-sm border-l-4 flex items-center justify-between gap-3 animate__animated animate__fadeInDown 
+                    {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-800
+                    {% elif message.tags == 'error' %}bg-red-50 border-red-500 text-red-800
+                    {% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}" role="alert">
+                    <div class="flex items-center gap-3">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}"></i>
+                        <span class="font-bold text-sm">{{ message }}</span>
+                    </div>
+                    <button onclick="this.parentElement.remove()" class="opacity-50 hover:opacity-100 transition-opacity" aria-label="Cerrar mensaje">
+                        <i class="fas fa-times"></i>
+                    </button>
                 </div>
             {% endfor %}
         </div>
@@ -40,9 +48,11 @@
                         <th class="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-wider text-right">Acciones</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-50">
+                <tbody class="divide-y divide-gray-50 relative">
                     {% for c in cotizaciones %}
-                    <tr class="hover:bg-gray-50 transition-colors group">
+                    
+                    <tr class="hover:bg-gray-50 transition-colors group cursor-pointer" onclick="if(!event.target.closest('.btn-accion-evitar')) window.location.href='{% url 'detalle_cotizacion' c.id %}'">
+                        
                         <td class="px-6 py-4">
                             <span class="font-black text-[#2D1B4B] text-sm">#{{ c.id|stringformat:"04d" }}</span>
                         </td>
@@ -65,48 +75,40 @@
                         
                         <td class="px-6 py-4">
                             <div class="font-black text-[#2D1B4B] text-sm">
-                                ${{ c.total }} <span class="text-xs text-gray-400 font-bold">MXN</span>
+                                ${{ c.total_con_iva|default:c.total|floatformat:2|intcomma }} <span class="text-xs text-gray-400 font-bold">MXN</span>
                             </div>
                         </td>
                         
                         <td class="px-6 py-4 text-center">
                             {% if c.estado == 'borrador' %}
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-gray-100 text-gray-500 tracking-wide border border-gray-200">
-                                    Borrador
-                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-gray-100 text-gray-500 tracking-wide border border-gray-200">Borrador</span>
                             {% elif c.estado == 'enviada' %}
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 text-blue-600 tracking-wide border border-blue-100">
-                                    Enviada
-                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-blue-50 text-blue-600 tracking-wide border border-blue-100">Enviada</span>
                             {% elif c.estado == 'aceptada' %}
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 text-green-600 tracking-wide border border-green-100">
-                                    Aceptada
-                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-green-50 text-green-600 tracking-wide border border-green-100">Aceptada</span>
                             {% elif c.estado == 'rechazada' %}
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 text-red-600 tracking-wide border border-red-100">
-                                    Rechazada
-                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-red-50 text-red-600 tracking-wide border border-red-100">Rechazada</span>
                             {% else %}
-                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-gray-50 text-gray-600 border border-gray-200">
-                                    {{ c.estado|title }}
-                                </span>
+                                <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase bg-gray-50 text-gray-600 border border-gray-200">{{ c.estado|title }}</span>
                             {% endif %}
                         </td>
                         
                         <td class="px-6 py-4 text-right">
-                            <div class="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <a href="{% url 'detalle_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-purple-50 text-[#A855F7] flex items-center justify-center hover:bg-[#A855F7] hover:text-white transition-all shadow-sm" title="Ver Detalles">
+                            <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity btn-accion-evitar">
+                                
+                                <a href="{% url 'detalle_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-purple-50 text-[#A855F7] flex items-center justify-center hover:bg-[#A855F7] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500" title="Ver Detalles" aria-label="Ver Detalles de Cotización">
                                     <i class="fas fa-eye text-xs"></i>
                                 </a>
-                                <a href="{% url 'eliminar_cotizacion' c.id %}" 
-                                   class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm"
-                                   onclick="return confirm('⚠️ ¿Estás SEGURO de eliminar la Cotización #{{ c.id }}?');"
-                                   title="Eliminar">
+                                
+                                <button type="button" onclick="abrirModalEliminar({{ c.id }}, '{{ c.prospecto_empresa|default:c.prospecto_nombre|escapejs }}')" 
+                                        class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        title="Eliminar" aria-label="Eliminar Cotización">
                                     <i class="fas fa-trash-alt text-xs"></i>
-                                </a>
+                                </button>
                             </div>
                         </td>
                     </tr>
+                    
                     {% empty %}
                     <tr>
                         <td colspan="6" class="px-6 py-12 text-center">
@@ -129,4 +131,80 @@
         </div>
     </div>
 </div>
+
+<div id="modal-eliminar" role="dialog" aria-modal="true" aria-labelledby="modal-eliminar-title" class="fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden m-4 transform transition-all scale-100 text-center p-6">
+        
+        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+        </div>
+        
+        <h3 id="modal-eliminar-title" class="text-xl font-black text-[#2D1B4B] mb-2">¿Estás seguro?</h3>
+        <p class="text-sm text-gray-500 mb-6">
+            Estás a punto de eliminar la cotización de <br>
+            <strong id="modal-eliminar-cliente" class="text-[#2D1B4B]"></strong>.<br>
+            <span class="text-red-500 font-bold mt-2 block">Esta acción no se puede deshacer.</span>
+        </p>
+
+        <form id="form-eliminar" method="POST" action="">
+            {% csrf_token %}
+            <div class="flex gap-3 justify-center">
+                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400">
+                    Cancelar
+                </button>
+                <button type="submit" class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600 transition-transform hover:-translate-y-1 focus:outline-none focus:ring-2 focus:ring-red-500 flex items-center gap-2" onclick="mostrarLoaderEliminar(this)">
+                    <span id="texto-btn-eliminar">Sí, Eliminar</span>
+                    <i id="icono-btn-eliminar" class="fas fa-trash hidden"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const modalEliminar = document.getElementById('modal-eliminar');
+    const formEliminar = document.getElementById('form-eliminar');
+    const labelCliente = document.getElementById('modal-eliminar-cliente');
+
+    // Función para abrir el modal inyectando los datos correctos
+    function abrirModalEliminar(idCotizacion, nombreCliente) {
+        // Asignar el Action del formulario a la URL correcta dinámicamente
+        // Nota: Asegúrate de que la URL en urls.py reciba un parámetro int.
+        formEliminar.action = `/cotizaciones/eliminar/${idCotizacion}/`; 
+        
+        // Mostrar el nombre para dar contexto al usuario
+        labelCliente.textContent = nombreCliente;
+        
+        // Mostrar modal
+        modalEliminar.classList.remove('hidden');
+    }
+
+    function cerrarModalEliminar() {
+        modalEliminar.classList.add('hidden');
+    }
+
+    // UX: Cerrar con Escape o clic fuera
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !modalEliminar.classList.contains('hidden')) {
+            cerrarModalEliminar();
+        }
+    });
+
+    modalEliminar.addEventListener('click', (e) => {
+        if (e.target === modalEliminar) {
+            cerrarModalEliminar();
+        }
+    });
+
+    // UX: Estado de carga al confirmar eliminación
+    function mostrarLoaderEliminar(btn) {
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+        document.getElementById('texto-btn-eliminar').textContent = 'Eliminando...';
+        
+        const icono = document.getElementById('icono-btn-eliminar');
+        icono.className = 'fas fa-spinner fa-spin';
+        icono.classList.remove('hidden');
+    }
+</script>
+
 {% endblock %}

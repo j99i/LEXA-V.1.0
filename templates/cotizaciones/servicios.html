@@ -1,40 +1,54 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block titulo_pagina %}Gestión de Propuestas{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto animate__animated animate__fadeIn">
     
-    <div class="flex justify-between items-center mb-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
             <h2 class="text-3xl font-black text-[#2D1B4B] font-serif">Catálogo de Servicios</h2>
             <p class="text-gray-500 text-sm">Define tus servicios y sus especificaciones técnicas fijas.</p>
         </div>
-        <button onclick="abrirModal()" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2">
+        <button type="button" onclick="abrirModalServicio()" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
             <i class="fas fa-plus"></i> NUEVO SERVICIO
         </button>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for s in servicios %}
-        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group relative overflow-hidden">
+        <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group relative overflow-hidden flex flex-col h-full">
             <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#A855F7] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-[#2D1B4B]">
+                <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-[#2D1B4B] shrink-0">
                     <i class="fas fa-balance-scale text-xl"></i>
                 </div>
-                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onclick="editarServicio('{{ s.id }}', '{{ s.nombre|escapejs }}', '{{ s.precio_base }}', '{{ s.descripcion|escapejs }}')" class="text-gray-400 hover:text-[#2D1B4B] p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                
+                <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+                    <button type="button" 
+                            class="btn-editar text-gray-400 hover:text-[#2D1B4B] p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                            data-id="{{ s.id }}" 
+                            data-nombre="{{ s.nombre }}" 
+                            data-precio="{{ s.precio_base }}" 
+                            data-descripcion="{{ s.descripcion }}">
                         <i class="fas fa-pen"></i>
                     </button>
-                    <a href="{% url 'eliminar_servicio' s.id %}" onclick="return confirm('¿Eliminar servicio?')" class="text-gray-400 hover:text-red-500 p-2"><i class="fas fa-trash"></i></a>
+                    
+                    <button type="button" 
+                            onclick="abrirModalEliminar({{ s.id }}, '{{ s.nombre|escapejs }}')" 
+                            class="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors focus:outline-none">
+                        <i class="fas fa-trash"></i>
+                    </button>
                 </div>
             </div>
             
-            <h3 class="font-black text-lg text-[#2D1B4B] mb-2">{{ s.nombre }}</h3>
+            <h3 class="font-black text-lg text-[#2D1B4B] mb-2 flex-1">{{ s.nombre }}</h3>
             
             {{ s.campos_dinamicos|json_script:s.id }}
             
-            <div class="flex items-center justify-between border-t border-gray-50 pt-4">
+            <div class="flex items-center justify-between border-t border-gray-50 pt-4 mt-auto">
                 <span class="text-[10px] font-bold text-gray-400 uppercase">
                     {% if s.campos_dinamicos %}
                         {{ s.campos_dinamicos|length }} Especificaciones
@@ -53,10 +67,12 @@
     </div>
 </div>
 
-<div id="modal-servicio" class="fixed inset-0 bg-[#2D1B4B]/80 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-2xl m-4 shadow-2xl relative overflow-y-auto max-h-[90vh]">
+<div id="modal-servicio" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 bg-[#2D1B4B]/80 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
+    <div class="modal-content bg-white p-6 md:p-8 rounded-[2rem] w-full max-w-2xl m-4 shadow-2xl relative overflow-y-auto max-h-[90vh]">
         
-        <button onclick="cerrarModal()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+        <button type="button" onclick="cerrarModalServicio()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors focus:outline-none">
+            <i class="fas fa-times text-xl"></i>
+        </button>
         
         <h3 id="modal-titulo" class="text-2xl font-black text-[#2D1B4B] mb-6">Configurar Servicio</h3>
         
@@ -64,23 +80,23 @@
             {% csrf_token %}
             <input type="hidden" name="servicio_id" id="input-id">
             
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <input type="text" name="nombre" id="input-nombre" placeholder="Nombre del Servicio" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#A855F7] outline-none" required>
-                <input type="number" name="precio" id="input-precio" step="0.01" placeholder="Honorarios Base" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#A855F7] outline-none" required>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <input type="text" name="nombre" id="input-nombre" placeholder="Nombre del Servicio" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#A855F7] outline-none transition-colors" required>
+                <input type="number" name="precio" id="input-precio" step="0.01" min="0" placeholder="Honorarios Base" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#A855F7] outline-none transition-colors" required>
             </div>
-            <textarea name="descripcion" id="input-descripcion" rows="2" placeholder="Descripción general..." class="w-full p-4 bg-gray-50 rounded-xl text-sm mb-6 border-2 border-transparent focus:border-[#A855F7] outline-none"></textarea>
+            <textarea name="descripcion" id="input-descripcion" rows="2" placeholder="Descripción general..." class="w-full p-4 bg-gray-50 rounded-xl text-sm mb-6 border-2 border-transparent focus:border-[#A855F7] outline-none transition-colors"></textarea>
 
-            <div class="border-2 border-dashed border-gray-300 rounded-[1.5rem] p-6 mb-6 relative bg-gray-50">
+            <div class="border-2 border-dashed border-gray-300 rounded-[1.5rem] p-4 md:p-6 mb-6 relative bg-gray-50">
                 <h4 class="text-xs font-black text-gray-500 uppercase mb-4 flex items-center gap-2">
                     <i class="fas fa-list-ul"></i> Especificaciones del Servicio
                 </h4>
                 
-                <div class="flex gap-2 mb-4 items-center">
-                    <input type="text" id="temp-nombre" placeholder="Característica (Ej. Marca)" class="w-1/3 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#A855F7]">
+                <div class="flex flex-col sm:flex-row gap-2 mb-4 items-stretch sm:items-center">
+                    <input type="text" id="temp-nombre" placeholder="Característica (Ej. Marca)" class="w-full sm:w-1/3 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#A855F7] transition-colors">
                     
-                    <input type="text" id="temp-valor" placeholder="Valor / Detalle (Ej. Castrol)" class="flex-1 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#A855F7]">
+                    <input type="text" id="temp-valor" placeholder="Valor / Detalle (Ej. Castrol)" class="w-full sm:flex-1 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#A855F7] transition-colors">
                     
-                    <button type="button" onclick="confirmarCampo()" class="bg-[#A855F7] text-white px-5 py-3 rounded-xl font-bold text-[10px] uppercase shadow-md hover:bg-[#9333ea] transition-all">
+                    <button type="button" onclick="confirmarCampo()" class="w-full sm:w-auto bg-[#A855F7] text-white px-5 py-3 rounded-xl font-bold text-[10px] uppercase shadow-md hover:bg-[#9333ea] transition-all">
                         AGREGAR
                     </button>
                 </div>
@@ -92,80 +108,196 @@
                 </p>
             </div>
 
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#A855F7] transition-all">
-                GUARDAR SERVICIO
+            <button type="submit" class="btn-guardar w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#A855F7] transition-all flex justify-center items-center gap-2">
+                <span class="texto-btn">GUARDAR SERVICIO</span>
+                <i class="fas fa-spinner fa-spin icono-btn hidden"></i>
             </button>
         </form>
     </div>
 </div>
 
-<script>
-    function confirmarCampo(nombre = '', valor = '') {
-        const inputNombre = document.getElementById('temp-nombre');
-        const inputValor = document.getElementById('temp-valor');
-        
-        const finalNombre = nombre || inputNombre.value;
-        const finalValor = valor || inputValor.value;
+<div id="modal-eliminar" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
+    <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden m-4 transform transition-all text-center p-6">
+        <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-exclamation-triangle text-3xl"></i>
+        </div>
+        <h3 class="text-xl font-black text-[#2D1B4B] mb-2">¿Eliminar Servicio?</h3>
+        <p class="text-sm text-gray-500 mb-6">
+            Estás a punto de eliminar <strong id="modal-eliminar-nombre" class="text-[#2D1B4B]"></strong>.<br>
+            <span class="text-red-500 font-bold mt-2 block">Esta acción es irreversible.</span>
+        </p>
+        <form id="form-eliminar" method="POST" action="">
+            {% csrf_token %}
+            <div class="flex gap-3 justify-center">
+                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors">Cancelar</button>
+                <button type="submit" class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600 transition-all flex items-center gap-2" onclick="this.classList.add('opacity-75'); this.querySelector('span').textContent='Eliminando...';">
+                    <span>Eliminar</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
-        if (!finalNombre.trim() || !finalValor.trim()) {
-            alert("Por favor define tanto la característica como su detalle.");
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // === ELEMENTOS DOM ===
+    const modalServicio = document.getElementById('modal-servicio');
+    const formServicio = document.getElementById('form-servicio');
+    const containerCampos = document.getElementById('lista-campos-confirmados');
+    
+    const inputTempNombre = document.getElementById('temp-nombre');
+    const inputTempVal = document.getElementById('temp-valor');
+
+    // === UX: CONTROL DEL TECLADO (Prevenir Falso Envío) ===
+    function handleEnterKey(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // Evita que el formulario se envíe
+            
+            if (e.target.id === 'temp-nombre') {
+                inputTempVal.focus(); // Salta al siguiente input
+            } else if (e.target.id === 'temp-valor') {
+                window.confirmarCampo(); // Ejecuta la función de agregar
+            }
+        }
+    }
+    inputTempNombre.addEventListener('keydown', handleEnterKey);
+    inputTempVal.addEventListener('keydown', handleEnterKey);
+
+
+    // === CREACIÓN SEGURA DE CAMPOS DINÁMICOS (Mitigación XSS) ===
+    window.confirmarCampo = function(nombre = '', valor = '') {
+        const finalNombre = (nombre || inputTempNombre.value).trim();
+        const finalValor = (valor || inputTempVal.value).trim();
+
+        if (!finalNombre || !finalValor) {
+            // Un toast sutil en lugar de un alert bloqueante
+            alert("⚠️ Define tanto la característica como su detalle.");
             return;
         }
 
-        const container = document.getElementById('lista-campos-confirmados');
+        // Creación de Nodos DOM (100% inmune a XSS)
         const div = document.createElement('div');
         div.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm animate__animated animate__fadeInLeft";
         
-        div.innerHTML = `
-            <div class="flex items-center gap-3 w-full">
-                <span class="text-xs font-black text-gray-400 uppercase w-1/3 truncate" title="${finalNombre}">${finalNombre}:</span>
-                <span class="text-sm font-bold text-[#2D1B4B] flex-1 truncate" title="${finalValor}">${finalValor}</span>
-                
-                <input type="hidden" name="campo_nombre[]" value="${finalNombre}">
-                <input type="hidden" name="campo_valor[]" value="${finalValor}">
-            </div>
-            <button type="button" onclick="this.parentElement.remove()" class="text-red-300 hover:text-red-500 p-2 transition-colors">
-                <i class="fas fa-trash-alt"></i>
-            </button>
-        `;
-        container.appendChild(div);
-
-        if(!nombre) {
-            inputNombre.value = '';
-            inputValor.value = '';
-            inputNombre.focus();
-        }
-    }
-
-    function abrirModal() {
-        document.getElementById('modal-titulo').innerText = 'Nuevo Servicio';
-        document.getElementById('form-servicio').reset();
-        document.getElementById('input-id').value = '';
-        document.getElementById('lista-campos-confirmados').innerHTML = '';
-        document.getElementById('modal-servicio').classList.replace('hidden', 'flex');
-    }
-
-    // CORRECCIÓN 3: Leemos el JSON del script tag oculto usando el ID
-    function editarServicio(id, nombre, precio, descripcion) {
-        abrirModal();
-        document.getElementById('modal-titulo').innerText = 'Editar Servicio';
-        document.getElementById('input-id').value = id;
-        document.getElementById('input-nombre').value = nombre;
-        document.getElementById('input-precio').value = precio;
-        document.getElementById('input-descripcion').value = descripcion;
+        const wrapper = document.createElement('div');
+        wrapper.className = "flex items-center gap-3 w-full overflow-hidden";
         
-        try {
-            // Buscamos el elemento script que generó Django
-            const scriptTag = document.getElementById(id); 
-            if (scriptTag) {
-                const campos = JSON.parse(scriptTag.textContent);
-                campos.forEach(c => confirmarCampo(c.nombre, c.valor));
-            }
-        } catch(e) { console.error("Error al cargar especificaciones:", e); }
-    }
+        const spanNombre = document.createElement('span');
+        spanNombre.className = "text-xs font-black text-gray-400 uppercase w-1/3 truncate";
+        spanNombre.title = finalNombre;
+        spanNombre.textContent = finalNombre + ':';
 
-    function cerrarModal() {
-        document.getElementById('modal-servicio').classList.replace('flex', 'hidden');
-    }
+        const spanValor = document.createElement('span');
+        spanValor.className = "text-sm font-bold text-[#2D1B4B] flex-1 truncate";
+        spanValor.title = finalValor;
+        spanValor.textContent = finalValor;
+
+        // Inputs ocultos para el POST
+        const hiddenNombre = document.createElement('input');
+        hiddenNombre.type = 'hidden';
+        hiddenNombre.name = 'campo_nombre[]';
+        hiddenNombre.value = finalNombre;
+
+        const hiddenValor = document.createElement('input');
+        hiddenValor.type = 'hidden';
+        hiddenValor.name = 'campo_valor[]';
+        hiddenValor.value = finalValor;
+
+        const btnEliminar = document.createElement('button');
+        btnEliminar.type = 'button';
+        btnEliminar.className = "text-red-300 hover:text-red-500 p-2 transition-colors shrink-0";
+        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        btnEliminar.onclick = () => div.remove();
+
+        wrapper.append(spanNombre, spanValor, hiddenNombre, hiddenValor);
+        div.append(wrapper, btnEliminar);
+        containerCampos.appendChild(div);
+
+        // Limpiar inputs si fue ingreso manual
+        if(!nombre) {
+            inputTempNombre.value = '';
+            inputTempVal.value = '';
+            inputTempNombre.focus(); // Mantener el flujo de trabajo
+        }
+    };
+
+    // === GESTIÓN DE MODALES ===
+    window.abrirModalServicio = function() {
+        document.getElementById('modal-titulo').innerText = 'Nuevo Servicio';
+        formServicio.reset();
+        document.getElementById('input-id').value = '';
+        containerCampos.innerHTML = '';
+        modalServicio.classList.replace('hidden', 'flex');
+    };
+
+    window.cerrarModalServicio = function() {
+        modalServicio.classList.replace('flex', 'hidden');
+    };
+
+    // DELEGACIÓN DE EVENTOS: Editar Servicio (Seguro y limpio)
+    document.querySelectorAll('.btn-editar').forEach(btn => {
+        btn.addEventListener('click', function() {
+            window.abrirModalServicio();
+            
+            // Extraer datos de los atributos (Sin romper el JS)
+            const id = this.dataset.id;
+            document.getElementById('modal-titulo').innerText = 'Editar Servicio';
+            document.getElementById('input-id').value = id;
+            document.getElementById('input-nombre').value = this.dataset.nombre;
+            document.getElementById('input-precio').value = this.dataset.precio;
+            document.getElementById('input-descripcion').value = this.dataset.descripcion;
+            
+            try {
+                const scriptTag = document.getElementById(id); 
+                if (scriptTag) {
+                    const campos = JSON.parse(scriptTag.textContent);
+                    campos.forEach(c => window.confirmarCampo(c.nombre, c.valor));
+                }
+            } catch(e) { 
+                console.error("Error al cargar especificaciones:", e); 
+            }
+        });
+    });
+
+    // Envío del formulario (Loading state)
+    formServicio.addEventListener('submit', function() {
+        const btn = this.querySelector('.btn-guardar');
+        btn.disabled = true;
+        btn.classList.add('opacity-75', 'cursor-not-allowed');
+        btn.querySelector('.texto-btn').textContent = 'GUARDANDO...';
+        btn.querySelector('.icono-btn').classList.remove('hidden');
+    });
+
+    // Cierre con Escape y Backdrop
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            cerrarModalServicio();
+            cerrarModalEliminar();
+        }
+    });
+
+    document.querySelectorAll('.modal-backdrop').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                cerrarModalServicio();
+                cerrarModalEliminar();
+            }
+        });
+    });
+
+    // === MODAL ELIMINAR ===
+    const modalEliminar = document.getElementById('modal-eliminar');
+    window.abrirModalEliminar = function(idServicio, nombreServicio) {
+        // Asegúrate de que esta URL coincida con tu urls.py
+        document.getElementById('form-eliminar').action = `/servicios/eliminar/${idServicio}/`;
+        document.getElementById('modal-eliminar-nombre').textContent = nombreServicio;
+        modalEliminar.classList.remove('hidden');
+    };
+
+    window.cerrarModalEliminar = function() {
+        modalEliminar.classList.add('hidden');
+    };
+});
 </script>
 {% endblock %}

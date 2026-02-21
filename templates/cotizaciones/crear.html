@@ -8,10 +8,10 @@
         {% csrf_token %}
 
         <div class="mb-8">
-            <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nombre del Proyecto *</label>
+            <label class="block text-xs font-bold text-gray-400 uppercase mb-2" for="titulo">Nombre del Proyecto *</label>
             <div class="relative group">
                 <i class="fas fa-pen absolute left-0 top-3 text-gray-300 group-hover:text-[#A855F7] transition-colors"></i>
-                <input type="text" name="titulo" required
+                <input type="text" name="titulo" id="titulo" required
                        class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#2D1B4B] placeholder-gray-300 focus:border-[#A855F7] focus:outline-none py-2 pl-8 transition-all"
                        placeholder="Ej. Licencia 2026 - Coca Cola" autofocus>
             </div>
@@ -29,44 +29,48 @@
                     
                     <div class="space-y-4">
                         <div class="relative">
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Empresa *</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="input-empresa">Empresa *</label>
                             <input type="text" id="input-empresa" name="prospecto_empresa" autocomplete="off" required
-                                   class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]" 
+                                   class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]" 
                                    placeholder="Buscar o escribir...">
+                            
+                            <div id="spinner-busqueda" class="hidden absolute right-3 top-9 text-[#A855F7] animate-spin">
+                                <i class="fas fa-circle-notch"></i>
+                            </div>
+
                             <ul id="lista-sugerencias" class="hidden absolute z-50 w-full bg-white border border-gray-100 rounded-xl shadow-2xl mt-1 max-h-60 overflow-y-auto"></ul>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Contacto *</label>
-                            <input type="text" name="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]">
+                            <input type="text" name="prospecto_nombre" id="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cargo *</label>
-                            <input type="text" name="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-gray-600">
+                            <input type="text" name="prospecto_cargo" id="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-gray-600">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Email *</label>
-                                <input type="email" name="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
+                                <input type="email" name="prospecto_email" id="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
                             </div>
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Teléfono *</label>
-                                <input type="text" name="prospecto_telefono" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
+                                <input type="text" name="prospecto_telefono" id="prospecto_telefono" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
                             </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Dirección Fiscal *</label>
-                            <textarea name="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm resize-none"></textarea>
+                            <textarea name="prospecto_direccion" id="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm resize-none"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
                      <h3 class="text-sm font-bold text-[#2D1B4B] mb-4">Condiciones Comerciales</h3>
-                     
                      <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Tiempo de Gestión</label>
@@ -77,7 +81,6 @@
                                 <option value="indefinido">Por definir</option>
                             </select>
                         </div>
-                    
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Condiciones de Pago</label>
                             <select name="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7]">
@@ -98,7 +101,7 @@
                         <h3 class="text-lg font-bold text-[#2D1B4B] flex items-center gap-2">
                             <i class="fas fa-list-ul text-[#A855F7]"></i> Conceptos
                         </h3>
-                        <button type="button" onclick="agregarServicio()" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md">
+                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md">
                             + AGREGAR
                         </button>
                     </div>
@@ -114,7 +117,7 @@
                         <div class="flex flex-col items-end gap-3">
                             
                             <div class="w-full max-w-xs flex justify-between items-center">
-                                <span class="text-xs font-bold text-gray-400 uppercase">Subtotal:</span>
+                                <span class="text-xs font-bold text-gray-400 uppercase">Subtotal (Bruto):</span>
                                 <span class="text-lg font-bold text-gray-600" id="lbl-subtotal">$0.00</span>
                             </div>
                             
@@ -122,16 +125,20 @@
                                 <span class="text-xs font-bold text-[#A855F7] uppercase">Descuento (%):</span>
                                 <div class="relative w-24">
                                     <input type="number" name="porcentaje_descuento" id="input-porcentaje" value="0" step="0.1" min="0" max="100" 
-                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#A855F7] rounded-lg text-sm font-black text-[#A855F7] outline-none" 
-                                           oninput="calcularTotales()">
+                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#A855F7] rounded-lg text-sm font-black text-[#A855F7] outline-none">
                                     <span class="absolute right-2 top-1.5 text-[#A855F7] font-bold">%</span>
                                 </div>
                             </div>
 
-                            <div class="w-full max-w-xs bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                            <div class="w-full max-w-xs flex justify-between items-center hidden" id="row-descuento-monto">
+                                <span class="text-xs font-bold text-gray-400 uppercase">Total con Descuento:</span>
+                                <span class="text-lg font-bold text-gray-500" id="lbl-subtotal-descuento">$0.00</span>
+                            </div>
+
+                            <div class="w-full max-w-xs bg-white p-3 rounded-xl border border-gray-200 shadow-sm mt-2">
                                 <div class="flex justify-between items-center mb-2">
                                     <label class="flex items-center gap-2 cursor-pointer">
-                                        <input type="checkbox" name="aplica_iva" id="check-iva" onchange="toggleIvaInput()" 
+                                        <input type="checkbox" name="aplica_iva" id="check-iva" 
                                                class="w-4 h-4 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
                                         <span class="text-xs font-bold text-gray-500 uppercase">¿Aplicar I.V.A.?</span>
                                     </label>
@@ -140,9 +147,8 @@
                                 <div id="container-tasa-iva" class="hidden flex items-center justify-end gap-2 border-t border-gray-100 pt-2 animate__animated animate__fadeIn">
                                     <span class="text-[10px] font-bold text-gray-400 uppercase">Tasa:</span>
                                     <div class="relative w-20">
-                                        <input type="number" name="porcentaje_iva_personalizado" id="input-tasa-iva" value="16" step="1" 
-                                               class="w-full p-1 pr-6 text-right bg-gray-50 border border-gray-200 rounded text-sm font-bold text-gray-600 outline-none focus:border-[#A855F7]" 
-                                               oninput="calcularTotales()">
+                                        <input type="number" name="porcentaje_iva_personalizado" id="input-tasa-iva" value="16" step="1" min="0"
+                                               class="w-full p-1 pr-6 text-right bg-gray-50 border border-gray-200 rounded text-sm font-bold text-gray-600 outline-none focus:border-[#A855F7]">
                                         <span class="absolute right-2 top-1 text-gray-400 text-xs">%</span>
                                     </div>
                                 </div>
@@ -183,14 +189,14 @@
 
 <template id="template-item">
     <div class="item-fila bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative animate__animated animate__fadeInUp transition-all hover:shadow-md">
-        <button type="button" onclick="eliminarItem(this)" class="absolute -top-2 -right-2 w-8 h-8 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center">
+        <button type="button" aria-label="Eliminar servicio" title="Eliminar servicio" class="btn-eliminar-item absolute -top-2 -right-2 w-8 h-8 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center">
             <i class="fas fa-times"></i>
         </button>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="md:col-span-6">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio" onchange="cargarDatosServicio(this)">
+                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio">
                     <option value="">-- Seleccionar --</option>
                     {% for s in servicios %}
                     <option value="{{ s.id }}" data-precio="{{ s.precio_base }}" data-desc="{{ s.descripcion }}">{{ s.nombre }}</option>
@@ -200,11 +206,11 @@
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cant. *</label>
-                <input type="number" name="cantidades" value="1" min="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-center input-cant" oninput="calcularFila(this)">
+                <input type="number" name="cantidades" value="1" min="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-center input-cant">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Precio Unit. *</label>
-                <input type="number" name="precios_personalizados" step="0.01" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-right input-precio" oninput="calcularFila(this)">
+                <input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-right input-precio">
             </div>
             <div class="md:col-span-2 text-right pt-6">
                 <span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span>
@@ -215,44 +221,86 @@
 </template>
 
 <script>
-    // --- VALIDACIÓN AL ENVIAR ---
-    document.getElementById('form-cotizacion').addEventListener('submit', function(e) {
-        // Verificar que haya al menos un servicio agregado
-        const filas = document.querySelectorAll('.item-fila');
-        if (filas.length === 0) {
-            e.preventDefault();
-            alert('⚠️ ¡Cuidado! Debes agregar al menos un servicio a la cotización.');
-            return false;
-        }
+document.addEventListener('DOMContentLoaded', () => {
+
+    // === REFERENCIAS DOM ===
+    const formCotizacion = document.getElementById('form-cotizacion');
+    const contenedorItems = document.getElementById('contenedor-items');
+    const emptyState = document.getElementById('empty-state');
+    const btnAgregarServicio = document.getElementById('btn-agregar-servicio');
+    
+    // Controles de Totales
+    const inputPorcentaje = document.getElementById('input-porcentaje');
+    const checkIva = document.getElementById('check-iva');
+    const inputTasaIva = document.getElementById('input-tasa-iva');
+
+    // Buscador
+    const inputEmpresa = document.getElementById('input-empresa');
+    const listaSugerencias = document.getElementById('lista-sugerencias');
+    const spinnerBusqueda = document.getElementById('spinner-busqueda');
+
+    // === SISTEMA DE NOTIFICACIONES TOAST (UX) ===
+    function mostrarNotificacion(mensaje, tipo = 'error') {
+        const toast = document.createElement('div');
+        const colorBg = tipo === 'error' ? 'bg-red-500' : 'bg-green-500';
+        toast.className = `fixed top-4 right-4 p-4 rounded-xl shadow-lg text-white font-bold z-50 flex items-center gap-2 animate__animated animate__fadeInRight ${colorBg}`;
+        toast.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${mensaje}`;
         
-        // Verificar que los servicios estén seleccionados
-        let valid = true;
-        document.querySelectorAll('.select-servicio').forEach(select => {
-            if(!select.value) valid = false;
-        });
+        document.body.appendChild(toast);
         
-        if(!valid) {
+        setTimeout(() => {
+            toast.classList.replace('animate__fadeInRight', 'animate__fadeOutRight');
+            setTimeout(() => toast.remove(), 500);
+        }, 3500);
+    }
+
+    // === PREVENCIÓN DE PÉRDIDA DE DATOS (UX) ===
+    let formularioEnviado = false;
+    
+    window.addEventListener('beforeunload', (e) => {
+        if (!formularioEnviado && document.querySelectorAll('.item-fila').length > 0) {
             e.preventDefault();
-            alert('⚠️ Por favor selecciona un servicio en todas las filas agregadas.');
-            return false;
+            e.returnValue = ''; 
         }
     });
 
-    // --- LÓGICA DE FILAS ---
-    function agregarServicio() {
-        const emptyState = document.getElementById('empty-state');
-        if (emptyState) emptyState.classList.add('hidden');
-        const container = document.getElementById('contenedor-items');
-        const clone = document.importNode(document.getElementById('template-item').content, true);
-        container.appendChild(clone);
-    }
-
-    function eliminarItem(btn) {
-        btn.closest('.item-fila').remove();
-        if(document.getElementById('contenedor-items').querySelectorAll('.item-fila').length === 0) {
-            document.getElementById('empty-state').classList.remove('hidden');
+    // === DELEGACIÓN DE EVENTOS (ARQUITECTURA) ===
+    contenedorItems.addEventListener('click', (e) => {
+        if (e.target.closest('.btn-eliminar-item')) {
+            const fila = e.target.closest('.item-fila');
+            if (fila) {
+                fila.remove();
+                if (contenedorItems.querySelectorAll('.item-fila').length === 0) {
+                    emptyState.classList.remove('hidden');
+                }
+                calcularTotales();
+            }
         }
-        calcularTotales();
+    });
+
+    contenedorItems.addEventListener('input', (e) => {
+        if (e.target.matches('.input-cant') || e.target.matches('.input-precio')) {
+            calcularFila(e.target);
+        }
+    });
+
+    contenedorItems.addEventListener('change', (e) => {
+        if (e.target.matches('.select-servicio')) {
+            cargarDatosServicio(e.target);
+        }
+    });
+
+    // === EVENTOS GLOBALES ===
+    inputPorcentaje.addEventListener('input', calcularTotales);
+    inputTasaIva.addEventListener('input', calcularTotales);
+    checkIva.addEventListener('change', toggleIvaInput);
+    btnAgregarServicio.addEventListener('click', agregarServicio);
+
+    // === FUNCIONES DE CÁLCULO Y LÓGICA ===
+    function agregarServicio() {
+        if (emptyState) emptyState.classList.add('hidden');
+        const clone = document.importNode(document.getElementById('template-item').content, true);
+        contenedorItems.appendChild(clone);
     }
 
     function cargarDatosServicio(select) {
@@ -274,13 +322,11 @@
         calcularTotales();
     }
 
-    // --- LÓGICA DE IVA FLEXIBLE ---
     function toggleIvaInput() {
-        const check = document.getElementById('check-iva');
         const containerTasa = document.getElementById('container-tasa-iva');
         const rowIva = document.getElementById('row-iva');
         
-        if (check.checked) {
+        if (checkIva.checked) {
             containerTasa.classList.remove('hidden');
             rowIva.classList.remove('hidden');
         } else {
@@ -298,17 +344,24 @@
             subtotalGeneral += (cant * precio);
         });
 
-        const porcentajeDesc = parseFloat(document.getElementById('input-porcentaje').value) || 0;
+        const porcentajeDesc = parseFloat(inputPorcentaje.value) || 0;
         const montoDescuento = subtotalGeneral * (porcentajeDesc / 100);
         let baseImponible = subtotalGeneral - montoDescuento;
-        if(baseImponible < 0) baseImponible = 0;
+        if (baseImponible < 0) baseImponible = 0;
 
-        // CÁLCULO DINÁMICO DE IVA
-        const aplicaIva = document.getElementById('check-iva').checked;
+        const rowDescuentoMonto = document.getElementById('row-descuento-monto');
+        if (montoDescuento > 0) {
+            rowDescuentoMonto.classList.remove('hidden');
+            document.getElementById('lbl-subtotal-descuento').textContent = '$' + baseImponible.toLocaleString('es-MX', {minimumFractionDigits: 2});
+        } else {
+            rowDescuentoMonto.classList.add('hidden');
+        }
+
+        const aplicaIva = checkIva.checked;
         let montoIva = 0;
         
         if (aplicaIva) {
-            const tasa = parseFloat(document.getElementById('input-tasa-iva').value) || 0;
+            const tasa = parseFloat(inputTasaIva.value) || 0;
             montoIva = baseImponible * (tasa / 100);
             document.getElementById('lbl-tasa-display').textContent = tasa;
             document.getElementById('texto-impuestos').textContent = '* IVA INCLUIDO';
@@ -323,46 +376,143 @@
         document.getElementById('lbl-total').textContent = '$' + totalFinal.toLocaleString('es-MX', {minimumFractionDigits: 2});
     }
 
-    window.onload = function() {
-        if(document.querySelectorAll('.item-fila').length === 0) agregarServicio();
-    };
+    // === VALIDACIÓN AL ENVIAR ===
+    formCotizacion.addEventListener('submit', function(e) {
+        const filas = document.querySelectorAll('.item-fila');
+        if (filas.length === 0) {
+            e.preventDefault();
+            mostrarNotificacion('Debes agregar al menos un servicio a la cotización.');
+            return false;
+        }
+        
+        let valid = true;
+        document.querySelectorAll('.select-servicio').forEach(select => {
+            if(!select.value) valid = false;
+        });
+        
+        if(!valid) {
+            e.preventDefault();
+            mostrarNotificacion('Selecciona un servicio en todas las filas agregadas.');
+            return false;
+        }
+        
+        formularioEnviado = true; // Permite salir sin disparar beforeunload
+    });
 
-    // --- BUSCADOR ---
-    const inputEmpresa = document.getElementById('input-empresa');
-    const listaSugerencias = document.getElementById('lista-sugerencias');
+    // === BUSCADOR CON DEBOUNCE, XSS Y TECLADO (RENDIMIENTO/SEGURIDAD/UX) ===
+    let debounceTimer;
+    let indexSeleccionado = -1;
 
-    inputEmpresa.addEventListener('input', async function() {
-        const query = this.value;
-        if (query.length < 2) { listaSugerencias.classList.add('hidden'); return; }
-        try {
-            const response = await fetch(`/api/buscar-cliente/?q=${query}`);
-            const datos = await response.json();
-            listaSugerencias.innerHTML = '';
-            if (datos.length > 0) {
-                listaSugerencias.classList.remove('hidden');
-                datos.forEach(cliente => {
-                    const li = document.createElement('li');
-                    li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3";
-                    li.innerHTML = `<div class="bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs"><i class="fas fa-history"></i></div><div><p class="text-sm font-bold">${cliente.prospecto_empresa}</p><p class="text-xs text-gray-400">${cliente.prospecto_nombre}</p></div>`;
-                    li.onclick = () => {
-                        inputEmpresa.value = cliente.prospecto_empresa || '';
-                        document.querySelector('[name="prospecto_nombre"]').value = cliente.prospecto_nombre || '';
-                        document.querySelector('[name="prospecto_email"]').value = cliente.prospecto_email || '';
-                        document.querySelector('[name="prospecto_telefono"]').value = cliente.prospecto_telefono || '';
-                        document.querySelector('[name="prospecto_cargo"]').value = cliente.prospecto_cargo || '';
-                        document.querySelector('[name="prospecto_direccion"]').value = cliente.prospecto_direccion || '';
-                        listaSugerencias.classList.add('hidden');
-                    };
-                    listaSugerencias.appendChild(li);
-                });
-            } else { listaSugerencias.classList.add('hidden'); }
-        } catch (e) {
-            console.error("Error en buscador:", e);
+    inputEmpresa.addEventListener('keydown', function(e) {
+        const items = listaSugerencias.querySelectorAll('li');
+        if (listaSugerencias.classList.contains('hidden') || items.length === 0) return;
+
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            indexSeleccionado = (indexSeleccionado + 1) % items.length;
+            resaltarItem(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            indexSeleccionado = (indexSeleccionado - 1 + items.length) % items.length;
+            resaltarItem(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault(); 
+            if (indexSeleccionado >= 0) items[indexSeleccionado].click();
         }
     });
-    
-    document.addEventListener('click', function(e) {
-        if (!inputEmpresa.contains(e.target) && !listaSugerencias.contains(e.target)) listaSugerencias.classList.add('hidden');
+
+    function resaltarItem(items) {
+        items.forEach((item, i) => {
+            if (i === indexSeleccionado) {
+                item.classList.add('bg-purple-100'); 
+                item.classList.remove('hover:bg-purple-50');
+            } else {
+                item.classList.remove('bg-purple-100');
+                item.classList.add('hover:bg-purple-50');
+            }
+        });
+    }
+
+    inputEmpresa.addEventListener('input', function() {
+        clearTimeout(debounceTimer);
+        const query = this.value;
+        indexSeleccionado = -1; 
+
+        if (query.length < 2) { 
+            listaSugerencias.classList.add('hidden'); 
+            spinnerBusqueda.classList.add('hidden');
+            return; 
+        }
+
+        spinnerBusqueda.classList.remove('hidden');
+
+        debounceTimer = setTimeout(async () => {
+            try {
+                const response = await fetch(`/api/buscar-cliente/?q=${encodeURIComponent(query)}`);
+                const datos = await response.json();
+                listaSugerencias.innerHTML = '';
+                
+                if (datos.length > 0) {
+                    listaSugerencias.classList.remove('hidden');
+                    datos.forEach(cliente => {
+                        const li = document.createElement('li');
+                        li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3";
+                        
+                        // Prevención XSS
+                        const iconDiv = document.createElement('div');
+                        iconDiv.className = "bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs";
+                        iconDiv.innerHTML = '<i class="fas fa-history"></i>'; 
+                        
+                        const textDiv = document.createElement('div');
+                        const pEmpresa = document.createElement('p');
+                        pEmpresa.className = "text-sm font-bold";
+                        pEmpresa.textContent = cliente.prospecto_empresa;
+                        
+                        const pNombre = document.createElement('p');
+                        pNombre.className = "text-xs text-gray-400";
+                        pNombre.textContent = cliente.prospecto_nombre; 
+                        
+                        textDiv.appendChild(pEmpresa);
+                        textDiv.appendChild(pNombre);
+                        
+                        li.appendChild(iconDiv);
+                        li.appendChild(textDiv);
+
+                        li.addEventListener('click', () => {
+                            inputEmpresa.value = cliente.prospecto_empresa || '';
+                            document.getElementById('prospecto_nombre').value = cliente.prospecto_nombre || '';
+                            document.getElementById('prospecto_email').value = cliente.prospecto_email || '';
+                            document.getElementById('prospecto_telefono').value = cliente.prospecto_telefono || '';
+                            document.getElementById('prospecto_cargo').value = cliente.prospecto_cargo || '';
+                            document.getElementById('prospecto_direccion').value = cliente.prospecto_direccion || '';
+                            listaSugerencias.classList.add('hidden');
+                        });
+                        
+                        listaSugerencias.appendChild(li);
+                    });
+                } else { 
+                    listaSugerencias.classList.add('hidden'); 
+                }
+            } catch (e) {
+                console.error("Error en buscador:", e);
+                mostrarNotificacion('Error al buscar clientes.');
+            } finally {
+                spinnerBusqueda.classList.add('hidden');
+            }
+        }, 300);
     });
+    
+    // Cerrar sugerencias al hacer clic fuera
+    document.addEventListener('click', function(e) {
+        if (!inputEmpresa.contains(e.target) && !listaSugerencias.contains(e.target)) {
+            listaSugerencias.classList.add('hidden');
+        }
+    });
+
+    // === INICIALIZACIÓN ===
+    if(document.querySelectorAll('.item-fila').length === 0) {
+        agregarServicio();
+    }
+});
 </script>
 {% endblock %}
