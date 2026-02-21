@@ -15,157 +15,278 @@
             --sidebar-darker: #1E1233;
             --sidebar-header: #37225A;
             --accent-purple: #A855F7;
+            --accent-purple-light: #C084FC;
         }
         body { font-family: 'Lato', sans-serif; background-color: #F3F4F6; }
         h1, h2, h3, h4, .brand-font { font-family: 'Playfair Display', serif; }
-        
-        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 10px; }
-
-        /* Sidebar Logic */
-        #sidebar { width: 4.5rem; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        @media (min-width: 1024px) {
-            #sidebar:hover { width: 17rem; }
-        }
-
-        .nav-text { opacity: 0; white-space: nowrap; transition: opacity 0.2s; pointer-events: none; }
-        #sidebar:hover .nav-text { opacity: 1; pointer-events: auto; }
-
+        
+        /* --- SIDEBAR --- */
+        #sidebar { width: 4.5rem; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
+        #sidebar:hover { width: 17rem; }
+        
+        /* Lógica de visualización del Logo */
+        .logo-collapsed { display: flex; }
         .logo-expanded { display: none; opacity: 0; }
-        #sidebar:hover .logo-collapsed { display: none; }
-        #sidebar:hover .logo-expanded { display: flex; opacity: 1; }
 
-        /* Soporte para Móviles */
-        @media (max-width: 1023px) {
-            #sidebar { transform: translateX(-100%); width: 17rem !important; }
-            #sidebar.mobile-open { transform: translateX(0); }
-            .nav-text { opacity: 1; }
-            .logo-expanded { display: flex; opacity: 1; }
-            .logo-collapsed { display: none; }
-            #main-content { margin-left: 0 !important; }
-        }
+        #sidebar:hover .logo-collapsed { display: none; }
+        #sidebar:hover .logo-expanded { display: flex; opacity: 1; transition: opacity 0.3s ease-in; }
+
+        .nav-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; white-space: nowrap; pointer-events: none; }
+        #sidebar:hover .nav-text { opacity: 1; transform: translateX(0); pointer-events: auto; transition-delay: 0.1s; }
+        
+        .sidebar-gradient { background: linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-darker) 100%); }
+        .bg-sidebar-header { background-color: var(--sidebar-header); }
     </style>
 </head>
-<body class="flex h-screen overflow-hidden bg-[#F3F4F6]">
+<body class="flex h-screen overflow-hidden">
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 bg-[#2D1B4B] text-white shadow-2xl z-50 flex flex-col group border-r border-white/5 overflow-hidden">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col group border-r border-white/5">
         
-        <div class="h-20 flex items-center bg-[#37225A] shrink-0 relative overflow-hidden">
-            <div class="flex items-center w-full px-4">
-                <div class="logo-collapsed w-10 flex justify-center">
-                    <img src="{% static 'img/logo.png' %}" class="w-8 h-8 rounded-full bg-white p-0.5" alt="CP">
+        <div class="h-24 flex items-center justify-center border-b border-white/10 shrink-0 bg-sidebar-header relative">
+            <div class="w-full h-full flex items-center justify-center px-2">
+                
+                <div class="logo-collapsed justify-center items-center w-full">
+                    <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-cover bg-white rounded-full p-0.5 shadow-lg" alt="Logo">
                 </div>
-                <div class="logo-expanded items-center gap-3">
-                    <img src="{% static 'img/logo.png' %}" class="w-10 h-10 rounded-full bg-white p-0.5" alt="Logo">
-                    <div class="flex flex-col">
-                        <span class="text-[8px] font-black text-[#A855F7] tracking-widest uppercase">Gestiones</span>
-                        <span class="text-lg font-black brand-font">CORPAD</span>
+
+                <div class="logo-expanded items-center gap-4 absolute left-6 w-full pr-4">
+                    <img src="{% static 'img/logo.png' %}" class="w-12 h-12 object-cover bg-white rounded-full p-0.5 shadow-xl shrink-0" alt="Logo">
+                    
+                    <div class="flex flex-col justify-center">
+                        <span class="text-[9px] font-bold text-[#A855F7] tracking-[0.2em] uppercase leading-tight">GESTIONES</span>
+                        <span class="text-xl font-black text-white brand-font tracking-wide leading-none mt-0.5">CORPAD</span>
                     </div>
                 </div>
+
             </div>
         </div>
 
-        <nav class="flex-1 overflow-y-auto custom-scrollbar py-4">
-            <ul class="space-y-1">
-                <li>
-                    <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3.5 hover:bg-white/5 transition-all group {% if request.path == '/' %}text-[#A855F7] bg-white/5 border-l-4 border-[#A855F7]{% else %}text-gray-400{% endif %}" aria-label="Panel General">
-                        <i class="fas fa-th-large text-lg w-6 text-center"></i>
-                        <span class="nav-text ml-4 text-[11px] font-bold uppercase tracking-widest">Panel General</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="{% url 'generador_qr' %}" class="flex items-center px-6 py-3.5 hover:bg-white/5 transition-all group {% if 'qr' in request.path %}text-[#A855F7] bg-white/5 border-l-4 border-[#A855F7]{% else %}text-gray-400{% endif %}" aria-label="Generador QR">
-                        <i class="fas fa-qrcode text-lg w-6 text-center"></i>
-                        <span class="nav-text ml-4 text-[11px] font-bold uppercase tracking-widest">Generador QR</span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        <nav class="flex-1 overflow-y-auto custom-scrollbar py-6 space-y-1">
+            
+            <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if request.path == '/' %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-th-large text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Panel General</span>
+                {% if request.path == '/' %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
 
-        <div class="p-4 border-t border-white/5 bg-[#1E1233] text-center">
-             <p class="text-[8px] text-gray-500 font-bold uppercase tracking-tighter nav-text">© 2026 Corpad Cloud</p>
+            {% if user.access_agenda %}
+            <a href="{% url 'agenda_legal' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'agenda' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-calendar-alt text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Agenda</span>
+                {% if 'agenda' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+            {% endif %}
+
+            {% if user.access_cotizaciones %}
+            <a href="{% url 'lista_cotizaciones' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'cotizaciones' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-file-invoice-dollar text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Cotizaciones</span>
+                {% if 'cotizaciones' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+            {% endif %}
+
+            {% if user.access_finanzas %}
+            <a href="{% url 'panel_finanzas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'finanzas' in request.path and 'gastos' not in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-wallet text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Finanzas</span>
+                {% if 'finanzas' in request.path and 'gastos' not in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+
+            <a href="{% url 'modulo_gastos' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'gastos' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-receipt text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Gastos (XML)</span>
+                {% if 'gastos' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+            {% endif %}
+
+            {% if user.access_disenador %}
+            <a href="{% url 'diseñador_plantillas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/disenador' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-pen-nib text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Diseñador</span>
+                {% if 'herramientas/disenador' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+            {% endif %}
+
+            <a href="{% url 'generador_qr' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/qr' in request.path %}text-[#A855F7] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i class="fas fa-qrcode text-lg w-6 text-center shrink-0 group-hover/item:text-[#A855F7] transition-colors"></i>
+                <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Generador QR</span>
+                {% if 'herramientas/qr' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#A855F7]"></div>{% endif %}
+            </a>
+            {% if user.access_cotizaciones %}
+            <div class="mt-8 pt-4 border-t border-white/5 space-y-2">
+                <p class="px-6 text-[9px] font-black text-gray-500 uppercase tracking-widest nav-text mb-2">Acciones Rápidas</p>
+                
+                <a href="{% url 'gestion_servicios' %}" class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative group/btn text-gray-400 hover:text-white">
+                    <i class="fas fa-list-ul text-lg w-6 text-center shrink-0"></i>
+                    <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Catálogo</span>
+                </a>
+                
+                <a href="{% url 'nueva_cotizacion' %}" class="mx-4 mt-2 flex items-center justify-center px-2 py-2.5 rounded-md bg-[#A855F7] hover:bg-[#9333EA] text-white transition-colors group/btn shadow-sm">
+                    <i class="fas fa-plus-circle text-sm shrink-0"></i>
+                    <span class="nav-text ml-3 text-[10px] font-black tracking-widest uppercase">Nueva Cotización</span>
+                </a>
+            </div>
+            {% endif %}
+
+            {% if user.rol == 'admin' %}
+            <div class="mt-4 pt-4 border-t border-white/5">
+                <a href="{% url 'gestion_usuarios' %}" class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative text-gray-400 hover:text-white">
+                    <i class="fas fa-users-cog text-lg w-6 text-center shrink-0"></i>
+                    <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Usuarios</span>
+                </a>
+            </div>
+            {% endif %}
+        </nav>
+        
+        <div class="p-4 border-t border-white/5 bg-sidebar-header">
+             <div class="flex items-center justify-center">
+                <span class="text-[9px] text-gray-500 nav-text">Gestiones Corpad &copy; 2026</span>
+             </div>
         </div>
     </aside>
 
-    <div id="main-content" class="flex-1 lg:ml-[4.5rem] flex flex-col h-screen overflow-hidden transition-all duration-300">
+    <div class="flex-1 ml-[4.5rem] flex flex-col h-screen overflow-hidden bg-[#F3F4F6] transition-all duration-300">
         
-        <header class="h-16 bg-white border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-40">
-            <div class="flex items-center gap-4">
-                <button onclick="toggleMobileSidebar()" class="lg:hidden p-2 text-gray-400 hover:text-[#2D1B4B]">
-                    <i class="fas fa-bars text-xl"></i>
-                </button>
-                <div>
-                    <h2 class="text-lg font-black text-[#2D1B4B] brand-font">{% block titulo_pagina %}Panel{% endblock %}</h2>
-                </div>
+        <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 relative z-40 shrink-0">
+            <div>
+                <h2 class="text-xl font-black text-[#2D1B4B] brand-font tracking-wide">{% block titulo_pagina %}Panel de Control{% endblock %}</h2>
+                <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    {{ now|date:"l, d F Y" }}
+                </p>
             </div>
 
-            <div class="flex items-center gap-4">
+            <div class="flex items-center gap-6">
+                
                 <div class="relative">
-                    <button id="notifBtn" class="p-2 text-gray-400 hover:text-[#A855F7] transition-all relative">
-                        <i class="fas fa-bell"></i>
+                    <button onclick="toggleNotificaciones()" class="relative p-2 text-gray-400 hover:text-[#A855F7] transition-colors focus:outline-none group">
+                        <i class="fas fa-bell text-xl group-hover:animate-swing"></i>
                         {% if total_notif > 0 %}
-                        <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce border border-white">
+                            {{ total_notif }}
+                        </span>
                         {% endif %}
                     </button>
-                    <div id="notifPanel" class="hidden absolute right-0 mt-4 w-72 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden animate__animated animate__fadeInUp">
-                        <div class="p-4 bg-[#2D1B4B] text-white flex justify-between items-center">
-                            <span class="text-[10px] font-black uppercase tracking-widest">Notificaciones</span>
-                            <span class="text-[9px] bg-[#A855F7] px-2 py-0.5 rounded-full">{{ total_notif }}</span>
+
+                    <div id="panel-notificaciones" class="hidden absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate__animated animate__fadeInUp z-50">
+                        <div class="bg-[#2D1B4B] p-3 border-b border-gray-100 flex justify-between items-center">
+                            <h3 class="text-xs font-bold text-white uppercase tracking-widest">Recordatorios</h3>
+                            <span class="text-[10px] text-[#A855F7]">Hoy y Urgentes</span>
                         </div>
-                        <div class="max-h-64 overflow-y-auto p-2">
+                        
+                        <div class="max-h-80 overflow-y-auto custom-scrollbar">
                             {% if total_notif == 0 %}
-                                <p class="text-center py-4 text-[10px] text-gray-400 font-bold uppercase">Sin avisos hoy</p>
+                                <div class="p-6 text-center text-gray-400">
+                                    <i class="fas fa-check-circle text-3xl mb-2 text-green-100"></i>
+                                    <p class="text-xs font-bold">Todo al día.</p>
+                                </div>
+                            {% else %}
+                                {% if notif_tareas %}
+                                <div class="p-2 bg-red-50/50">
+                                    <p class="text-[10px] font-black text-red-400 uppercase px-2 mb-1">Tareas Críticas</p>
+                                    {% for t in notif_tareas %}
+                                    <a href="{% url 'detalle_cliente' t.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm">
+                                        <div class="flex justify-between items-start">
+                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ t.titulo }}</span>
+                                            <span class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded">Vence Hoy</span>
+                                        </div>
+                                        <p class="text-[9px] text-gray-500 truncate">{{ t.cliente.nombre_empresa }}</p>
+                                    </a>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if notif_eventos %}
+                                <div class="p-2 bg-blue-50/50 border-t border-gray-100">
+                                    <p class="text-[10px] font-black text-blue-400 uppercase px-2 mb-1">Agenda (Próx. 48h)</p>
+                                    {% for e in notif_eventos %}
+                                    <div class="p-2 hover:bg-white rounded-lg transition-colors mb-1 cursor-default shadow-sm">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ e.titulo }}</span>
+                                            <span class="text-[9px] font-bold text-blue-500">{{ e.inicio|date:"H:i" }}</span>
+                                        </div>
+                                        <p class="text-[9px] text-gray-500">{{ e.cliente.nombre_empresa|default:"Evento Personal" }}</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                {% if notif_cobros %}
+                                <div class="p-2 bg-amber-50/50 border-t border-gray-100">
+                                    <p class="text-[10px] font-black text-amber-500 uppercase px-2 mb-1">Cobranza (3 días)</p>
+                                    {% for c in notif_cobros %}
+                                    <div class="p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm">
+                                        <div class="flex justify-between items-center">
+                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ c.cliente.nombre_empresa }}</span>
+                                            <span class="text-xs font-black text-amber-600">${{ c.saldo_pendiente }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
                             {% endif %}
                         </div>
                     </div>
                 </div>
 
-                <div class="flex items-center gap-3 border-l pl-4 border-gray-100">
-                    <div class="text-right hidden sm:block">
-                        <p class="text-[10px] font-black text-[#2D1B4B] uppercase tracking-tighter">{{ user.username }}</p>
-                        <p class="text-[9px] text-[#A855F7] font-bold uppercase tracking-widest">{{ user.get_rol_display }}</p>
+                <a href="{% url 'mi_perfil' %}" class="flex items-center gap-4 group cursor-pointer border-l border-gray-200 pl-6">
+                    <div class="text-right hidden md:block">
+                        <p class="text-xs font-bold text-[#2D1B4B] group-hover:text-[#A855F7] transition-colors">{{ user.get_full_name|default:user.username }}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ user.get_rol_display }}</p>
                     </div>
-                    <a href="{% url 'mi_perfil' %}" class="w-9 h-9 rounded-xl bg-gray-100 overflow-hidden border border-gray-200 shadow-sm flex items-center justify-center">
-                        {% if user.avatar %}<img src="{{ user.avatar.url }}" class="w-full h-full object-cover">{% else %}<i class="fas fa-user-circle text-gray-300"></i>{% endif %}
-                    </a>
-                </div>
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#A855F7] to-[#C084FC] p-[2px] shadow-md overflow-hidden group-hover:scale-105 transition-transform">
+                        <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                            {% if user.avatar %}
+                            <img src="{{ user.avatar.url }}" class="w-full h-full object-cover">
+                            {% else %}
+                            <span class="text-[#2D1B4B] font-black text-xs">{{ user.username|slice:":2"|upper }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </a>
+                
+                <a href="{% url 'logout' %}" class="ml-2 text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50" title="Cerrar Sesión">
+                    <i class="fas fa-power-off text-sm"></i>
+                </a>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto custom-scrollbar p-4 md:p-8">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar p-6 md:p-10 relative">
+            <div class="absolute top-10 right-10 opacity-[0.03] pointer-events-none">
+                 <img src="{% static 'img/logo.png' %}" class="w-96 grayscale rounded-full">
+            </div>
+
             {% if messages %}
-            <div class="max-w-4xl mx-auto mb-6">
+            <div class="mb-6 space-y-2 animate__animated animate__fadeInDown max-w-4xl mx-auto relative z-10">
                 {% for message in messages %}
-                <div class="p-4 rounded-xl border-l-4 shadow-sm mb-2 flex items-center gap-3 animate__animated animate__fadeInLeft {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-700{% else %}bg-red-50 border-red-500 text-red-700{% endif %}">
-                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% else %}fa-exclamation-circle{% endif %}"></i>
-                    <span class="text-xs font-bold">{{ message }}</span>
+                <div class="p-3 rounded-lg shadow-sm border-l-4 flex items-center gap-3 backdrop-blur-sm {% if message.tags == 'success' %}bg-green-50/90 border-green-500 text-green-800{% elif message.tags == 'error' %}bg-red-50/90 border-red-500 text-red-800{% else %}bg-blue-50/90 border-blue-500 text-blue-800{% endif %}">
+                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} text-sm"></i>
+                    <span class="font-bold text-xs">{{ message }}</span>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
-
-            {% block content %}{% endblock %}
+            
+            <div class="relative z-10">
+                {% block content %}
+                {% endblock %}
+            </div>
         </main>
     </div>
 
     <script>
-        // Toggle Notificaciones con click fuera
-        const notifBtn = document.getElementById('notifBtn');
-        const notifPanel = document.getElementById('notifPanel');
-        
-        notifBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            notifPanel.classList.toggle('hidden');
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!notifPanel.contains(e.target)) notifPanel.classList.add('hidden');
-        });
-
-        // Toggle Sidebar Móvil
-        function toggleMobileSidebar() {
-            document.getElementById('sidebar').classList.toggle('mobile-open');
+        function toggleNotificaciones() {
+            const panel = document.getElementById('panel-notificaciones');
+            panel.classList.toggle('hidden');
         }
+        document.addEventListener('click', function(event) {
+            const panel = document.getElementById('panel-notificaciones');
+            const btn = event.target.closest('button');
+            if (!panel.contains(event.target) && (!btn || !btn.onclick || !btn.onclick.toString().includes('toggleNotificaciones'))) {
+                panel.classList.add('hidden');
+            }
+        });
     </script>
 </body>
 </html>
