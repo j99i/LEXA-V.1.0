@@ -3,70 +3,135 @@
 {% block titulo_pagina %}Finanzas por Cliente{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto animate__animated animate__fadeIn space-y-8">
+<div class="max-w-7xl mx-auto animate__animated animate__fadeIn space-y-8 pb-10">
     
-    <div class="flex flex-col md:flex-row justify-between items-center gap-6">
-        <div>
-            <h2 class="text-3xl font-black text-[#2D1B4B]">Cartera de Clientes</h2>
-            <p class="text-sm text-gray-400 font-bold">Selecciona un cliente para ver sus proyectos y gestionar cobros.</p>
+    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden">
+        
+        <i class="fas fa-coins absolute -right-4 -bottom-6 text-8xl text-gray-50 pointer-events-none transform -rotate-12"></i>
+
+        <div class="relative z-10 w-full lg:w-auto flex-1">
+            <h2 class="text-3xl font-black text-[#2D1B4B] font-serif">Cartera de Clientes</h2>
+            <p class="text-sm text-gray-400 font-bold mt-1">Selecciona un cliente para ver sus proyectos y gestionar cobros.</p>
+            
+            <div class="relative mt-4 max-w-md group">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#A855F7] transition-colors"></i>
+                <input type="text" id="buscadorClientes" aria-label="Buscar cliente" placeholder="Buscar por nombre o contacto..." 
+                    class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-xs font-bold text-[#2D1B4B] focus:outline-none focus:bg-white focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 transition-all shadow-sm">
+            </div>
         </div>
         
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-red-100 flex items-center gap-4">
-            <div class="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center text-red-500 text-xl">
+        <div class="relative z-10 bg-red-50 p-5 rounded-2xl border border-red-100 flex items-center gap-5 w-full lg:w-auto shadow-inner group hover:bg-red-100 transition-colors">
+            <div class="w-14 h-14 rounded-full bg-white flex items-center justify-center text-red-500 text-2xl shadow-sm group-hover:scale-110 transition-transform duration-300">
                 <i class="fas fa-hand-holding-usd"></i>
             </div>
             <div>
-                <p class="text-[10px] font-bold text-red-400 uppercase">Deuda Global Total</p>
-                <p class="text-2xl font-black text-red-500">${{ total_por_cobrar|floatformat:2|intcomma }}</p>
+                <p class="text-[10px] font-black text-red-400 uppercase tracking-widest">Deuda Global Total</p>
+                <p class="text-3xl font-black text-red-600 mt-0.5">${{ total_por_cobrar|floatformat:2|intcomma }}</p>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="gridClientes">
         {% for item in clientes %}
-        <a href="{% url 'finanzas_cliente' item.obj.id %}" class="group bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-lg hover:border-purple-200 transition-all cursor-pointer relative overflow-hidden">
+        
+        <a href="{% url 'finanzas_cliente' item.obj.id %}" 
+           class="cliente-card block group bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-xl hover:border-[#A855F7]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#A855F7]/20"
+           data-search="{{ item.obj.nombre_empresa|lower }} {{ item.obj.nombre_contacto|lower }}">
             
-            <div class="absolute left-0 top-0 bottom-0 w-1.5 {% if item.deuda > 0 %}bg-red-400{% else %}bg-green-400{% endif %}"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-1.5 transition-colors duration-300 {% if item.deuda > 0 %}bg-red-400 group-hover:bg-red-500{% else %}bg-green-400 group-hover:bg-green-500{% endif %}"></div>
 
-            <div class="flex justify-between items-start mb-4 pl-3">
-                <div class="w-12 h-12 rounded-full bg-[#2D1B4B] text-white flex items-center justify-center font-bold text-lg shadow-md group-hover:scale-110 transition-transform">
+            <div class="flex justify-between items-start mb-5 pl-3">
+                <div class="w-12 h-12 rounded-[1rem] bg-[#2D1B4B] text-white flex items-center justify-center font-black text-xl shadow-md group-hover:bg-[#A855F7] transition-colors duration-300">
                     {{ item.obj.nombre_empresa|slice:":1" }}
                 </div>
+                
                 {% if item.deuda > 0 %}
-                <span class="px-3 py-1 bg-red-50 text-red-500 rounded-full text-[10px] font-black uppercase">
+                <span class="px-3 py-1 bg-red-50 border border-red-100 text-red-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                     {{ item.pendientes_count }} Pendientes
                 </span>
                 {% else %}
-                <span class="px-3 py-1 bg-green-50 text-green-500 rounded-full text-[10px] font-black uppercase">
-                    Al día
+                <span class="px-3 py-1 bg-green-50 border border-green-100 text-green-600 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center gap-1 shadow-sm">
+                    <i class="fas fa-check-circle"></i> Al día
                 </span>
                 {% endif %}
             </div>
 
-            <div class="pl-3 mb-4">
-                <h3 class="font-black text-[#2D1B4B] text-lg leading-tight mb-1">{{ item.obj.nombre_empresa }}</h3>
-                <p class="text-xs text-gray-400 font-bold">{{ item.obj.nombre_contacto }}</p>
+            <div class="pl-3 mb-5 min-w-0">
+                <h3 class="font-black text-[#2D1B4B] text-xl leading-tight mb-1 truncate" title="{{ item.obj.nombre_empresa }}">{{ item.obj.nombre_empresa }}</h3>
+                <p class="text-xs text-gray-400 font-bold truncate flex items-center gap-1" title="{{ item.obj.nombre_contacto }}">
+                    <i class="fas fa-user-tie text-[10px]"></i> {{ item.obj.nombre_contacto }}
+                </p>
             </div>
 
-            <div class="pl-3 pt-4 border-t border-gray-50 flex justify-between items-end">
+            <div class="pl-3 pt-4 border-t border-gray-50 flex justify-between items-end relative z-10">
                 <div>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">Por Cobrar</p>
+                    <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-0.5">Por Cobrar</p>
                     <p class="text-xl font-black {% if item.deuda > 0 %}text-red-500{% else %}text-gray-300{% endif %}">
                         ${{ item.deuda|floatformat:2|intcomma }}
                     </p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[9px] text-gray-400 uppercase font-bold">Pagado</p>
-                    <p class="text-sm font-bold text-green-600">${{ item.pagado|floatformat:2|intcomma }}</p>
+                    <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest mb-0.5">Pagado</p>
+                    <p class="text-sm font-bold text-green-500 bg-green-50 px-2 py-0.5 rounded-md inline-block border border-green-100">
+                        ${{ item.pagado|floatformat:2|intcomma }}
+                    </p>
                 </div>
+            </div>
+            
+            <div class="absolute right-4 bottom-4 text-gray-200 group-hover:text-[#A855F7] group-hover:translate-x-1 transition-all duration-300">
+                <i class="fas fa-chevron-right"></i>
             </div>
         </a>
         {% empty %}
-        <div class="col-span-full py-20 text-center text-gray-400">
-            <i class="fas fa-folder-open text-4xl mb-4 opacity-50"></i>
-            <p>No hay actividad financiera registrada aún.</p>
+        <div class="col-span-full py-24 text-center text-gray-400 bg-white rounded-[3rem] border-2 border-dashed border-gray-200 shadow-sm">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-folder-open text-3xl text-gray-300"></i>
+            </div>
+            <p class="font-black text-xl text-[#2D1B4B] font-serif">Sin Actividad Financiera</p>
+            <p class="text-sm mt-2 max-w-md mx-auto">Aún no hay registros de cobranza. Crea cotizaciones o cargos para empezar a ver el resumen aquí.</p>
         </div>
         {% endfor %}
     </div>
+
+    <div id="search-empty-state" class="hidden py-16 text-center">
+        <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+            <i class="fas fa-search-minus text-2xl"></i>
+        </div>
+        <h3 class="text-lg font-black text-[#2D1B4B]">No se encontraron clientes</h3>
+        <p class="text-gray-500 text-sm mt-1">Intenta con otro término de búsqueda.</p>
+    </div>
+
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const searchInput = document.getElementById('buscadorClientes');
+        const tarjetas = document.querySelectorAll('.cliente-card');
+        const emptyState = document.getElementById('search-empty-state');
+
+        if(searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const busqueda = e.target.value.toLowerCase().trim();
+                let visibles = 0;
+                
+                tarjetas.forEach(tarjeta => {
+                    const texto = tarjeta.getAttribute('data-search');
+                    if(texto.includes(busqueda)) {
+                        tarjeta.classList.remove('hidden');
+                        visibles++;
+                    } else {
+                        tarjeta.classList.add('hidden');
+                    }
+                });
+
+                if(visibles === 0 && busqueda !== '') {
+                    emptyState.classList.remove('hidden');
+                } else {
+                    emptyState.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}
