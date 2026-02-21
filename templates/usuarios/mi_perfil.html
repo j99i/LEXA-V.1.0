@@ -9,54 +9,63 @@
             {% csrf_token %}
             
             <div class="flex flex-col md:flex-row items-center gap-8 border-b border-gray-100 pb-8">
-                <div class="relative group">
-                    <div class="w-32 h-32 rounded-full bg-gray-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center">
+                
+                <label for="avatar-input" class="relative group cursor-pointer block">
+                    <div class="w-32 h-32 rounded-full bg-gray-100 border-4 border-white shadow-lg overflow-hidden flex items-center justify-center relative">
+                        
                         {% if user.avatar %}
-                        <img src="{{ user.avatar.url }}" class="w-full h-full object-cover" id="avatar-preview">
+                            <img src="{{ user.avatar.url }}" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" id="avatar-preview" alt="Tu avatar actual">
                         {% else %}
-                        <i class="fas fa-user text-4xl text-gray-300" id="avatar-icon"></i>
-                        <img src="" class="w-full h-full object-cover hidden" id="avatar-preview">
+                            <i class="fas fa-user text-4xl text-gray-300 transition-transform duration-300 group-hover:scale-110" id="avatar-icon"></i>
+                            <img src="" class="w-full h-full object-cover hidden transition-transform duration-300 group-hover:scale-105" id="avatar-preview" alt="Previsualización de avatar">
                         {% endif %}
+                        
+                        <div class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            <i class="fas fa-camera text-white text-2xl drop-shadow-md"></i>
+                        </div>
                     </div>
-                    <label for="avatar-input" class="absolute bottom-0 right-0 bg-[#C0A062] text-white p-2 rounded-full cursor-pointer hover:bg-[#a3864d] shadow-md transition-all">
-                        <i class="fas fa-camera text-sm"></i>
-                    </label>
-                    <input type="file" name="avatar" id="avatar-input" class="hidden" accept="image/*" onchange="previewImage(this)">
-                </div>
+                    
+                    <div class="absolute bottom-0 right-0 bg-[#C0A062] text-white w-8 h-8 flex items-center justify-center rounded-full shadow-md group-hover:bg-[#a3864d] group-hover:scale-110 transition-all">
+                        <i class="fas fa-pencil-alt text-xs"></i>
+                    </div>
+                    
+                    <input type="file" name="avatar" id="avatar-input" class="hidden" accept="image/jpeg, image/png, image/webp" onchange="previewImage(this)">
+                </label>
                 
                 <div class="text-center md:text-left">
                     <h3 class="text-xl font-bold text-[#1A2238]">{{ user.username }}</h3>
                     <p class="text-sm text-gray-500">{{ user.get_rol_display }}</p>
                     <p class="text-xs text-gray-400 mt-2">Sube una foto profesional (JPG, PNG).</p>
+                    <p class="text-[10px] text-gray-400">Tamaño máximo recomendado: 2MB.</p>
                 </div>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Nombre(s)</label>
-                    <input type="text" name="first_name" value="{{ user.first_name }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] outline-none">
+                    <label for="first_name" class="block text-xs font-bold text-gray-400 uppercase mb-2 cursor-pointer hover:text-[#C0A062] transition-colors">Nombre(s)</label>
+                    <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] focus:bg-white outline-none transition-all shadow-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Apellidos</label>
-                    <input type="text" name="last_name" value="{{ user.last_name }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] outline-none">
+                    <label for="last_name" class="block text-xs font-bold text-gray-400 uppercase mb-2 cursor-pointer hover:text-[#C0A062] transition-colors">Apellidos</label>
+                    <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] focus:bg-white outline-none transition-all shadow-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Correo Electrónico</label>
-                    <input type="email" name="email" value="{{ user.email }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] outline-none">
+                    <label for="email" class="block text-xs font-bold text-gray-400 uppercase mb-2 cursor-pointer hover:text-[#C0A062] transition-colors">Correo Electrónico</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] focus:bg-white outline-none transition-all shadow-sm">
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Teléfono</label>
-                    <input type="text" name="telefono" value="{{ user.telefono|default:'' }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] outline-none">
+                    <label for="telefono" class="block text-xs font-bold text-gray-400 uppercase mb-2 cursor-pointer hover:text-[#C0A062] transition-colors">Teléfono</label>
+                    <input type="tel" id="telefono" name="telefono" value="{{ user.telefono|default:'' }}" class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] focus:bg-white outline-none transition-all shadow-sm">
                 </div>
                 <div class="md:col-span-2">
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-2">Puesto / Cargo</label>
-                    <input type="text" name="puesto" value="{{ user.puesto|default:'' }}" placeholder="Ej. Abogado Sr." class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] outline-none">
+                    <label for="puesto" class="block text-xs font-bold text-gray-400 uppercase mb-2 cursor-pointer hover:text-[#C0A062] transition-colors">Puesto / Cargo</label>
+                    <input type="text" id="puesto" name="puesto" value="{{ user.puesto|default:'' }}" placeholder="Ej. Abogado Sr." class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#1A2238] border border-transparent focus:border-[#C0A062] focus:bg-white outline-none transition-all shadow-sm">
                 </div>
             </div>
 
             <div class="flex justify-end pt-4">
-                <button type="submit" class="bg-[#1A2238] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-[#2C3E50] transition-all">
-                    GUARDAR CAMBIOS
+                <button type="submit" class="bg-[#1A2238] text-white px-8 py-3 rounded-xl font-bold shadow-lg hover:bg-[#2C3E50] transition-all hover:-translate-y-0.5 focus:ring-4 focus:ring-[#1A2238]/30">
+                    <i class="fas fa-save mr-2"></i> GUARDAR CAMBIOS
                 </button>
             </div>
         </form>
@@ -66,12 +75,25 @@
 <script>
     function previewImage(input) {
         if (input.files && input.files[0]) {
+            // Validación de seguridad básica en frontend: verificar tamaño (ej: máx 5MB)
+            const fileSize = input.files[0].size / 1024 / 1024; // en MB
+            if (fileSize > 5) {
+                alert("La imagen es demasiado grande. El tamaño máximo es 5MB.");
+                input.value = ""; // Limpiar el input
+                return;
+            }
+
             var reader = new FileReader();
             reader.onload = function(e) {
-                document.getElementById('avatar-preview').src = e.target.result;
-                document.getElementById('avatar-preview').classList.remove('hidden');
+                const previewImg = document.getElementById('avatar-preview');
                 const icon = document.getElementById('avatar-icon');
-                if(icon) icon.classList.add('hidden');
+                
+                previewImg.src = e.target.result;
+                previewImg.classList.remove('hidden');
+                
+                if(icon) {
+                    icon.classList.add('hidden');
+                }
             }
             reader.readAsDataURL(input.files[0]);
         }
