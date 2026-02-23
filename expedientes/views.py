@@ -295,6 +295,7 @@ def nuevo_cliente(request):
         registrar_bitacora(request.user, c, 'creacion', f"Dio de alta al cliente '{c.nombre_empresa}'.")
         return redirect('dashboard')
     return render(request, 'nuevo_cliente.html')
+
 @login_required
 @requiere_permiso('can_delete_client')
 def eliminar_cliente(request, cliente_id):
@@ -336,10 +337,7 @@ def detalle_cliente(request, cliente_id, carpeta_id=None):
     }
 
     todas_carpetas = cliente.carpetas_drive.all()
-    
-    # ---> AQUI ESTÁ LA CORRECCIÓN: 'bitacora_set' EN LUGAR DE 'hasattr' <---
-    historial = cliente.bitacora_set.all().select_related('usuario').order_by('-fecha')[:10]
-
+    historial = cliente.bitacora_set.all().select_related('usuario').order_by('-fecha')[:20]
     archivos_pendientes = ArchivoTemporal.objects.filter(solicitud__cliente=cliente)
 
     context = {
@@ -463,35 +461,42 @@ def subir_archivo_drive(request, cliente_id):
         carpeta_id = request.POST.get('carpeta_id')
         fecha_vencimiento = request.POST.get('fecha_vencimiento')
         
-        carpeta = None
+        carpeta_padre_original = None
         if carpeta_id:
-            carpeta = get_object_or_404(Carpeta, id=carpeta_id)
+            carpeta_padre_original = get_object_or_404(Carpeta, id=carpeta_id)
+
+        # LÓGICA DE CARPETAS DESDE EL FRONTEND
+        rutas_str = request.POST.get('rutas_json', '{}')
+        try:
+            rutas_dict = json.loads(rutas_str)
+        except:
+            rutas_dict = {}
 
         eventos_to_create = []
         archivos_guardados = 0
         nombres_guardados = []
 
         for f in archivos:
-            try:
-                mime_type = magic.from_buffer(f.read(1024), mime=True)
-                f.seek(0) 
-                allowed_mimes = [
-                    'application/pdf', 'image/jpeg', 'image/png', 
-                    'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                    'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                    'text/csv', 'application/zip'
-                ]
-                if mime_type not in allowed_mimes:
-                    messages.error(request, f"El archivo '{f.name}' fue rechazado por seguridad (Tipo no permitido).")
-                    logger.warning(f"Intento de subida maliciosa bloqueado MIME: {mime_type}")
-                    continue
-            except Exception as e:
-                logger.error(f"Error analizando MIME de archivo: {e}")
-                continue
+            # ---> SE ELIMINÓ LA RESTRICCIÓN DE MAGIC PARA ADMITIR TODO TIPO DE ARCHIVOS <---
+
+            ruta_relativa = rutas_dict.get(f.name, f.name)
+            carpeta_destino = carpeta_padre_original
+
+            # Si el archivo viene dentro de una subcarpeta, la creamos/buscamos
+            if '/' in ruta_relativa:
+                partes = ruta_relativa.split('/')
+                nombres_carpetas = partes[:-1] # Excluye el archivo
+                
+                for nombre_carpeta in nombres_carpetas:
+                    carpeta_destino, created = Carpeta.objects.get_or_create(
+                        cliente=cliente,
+                        nombre=nombre_carpeta,
+                        padre=carpeta_destino
+                    )
 
             nuevo_doc = Documento(
                 cliente=cliente,
-                carpeta=carpeta,
+                carpeta=carpeta_destino,
                 archivo=f,
                 nombre_archivo=f.name,
                 subido_por=request.user
@@ -522,15 +527,16 @@ def subir_archivo_drive(request, cliente_id):
             Evento.objects.bulk_create(eventos_to_create)
 
         if archivos_guardados > 0:
-            ubicacion = f"en '{carpeta.nombre}'" if carpeta else "en la raíz"
+            ubicacion = f"en '{carpeta_padre_original.nombre}'" if carpeta_padre_original else "en la raíz"
+            resumen = ', '.join(nombres_guardados[:5]) + ('...' if len(nombres_guardados) > 5 else '')
             registrar_bitacora(
                 request.user, cliente, 'subida',
-                f"Subió {archivos_guardados} archivo(s) {ubicacion}: {', '.join(nombres_guardados)}."
+                f"Subió {archivos_guardados} archivo(s) {ubicacion}: {resumen}"
             )
             messages.success(request, f"{archivos_guardados} archivo(s) subido(s) correctamente.")
         
-        if carpeta:
-            return redirect('detalle_carpeta', cliente_id=cliente.id, carpeta_id=carpeta.id)
+        if carpeta_padre_original:
+            return redirect('detalle_carpeta', cliente_id=cliente.id, carpeta_id=carpeta_padre_original.id)
         return redirect('detalle_cliente', cliente_id=cliente.id)
         
     return redirect('detalle_cliente', cliente_id=cliente.id)
@@ -557,7 +563,6 @@ def descargar_carpeta_zip(request, carpeta_id):
     with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
         for file in Documento.objects.filter(carpeta=carpeta):
             try: 
-                # En S3, leer el archivo es seguro de forma nativa
                 zip_file.writestr(file.nombre_archivo, file.archivo.read())
             except Exception as e: 
                 logger.warning(f"No se pudo incluir {file.nombre_archivo} en ZIP de carpeta {carpeta.id}: {e}")
@@ -596,14 +601,13 @@ def acciones_masivas_drive(request):
             with zipfile.ZipFile(buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
                 for doc in docs:
                     try: 
-                        # En S3 .read() funciona nativamente sin crashear
                         zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                     except Exception as e:
                         logger.warning(f"Error zipping {doc.id} en acciones masivas: {e}")
             registrar_bitacora(request.user, cliente, 'descarga', f"Descargó selección de {docs.count()} archivo(s) en ZIP.")
             buffer.seek(0)
             response = HttpResponse(buffer, content_type='application/zip')
-            response['Content-Disposition'] = f'attachment; filename="Seleccion.zip"'
+            response['Content-Disposition'] = 'attachment; filename="Seleccion.zip"'
             return response
             
     return redirect(request.META.get('HTTP_REFERER'))
@@ -618,7 +622,7 @@ def mover_archivo_drive(request, archivo_id):
 
     if request.method == 'POST':
         destino_id = request.POST.get('carpeta_destino')
-        fecha_vencimiento = request.POST.get('fecha_vencimiento') # NUEVO: Capturar fecha
+        fecha_vencimiento = request.POST.get('fecha_vencimiento')
         origen_nombre = doc.carpeta.nombre if doc.carpeta else "Raíz"
         
         if destino_id == 'ROOT':
@@ -629,7 +633,6 @@ def mover_archivo_drive(request, archivo_id):
             doc.carpeta = carpeta_destino
             nombre_destino = carpeta_destino.nombre
             
-        # NUEVO: Si nos mandan fecha de vencimiento al mover, la guardamos y creamos alertas
         if fecha_vencimiento: 
             doc.fecha_vencimiento = fecha_vencimiento
             fecha_fin = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
@@ -657,6 +660,7 @@ def mover_archivo_drive(request, archivo_id):
         messages.success(request, f"Archivo movido a: {nombre_destino}")
         
     return redirect(request.META.get('HTTP_REFERER', 'dashboard'))
+
 # ==========================================
 # 5. TAREAS
 # ==========================================
@@ -721,7 +725,6 @@ def generador_contratos(request, cliente_id):
 
     plantilla = get_object_or_404(Plantilla, id=request.GET.get('plantilla_id') or request.POST.get('plantilla_id'))
     
-    # En S3 leemos nativamente
     doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
     
     vars_en_doc = doc.get_undeclared_template_variables()
@@ -813,7 +816,6 @@ def visor_docx(request, documento_id):
     html = ""
     if doc.nombre_archivo.endswith('.docx'):
         try:
-            # En S3 leemos nativamente
             html = mammoth.convert_to_html(io.BytesIO(doc.archivo.read())).value
         except Exception as e:
             logger.error(f"Error visualizando DOCX {documento_id}: {e}")
@@ -1160,7 +1162,6 @@ def convertir_a_cliente(request, cotizacion_id):
 
     carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
     
-    # Lista EXACTA de carpetas base definidas en tu signal
     carpetas_base = [
         'CARPETA ADMINISTRATIVA',
         'LICENCIA DE FUNCIONAMIENTO',
@@ -1173,8 +1174,6 @@ def convertir_a_cliente(request, cotizacion_id):
         'LICENCIA DE USO DE SUELO'
     ]
 
-    # El signal ya creó todas las carpetas automáticamente al hacer '.create()', 
-    # así que aquí borramos las que el usuario NO seleccionó en el modal
     for nombre_carpeta in carpetas_base:
         if nombre_carpeta not in carpetas_seleccionadas:
             Carpeta.objects.filter(cliente=cli, nombre=nombre_carpeta).delete()
@@ -1239,6 +1238,7 @@ def convertir_a_cliente(request, cotizacion_id):
     registrar_bitacora(request.user, cli, 'creacion', f"Convirtió la cotización '{c.titulo}' en cliente y generó cuentas por cobrar.")
     messages.success(request, f"¡Trato cerrado! Se han generado las carpetas seleccionadas con sus subcarpetas de autorizaciones.")
     return redirect('detalle_cliente', cliente_id=cli.id)
+
 @login_required
 def enviar_cotizacion_email(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
@@ -1554,10 +1554,12 @@ def subir_archivo_requisito(request, carpeta_id):
         cliente = carpeta_origen.cliente
         archivo = request.FILES.get('archivo')
         nombre_requisito = request.POST.get('nombre_requisito')
-        fecha_vencimiento = request.POST.get('fecha_vencimiento') # NUEVO: Capturar fecha
+        fecha_vencimiento = request.POST.get('fecha_vencimiento')
 
         if archivo and nombre_requisito:
             try:
+                # ---> SE ELIMINÓ LA RESTRICCIÓN DE MAGIC PARA ADMITIR TODO TIPO DE ARCHIVOS <---
+                
                 anio_actual = timezone.now().year
                 ext = archivo.name.split('.')[-1] if '.' in archivo.name else 'pdf'
                 nuevo_nombre_formal = f"{nombre_requisito} {cliente.nombre_empresa} {anio_actual}.{ext}"
@@ -1591,7 +1593,6 @@ def subir_archivo_requisito(request, carpeta_id):
                         subido_por=request.user
                     )
 
-                    # NUEVO: Guardar fecha y alertas
                     if fecha_vencimiento: 
                         nuevo_doc.fecha_vencimiento = fecha_vencimiento
                         fecha_fin = datetime.strptime(fecha_vencimiento, '%Y-%m-%d').date()
@@ -1626,6 +1627,7 @@ def subir_archivo_requisito(request, carpeta_id):
         return redirect('detalle_cliente', cliente_id=cliente.id)
     
     return redirect('dashboard')
+
 @login_required
 def enviar_recordatorio_documentacion(request, cliente_id):
     cliente = get_object_or_404(Cliente.objects.prefetch_related('carpetas_drive'), id=cliente_id)
@@ -1812,20 +1814,7 @@ def vista_publica_carga(request, token):
         requisito_a_subir = request.POST.get('requisito_objetivo')
         archivo_subido = request.FILES['archivo']
         
-        try:
-            mime_type = magic.from_buffer(archivo_subido.read(1024), mime=True)
-            archivo_subido.seek(0)
-            allowed_mimes = [
-                'application/pdf', 'image/jpeg', 'image/png', 
-                'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-                'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-                'text/csv', 'application/zip'
-            ]
-            if mime_type not in allowed_mimes:
-                return HttpResponse('Tipo de archivo no permitido por políticas de seguridad.', status=400)
-        except Exception as e:
-            logger.error(f"Error analizando MIME: {e}")
-            return HttpResponse('Error procesando el archivo', status=500)
+        # ---> SE ELIMINÓ LA RESTRICCIÓN DE MAGIC PARA ADMITIR TODO TIPO DE ARCHIVOS <---
         
         if requisito_a_subir:
             ArchivoTemporal.objects.create(
@@ -1906,7 +1895,6 @@ def preview_archivo(request, documento_id):
     doc = get_object_or_404(Documento, id=documento_id)
     ext = doc.nombre_archivo.split('.')[-1].lower()
     
-    # En S3 simplemente usamos su URL nativa
     url_segura = doc.archivo.url
     
     data = {
@@ -1919,8 +1907,7 @@ def preview_archivo(request, documento_id):
     try:
         if ext in ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']:
             data['tipo'] = 'imagen'
-        elif ext in ['pdf', 'docx', 'xlsx', 'xls', 'csv']:
-            # Redireccionar el renderizado pesado a Google Docs Viewer
+        elif ext in ['pdf', 'docx', 'xlsx', 'xls', 'csv', 'ppt', 'pptx']:
             url_codificada = urllib.parse.quote(url_segura)
             visor_url = f"https://docs.google.com/viewer?url={url_codificada}&embedded=true"
             data['tipo'] = 'pdf'
@@ -1931,7 +1918,6 @@ def preview_archivo(request, documento_id):
             data['tipo'] = 'audio'
         elif ext in ['txt', 'py', 'js', 'html', 'css', 'json', 'md']:
             data['tipo'] = 'texto'
-            # En S3 leemos nativamente
             data['html'] = doc.archivo.read().decode('utf-8', errors='ignore') 
         else:
             data['tipo'] = 'descarga'
@@ -1951,13 +1937,10 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        # ---> REGISTRO EN BITÁCORA AÑADIDO <---
         registrar_bitacora(request.user, doc.cliente, 'descarga', f"Descargó el archivo individual: '{doc.nombre_archivo}'.")
         
-        # En lugar de redirigir a S3, leemos el archivo y forzamos el nombre original
         response = HttpResponse(doc.archivo.read())
         
-        # Codificamos el nombre para que soporte espacios, acentos y caracteres especiales
         nombre_codificado = urllib.parse.quote(doc.nombre_archivo)
         response['Content-Disposition'] = f"attachment; filename*=UTF-8''{nombre_codificado}"
         
@@ -1967,6 +1950,7 @@ def descargar_archivo_oficial(request, archivo_id):
         logger.error(f"Error crítico en descarga: {str(e)}")
         messages.error(request, f"Error técnico al descargar: {str(e)}")
         return redirect('detalle_cliente', cliente_id=doc.cliente.id)
+
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
@@ -1977,7 +1961,6 @@ def redactar_correo_autorizaciones(request, carpeta_id):
     if acuse_id:
         doc_acuse = Documento.objects.filter(id=acuse_id).first()
 
-    # URL base para cargar el logo en el correo
     domain = URL_PORTAL
     logo_url = f"{domain}/static/img/logo.png"
 
@@ -1998,13 +1981,11 @@ def redactar_correo_autorizaciones(request, carpeta_id):
                 if doc_acuse and doc.id == doc_acuse.id:
                     continue
                 try:
-                    # En S3 .read() funciona nativamente
                     zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                 except Exception as e:
                     logger.warning(f"No se pudo adjuntar {doc.nombre_archivo}: {e}")
         buffer.seek(0)
 
-        # Usamos la plantilla universal para que tenga el mismo diseño que las cotizaciones
         cuerpo_html = render_to_string('correo/email_body_universal.html', {
             'cliente': cliente,
             'tipo_correo': 'autorizaciones',
@@ -2032,7 +2013,6 @@ def redactar_correo_autorizaciones(request, carpeta_id):
         
         if doc_acuse:
             try:
-                # En S3 .read() funciona nativamente
                 email.attach(doc_acuse.nombre_archivo, doc_acuse.archivo.read(), 'application/pdf')
             except Exception as e:
                 logger.warning(f"No se pudo adjuntar el físico del acuse: {e}")
@@ -2204,7 +2184,6 @@ def enviar_correo_universal(request, cliente_id, tipo_correo):
                 with zipfile.ZipFile(zip_buffer, 'w') as zip_file:
                     for doc in lista_adjuntos:
                         try:
-                            # En S3 leemos nativamente
                             zip_file.writestr(doc.nombre_archivo, doc.archivo.read())
                         except Exception as e:
                             logger.warning(f"Error comprimiendo {doc.nombre_archivo}: {e}")
@@ -2299,7 +2278,6 @@ def generar_contrato_final(request):
                 if key not in campos_ignorados:
                     contexto[key] = value
 
-            # En S3 leemos nativamente
             doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
             doc.render(contexto)
 
@@ -2357,7 +2335,6 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
                     'fecha_vencimiento': doc.fecha_vencimiento
                 })
 
-            # --- TRUCO DE VELOCIDAD: Convertir imágenes a Base64 ---
             logo_b64 = ""
             firma_b64 = ""
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
@@ -2381,13 +2358,11 @@ def preparar_entrega_autorizaciones(request, cliente_id, carpeta_id):
                 'municipio': municipio,
                 'estado': estado,
                 'fecha_emision': timezone.now(),
-                # Pasamos las imágenes codificadas en lugar de URLs
                 'logo_b64': logo_b64,
                 'firma_b64': firma_b64,
             }
             
             html_string = render_to_string('expedientes/acuse_pdf.html', context_pdf)
-            # Ya no necesita el base_url porque las imágenes van por dentro
             html = weasyprint.HTML(string=html_string)
             pdf_content = html.write_pdf()
 
@@ -2467,16 +2442,15 @@ def modulo_gastos(request):
     if mes and mes != '':
         gastos = gastos.filter(fecha_emision__month=mes)
 
-    # AQUÍ ESTÁ LA CORRECCIÓN: Agregamos la suma del subtotal
     totales_db = gastos.aggregate(
         suma_total=Sum('total'), 
         suma_iva=Sum('total_impuestos'),
-        suma_subtotal=Sum('subtotal')  # <--- Suma del Gasto Neto (Base)
+        suma_subtotal=Sum('subtotal') 
     )
     
     total_filtrado = totales_db['suma_total'] or 0
     iva_filtrado = totales_db['suma_iva'] or 0
-    subtotal_filtrado = totales_db['suma_subtotal'] or 0  # <--- Valor extraído de forma segura
+    subtotal_filtrado = totales_db['suma_subtotal'] or 0 
 
     resumen_mes = gastos.annotate(mes_trunc=TruncMonth('fecha_emision')).values('mes_trunc').annotate(
         total_mes=Sum('total'),
@@ -2488,11 +2462,12 @@ def modulo_gastos(request):
         'resumen_mes': resumen_mes,
         'total_anual': total_filtrado,
         'iva_anual': iva_filtrado,
-        'subtotal_anual': subtotal_filtrado,  # <--- Enviado al HTML
+        'subtotal_anual': subtotal_filtrado, 
         'anio_actual': int(anio),
         'mes_actual': mes,
         'ultimos_gastos': gastos.order_by('-fecha_emision')
     })
+    
 @login_required
 def exportar_gastos_excel(request):
     if request.user.rol != 'admin': return redirect('dashboard')
@@ -2533,12 +2508,12 @@ def exportar_gastos_excel(request):
         df.to_excel(writer, index=False, sheet_name='Gastos')
         
     return response
+    
 @login_required
 def crear_carpetas_especiales(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
     
     if request.method == 'POST':
-        # Recibe la lista de los checkboxes que el usuario marcó
         carpetas_seleccionadas = request.POST.getlist('carpetas')
         
         for nombre in carpetas_seleccionadas:
@@ -2547,7 +2522,6 @@ def crear_carpetas_especiales(request, cliente_id):
                 cliente=cliente,
                 defaults={'es_expediente': False}
             )
-            # ---> REGISTRO EN BITÁCORA AÑADIDO <---
             if creada:
                 registrar_bitacora(request.user, cliente, 'creacion', f"Se generó la carpeta del sistema: '{nombre}'.")
         
