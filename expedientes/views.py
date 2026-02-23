@@ -2528,3 +2528,21 @@ def exportar_gastos_excel(request):
         df.to_excel(writer, index=False, sheet_name='Gastos')
         
     return response
+@login_required
+def crear_carpetas_especiales(request, cliente_id):
+    cliente = get_object_or_404(Cliente, id=cliente_id)
+    
+    if request.method == 'POST':
+        # Recibe la lista de los checkboxes que el usuario marcó
+        carpetas_seleccionadas = request.POST.getlist('carpetas')
+        
+        for nombre in carpetas_seleccionadas:
+            Carpeta.objects.get_or_create(
+                nombre=nombre,
+                cliente=cliente,
+                defaults={'es_expediente': False}
+            )
+        
+        messages.success(request, f"Se generaron o actualizaron {len(carpetas_seleccionadas)} carpetas especiales.")
+        
+    return redirect('detalle_cliente', cliente_id=cliente.id)

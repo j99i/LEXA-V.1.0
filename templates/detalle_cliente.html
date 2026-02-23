@@ -102,6 +102,11 @@
                 {% endif %}
                 
                 {% if user.can_create_client or user.rol == 'admin' %}
+                
+                <button onclick="openModal('modal-carpetas-especiales')" class="bg-yellow-400 text-[#2D1B4B] px-4 py-2 rounded-xl font-bold text-xs hover:bg-yellow-500 shadow-md flex items-center gap-1 transition-colors">
+                    <i class="fas fa-star"></i> ESPECIALES
+                </button>
+                
                 <button onclick="openModal('modal-carpeta')" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50"><i class="fas fa-folder-plus"></i></button>
                 {% endif %}
                 
@@ -425,7 +430,7 @@
 
     {# ==================== BARRA MASIVA ==================== #}
     <div id="barra-masiva" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#2D1B4B] text-white px-6 py-3 rounded-full shadow-2xl items-center gap-6 z-40">
-        <span class="font-bold text-sm"><span id="conteo-sel">0</span> selected</span>
+        <span class="font-bold text-sm"><span id="conteo-sel">0</span> seleccionados</span>
         <div class="flex gap-2">
             <button onclick="ejecutarMasivo('descargar')" class="bg-white/20 hover:bg-white/30 px-4 py-1 rounded-full text-xs font-bold">ZIP</button>
             {% if user.can_delete_client or user.rol == 'admin' %}
@@ -437,6 +442,61 @@
 </div>
 
 {# ==================== MODALES ==================== #}
+
+<div id="modal-carpetas-especiales" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-carpetas-especiales')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+        <h3 class="text-xl font-black text-[#2D1B4B] mb-1"><i class="fas fa-star text-yellow-400 mr-2"></i>Especiales</h3>
+        <p class="text-xs text-gray-500 mb-4 leading-tight">Selecciona las carpetas con semáforo que deseas agregar a este cliente (no se duplicarán si ya existen).</p>
+        
+        <form action="{% url 'crear_carpetas_especiales' cliente.id %}" method="POST">
+            {% csrf_token %}
+            <div class="max-h-[45vh] overflow-y-auto mb-6 pr-2 space-y-2 custom-scrollbar border-y border-gray-100 py-4">
+                
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="CARPETA ADMINISTRATIVA" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CARPETA ADMINISTRATIVA</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="LICENCIA DE FUNCIONAMIENTO" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">LICENCIA DE FUNCIONAMIENTO</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROG. ESPECÍFICO DE PROT. CIVIL</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="PROTECCIÓN CIVIL MUNICIPAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROTECCIÓN CIVIL MUNICIPAL</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="PROTECCIÓN CIVIL ESTATAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROTECCIÓN CIVIL ESTATAL</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="MEDIO AMBIENTE" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">MEDIO AMBIENTE</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="REGISTRO AMBIENTAL ESTATAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">REGISTRO AMBIENTAL ESTATAL</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="CEDULA DE ZONIFICACIÓN" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CÉDULA DE ZONIFICACIÓN</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="LICENCIA DE USO DE SUELO" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">LICENCIA DE USO DE SUELO</span>
+                </label>
+            </div>
+
+            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2">
+                <i class="fas fa-folder-plus"></i> GENERAR
+            </button>
+        </form>
+    </div>
+</div>
 
 <div id="modal-preview" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
     <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden relative flex flex-col shadow-2xl" onclick="event.stopPropagation()">
