@@ -4,19 +4,19 @@
     <div class="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
         
         <div class="bg-gradient-to-r from-[#2D1B4B] to-[#1E1233] p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
-            <i class="fas fa-file-word absolute -right-4 -bottom-4 text-7xl text-white/5 pointer-events-none transform -rotate-12"></i>
+            <i class="fas fa-file-word absolute -right-4 -bottom-4 text-7xl text-white/5 pointer-events-none transform -rotate-12" aria-hidden="true"></i>
             
             <div class="relative z-10">
                 <h2 class="text-2xl font-black font-serif tracking-wide">Homologación de Datos</h2>
                 <p class="text-purple-200 text-sm mt-1">Plantilla seleccionada: <b class="text-white">{{ plantilla.nombre }}</b></p>
             </div>
             
-            <button type="button" onclick="openModal('modal-guia')" class="relative z-10 text-[#A855F7] bg-white/5 border border-[#A855F7]/30 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase hover:bg-[#A855F7] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50">
-                <i class="fas fa-book mr-2"></i> Ver Glosario
+            <button type="button" onclick="openGlosarioModal()" class="relative z-10 text-[#A855F7] bg-white/5 border border-[#A855F7]/30 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase hover:bg-[#A855F7] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50">
+                <i class="fas fa-book mr-2" aria-hidden="true"></i> Ver Glosario
             </button>
         </div>
 
-        <form method="POST" class="p-6 md:p-10">
+        <form method="POST" id="form-generar-doc" class="p-6 md:p-10">
             {% csrf_token %}
             <input type="hidden" name="plantilla_id" value="{{ plantilla.id }}">
 
@@ -25,7 +25,7 @@
                     Nombre del Archivo Final
                 </label>
                 <div class="flex items-stretch shadow-sm rounded-xl overflow-hidden focus-within:ring-4 focus-within:ring-[#A855F7]/10 transition-all">
-                    <input type="text" id="nombre_salida" name="nombre_archivo_salida" value="{{ nombre_sugerido }}" class="w-full p-4 bg-white border-y-2 border-l-2 border-gray-200 rounded-l-xl font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] focus:border-r-0 transition-colors m-0" required>
+                    <input type="text" id="nombre_salida" name="nombre_archivo_salida" value="{{ nombre_sugerido|default:'' }}" placeholder="Ej. Contrato_Prestacion_Servicios" class="w-full p-4 bg-white border-y-2 border-l-2 border-gray-200 rounded-l-xl font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] focus:border-r-0 transition-colors m-0" required>
                     <span class="bg-gray-100 text-gray-400 font-black px-4 flex items-center justify-center border-y-2 border-r-2 border-gray-200 rounded-r-xl select-none group-focus-within:border-[#A855F7] group-focus-within:bg-purple-50 group-focus-within:text-[#A855F7] transition-colors">
                         .docx
                     </span>
@@ -56,10 +56,10 @@
                                 {% if var.es_automatico %}text-blue-800 hover:text-blue-600
                                 {% elif var.en_glosario %}text-green-800 hover:text-green-600
                                 {% else %}text-orange-800 hover:text-orange-600{% endif %}">
-                                {{ var.descripcion }}
+                                {{ var.descripcion|default:var.clave }}
                             </label>
                             
-                            {% if not var.en_glosario %}
+                            {% if not var.en_glosario and not var.es_automatico %}
                             <p class="text-[10px] font-bold text-red-500 mt-1 flex items-center gap-1">
                                 <i class="fas fa-exclamation-triangle"></i> Variable no estándar
                             </p>
@@ -69,14 +69,14 @@
                         <div class="md:w-2/3 w-full">
                             {% if var.es_automatico %}
                                 <div class="flex items-center gap-3 bg-blue-100/50 p-1 pl-4 rounded-xl border border-blue-200">
-                                    <input type="text" id="var_{{ forloop.counter }}" value="{{ var.valor }}" class="w-full bg-transparent border-0 font-bold text-blue-900 cursor-not-allowed outline-none" readonly title="Dato extraído del sistema">
+                                    <input type="text" id="var_{{ forloop.counter }}" value="{{ var.valor|default:'' }}" class="w-full bg-transparent border-0 font-bold text-blue-900 cursor-not-allowed outline-none" readonly title="Dato extraído del sistema">
                                     <div class="w-10 h-10 rounded-lg bg-blue-200 text-blue-600 flex items-center justify-center shrink-0">
                                         <i class="fas fa-robot text-lg" title="Automático del Sistema"></i>
                                     </div>
                                 </div>
                             {% else %}
                                 <div class="relative group">
-                                    <input type="{{ var.tipo }}" id="var_{{ forloop.counter }}" name="{{ var.clave }}" value="{{ var.valor }}" 
+                                    <input type="{{ var.tipo|default:'text' }}" id="var_{{ forloop.counter }}" name="{{ var.clave }}" value="{{ var.valor|default:'' }}" 
                                         class="w-full p-4 bg-white border-2 border-transparent focus:border-[#A855F7] rounded-xl outline-none font-bold text-[#2D1B4B] shadow-sm focus:ring-4 focus:ring-[#A855F7]/10 transition-all
                                         {% if not var.en_glosario %}focus:border-orange-400 focus:ring-orange-400/10{% endif %}" required>
                                     
@@ -89,24 +89,30 @@
                             {% endif %}
                         </div>
                     </div>
+                    {% empty %}
+                    <div class="text-center py-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+                        <i class="fas fa-check-circle text-4xl text-green-400 mb-3"></i>
+                        <p class="text-gray-500 font-bold">No se encontraron variables para rellenar en este documento.</p>
+                    </div>
                     {% endfor %}
                 </div>
             </div>
 
             <div class="mt-10 flex justify-end pt-6 border-t border-gray-100">
-                <button type="submit" class="bg-[#1A2238] hover:bg-[#2C3E50] text-white px-8 py-4 rounded-xl font-black shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 focus:outline-none focus:ring-4 focus:ring-[#1A2238]/30">
-                    <i class="fas fa-magic text-[#A855F7]"></i>
-                    <span class="tracking-widest uppercase text-xs">Generar Documento</span>
+                <button type="submit" id="btn-submit" class="bg-[#1A2238] hover:bg-[#2C3E50] text-white px-8 py-4 rounded-xl font-black shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 focus:outline-none focus:ring-4 focus:ring-[#1A2238]/30">
+                    <i class="fas fa-magic text-[#A855F7] icon-normal"></i>
+                    <i class="fas fa-circle-notch fa-spin hidden icon-loading text-[#A855F7]"></i>
+                    <span class="tracking-widest uppercase text-xs btn-text">Generar Documento</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<div id="modal-guia" class="hidden fixed inset-0 bg-[#0f0718]/90 z-50 items-center justify-center p-4">
-    <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
+<div id="modal-guia" class="hidden fixed inset-0 bg-[#0f0718]/90 z-50 items-center justify-center p-4 transition-opacity duration-300 opacity-0">
+    <div class="bg-white rounded-[2rem] p-8 max-w-lg w-full shadow-2xl relative transform transition-transform duration-300 scale-95" onclick="event.stopPropagation()">
         
-        <button type="button" onclick="closeModal('modal-guia')" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
+        <button type="button" onclick="closeGlosarioModal()" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors">
             <i class="fas fa-times"></i>
         </button>
 
@@ -142,9 +148,69 @@
             </div>
         </div>
         
-        <button type="button" onclick="closeModal('modal-guia')" class="mt-6 w-full bg-gray-100 font-black text-xs uppercase tracking-widest py-4 rounded-xl hover:bg-gray-200 text-gray-600 transition-colors">
+        <button type="button" onclick="closeGlosarioModal()" class="mt-6 w-full bg-gray-100 font-black text-xs uppercase tracking-widest py-4 rounded-xl hover:bg-gray-200 text-gray-600 transition-colors">
             Entendido, Cerrar
         </button>
     </div>
 </div>
+
+<script>
+    // UX: Evitar doble submit y mostrar estado de carga
+    document.getElementById('form-generar-doc').addEventListener('submit', function(e) {
+        const btn = document.getElementById('btn-submit');
+        if (btn.classList.contains('cursor-not-allowed')) {
+            e.preventDefault();
+            return;
+        }
+        btn.classList.add('cursor-not-allowed', 'opacity-80');
+        btn.querySelector('.icon-normal').classList.add('hidden');
+        btn.querySelector('.icon-loading').classList.remove('hidden');
+        btn.querySelector('.btn-text').innerText = 'Procesando...';
+    });
+
+    // Control del Modal Glosario (con animaciones de Tailwind)
+    const modalGlosario = document.getElementById('modal-guia');
+    const modalContent = modalGlosario.querySelector('div');
+
+    function openGlosarioModal() {
+        modalGlosario.classList.remove('hidden');
+        // Pequeño timeout para que la transición CSS funcione
+        setTimeout(() => {
+            modalGlosario.classList.remove('opacity-0');
+            modalContent.classList.remove('scale-95');
+            modalContent.classList.add('scale-100');
+        }, 10);
+    }
+
+    function closeGlosarioModal() {
+        modalGlosario.classList.add('opacity-0');
+        modalContent.classList.remove('scale-100');
+        modalContent.classList.add('scale-95');
+        setTimeout(() => {
+            modalGlosario.classList.add('hidden');
+        }, 300); // Mismo tiempo que duration-300
+    }
+
+    // Cerrar modal con la tecla Esc o dando clic fuera
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && !modalGlosario.classList.contains('hidden')) {
+            closeGlosarioModal();
+        }
+    });
+    modalGlosario.addEventListener('click', closeGlosarioModal);
+</script>
+
+<style>
+    /* Estilo para el scroll interno del modal del glosario */
+    .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+        background-color: #E5E7EB;
+        border-radius: 20px;
+    }
+</style>
 {% endblock %}
