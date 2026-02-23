@@ -8,13 +8,13 @@
     <style>
         @page {
             size: Letter;
-            margin: 1.5cm;
+            margin: 1.2cm; /* Redujimos el margen de la hoja un poco */
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #2D1B4B; 
-            font-size: 10pt;
-            line-height: 1.4;
+            font-size: 9.5pt; /* Ligeramente más pequeño para ahorrar espacio */
+            line-height: 1.3;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
@@ -23,7 +23,7 @@
         .page-border {
             border: 1px solid #F3F4F6;
             border-radius: 2rem; 
-            padding: 30px;
+            padding: 20px 25px; /* Redujimos el padding interno del borde */
             min-height: 95%;
             position: relative;
         }
@@ -32,16 +32,16 @@
         .header {
             display: table;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 15px; /* Antes 30px */
             border-bottom: 2px solid #F3F4F6;
-            padding-bottom: 20px;
+            padding-bottom: 15px; /* Antes 20px */
         }
         .header-left { display: table-cell; vertical-align: middle; }
         .header-right { display: table-cell; vertical-align: middle; text-align: right; }
 
-        .logo-img { height: 50px; width: auto; margin-bottom: 5px; }
+        .logo-img { height: 45px; width: auto; margin-bottom: 5px; }
         .brand-name { 
-            font-size: 22pt; 
+            font-size: 20pt; 
             font-weight: 900; 
             color: #2D1B4B; 
             letter-spacing: -1px; 
@@ -51,9 +51,9 @@
         .folio-badge {
             background-color: #2D1B4B;
             color: white;
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 1rem;
-            font-size: 9pt;
+            font-size: 8.5pt;
             font-weight: bold;
             display: inline-block;
             text-transform: uppercase;
@@ -63,113 +63,111 @@
         .info-grid {
             display: table;
             width: 100%;
-            margin-bottom: 30px;
+            margin-bottom: 15px; /* Antes 30px */
         }
         .info-card {
             display: table-cell;
             width: 50%;
             background-color: #F9FAFB;
             border-radius: 1.5rem;
-            padding: 20px;
+            padding: 15px; /* Antes 20px */
             border: 1px solid #F3F4F6;
         }
         .card-label {
-            font-size: 8pt;
+            font-size: 7.5pt;
             font-weight: 800;
             color: #A855F7; 
             text-transform: uppercase;
             letter-spacing: 1px;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             display: block;
         }
-        .client-name { font-weight: bold; font-size: 11pt; text-transform: uppercase; margin-bottom: 5px; }
-        .client-detail { font-size: 9pt; color: #6B7280; line-height: 1.2; }
+        .client-name { font-weight: bold; font-size: 10.5pt; text-transform: uppercase; margin-bottom: 3px; }
+        .client-detail { font-size: 8.5pt; color: #6B7280; line-height: 1.2; }
 
         /* --- TABLA --- */
         .table-container {
             border: 1px solid #F3F4F6;
             border-radius: 1.5rem;
             overflow: hidden;
-            margin-bottom: 20px;
+            margin-bottom: 15px; /* Antes 20px */
         }
         table { width: 100%; border-collapse: collapse; }
         th {
             background-color: #F9FAFB;
             color: #2D1B4B;
-            padding: 12px 15px;
+            padding: 10px 12px; /* Reducido */
             text-align: left;
             font-size: 8pt;
             font-weight: 800;
             text-transform: uppercase;
             border-bottom: 1px solid #F3F4F6;
         }
-        td { padding: 15px; border-bottom: 1px solid #F3F4F6; vertical-align: top; }
+        td { padding: 10px 12px; border-bottom: 1px solid #F3F4F6; vertical-align: top; } /* Reducido */
         .item-num { color: #A855F7; font-weight: bold; margin-right: 5px; }
-        .item-title { font-weight: bold; color: #2D1B4B; font-size: 10pt; }
-        .item-desc { font-size: 9pt; color: #6B7280; margin-top: 4px; }
-        .price-col { text-align: right; font-weight: bold; color: #2D1B4B; font-size: 10pt; white-space: nowrap; }
+        .item-title { font-weight: bold; color: #2D1B4B; font-size: 9.5pt; }
+        .item-desc { font-size: 8.5pt; color: #6B7280; margin-top: 2px; }
+        .price-col { text-align: right; font-weight: bold; color: #2D1B4B; font-size: 9.5pt; white-space: nowrap; }
 
         /* --- TEXTOS GENERALES --- */
         .generalidades {
-            font-size: 9.5pt;
+            font-size: 9pt;
             color: #374151;
             text-align: justify;
-            margin-bottom: 20px;
-            line-height: 1.6;
+            margin-bottom: 10px;
+            line-height: 1.5;
             padding: 0 5px;
         }
-        .generalidades p { margin-bottom: 12px; }
+        .generalidades p { margin-bottom: 8px; } /* Antes 12px */
         
-        /* --- CLASE MÁGICA PARA EVITAR FIRMAS SOLAS --- */
         .bloque-seguro {
-            /* Evita que este bloque se parta a la mitad o quede solo en otra página */
             page-break-inside: avoid;
             break-inside: avoid;
         }
 
-        /* --- RESUMEN --- */
+        /* --- RESUMEN (MÁS COMPACTO) --- */
         .summary-card {
             background-color: #2D1B4B;
             color: white;
             border-radius: 1.5rem;
-            padding: 25px;
-            margin-top: 10px;
+            padding: 15px 20px; /* Reducido drásticamente (antes 25px) */
+            margin-top: 5px;
             display: block;
             text-align: right;
         }
-        .total-amount { font-size: 20pt; font-weight: 900; color: #ffffff; }
-        .discount-text { font-size: 8pt; color: #A855F7; font-weight: bold; margin-bottom: 10px; }
-        .sub-row { font-size: 9pt; color: #e5e7eb; margin-bottom: 4px; }
+        .total-amount { font-size: 16pt; font-weight: 900; color: #ffffff; } /* Antes 20pt */
+        .discount-text { font-size: 8pt; color: #A855F7; font-weight: bold; margin-bottom: 6px; }
+        .sub-row { font-size: 8.5pt; color: #e5e7eb; margin-bottom: 2px; }
 
-        /* --- FIRMA (ESTILO FINAL) --- */
+        /* --- FIRMA --- */
         .firma { 
             text-align: center; 
-            margin-top: 40px; 
+            margin-top: 25px; /* Antes 40px */
         }
 
         .firma-imagen { 
-            height: 100px; 
+            height: 75px; /* Reducimos la altura de la firma para que quite menos espacio */
             width: auto; 
             display: block; 
-            margin: 0 auto 10px auto; 
+            margin: 0 auto 5px auto; 
             mix-blend-mode: multiply; 
             opacity: 0.95; 
         }
 
         .firma-linea { 
             border-top: 1px solid #333; 
-            width: 250px; 
-            margin: 0 auto 10px auto; 
+            width: 220px; 
+            margin: 0 auto 5px auto; 
         }
-        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #2D1B4B; font-size: 10pt; }
-        .firma-cargo { font-size: 9pt; color: #666; }
-        .firma-web { margin-top: 5px; font-size: 8pt; color: #888; }
+        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #2D1B4B; font-size: 9.5pt; }
+        .firma-cargo { font-size: 8.5pt; color: #666; }
+        .firma-web { margin-top: 3px; font-size: 7.5pt; color: #888; }
 
         .folio-footer {
             position: absolute;
-            bottom: 20px;
-            right: 30px;
-            font-size: 8pt;
+            bottom: 15px;
+            right: 25px;
+            font-size: 7.5pt;
             color: #d1d5db;
             font-weight: bold;
         }
@@ -198,13 +196,13 @@
                 <div class="client-name">{{ c.prospecto_empresa|default:c.prospecto_nombre|upper }}</div>
                 <div class="client-detail">{{ c.prospecto_direccion|default:"Domicilio no especificado" }}</div>
                 
-                <div class="attn-block" style="margin-top: 10px;">
-                    <div style="margin-bottom: 3px;">
-                        <span style="font-size: 8pt; font-weight: bold; color: #2D1B4B;">AT'N:</span> 
-                        <span style="font-size: 9pt; font-weight: bold;">{{ c.prospecto_nombre|upper }}</span>
+                <div class="attn-block" style="margin-top: 8px;">
+                    <div style="margin-bottom: 2px;">
+                        <span style="font-size: 7.5pt; font-weight: bold; color: #2D1B4B;">AT'N:</span> 
+                        <span style="font-size: 8.5pt; font-weight: bold;">{{ c.prospecto_nombre|upper }}</span>
                     </div>
                     {% if c.prospecto_cargo %}
-                        <div style="font-size: 8pt; color: #4B5563; text-transform: uppercase; letter-spacing: 0.5px;">
+                        <div style="font-size: 7.5pt; color: #4B5563; text-transform: uppercase; letter-spacing: 0.5px;">
                             {{ c.prospecto_cargo }}
                         </div>
                     {% endif %}
@@ -215,7 +213,7 @@
             
             <div class="info-card" style="background-color: white; border-color: #A855F7;">
                 <span class="card-label">Mensaje</span>
-                <p style="font-size: 8.5pt; margin: 0; color: #4B5563;">
+                <p style="font-size: 8pt; margin: 0; color: #4B5563;">
                     Me permito poner a sus órdenes los servicios de asesoría y gestoría de trámites administrativos. A continuación detallo nuestra propuesta económica:
                 </p>
             </div>
@@ -297,8 +295,8 @@
                     <div class="sub-row">I.V.A. ({{ c.porcentaje_iva|floatformat:0 }}%): $ {{ c.monto_iva|floatformat:2|intcomma }}</div>
                 {% endif %}
                     
-                <div class="summary-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-                    <span class="total-label" style="font-size: 10pt; text-transform: uppercase;">MONTO TOTAL NETO</span>
+                <div class="summary-row" style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 8px;">
+                    <span class="total-label" style="font-size: 9pt; text-transform: uppercase;">MONTO TOTAL NETO</span>
                 </div>
                 <div class="summary-row">
                     <span class="total-amount">$ {{ c.total_con_iva|floatformat:2|intcomma }}</span>
@@ -314,6 +312,7 @@
                 <div class="firma-web">www.gestionescorpad.com</div>
             </div>
         </div>
+
         <div class="folio-footer">
             GC-COT-{{ c.id }}-{{ c.fecha_creacion|date:"Y" }}
         </div>
