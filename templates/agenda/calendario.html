@@ -2,6 +2,7 @@
 
 {% block content %}
 <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales-all.global.min.js'></script>
 
 <div class="h-[calc(100vh-120px)] flex flex-col md:flex-row gap-6 animate__animated animate__fadeIn px-2">
     
@@ -21,7 +22,7 @@
             
             <div class="space-y-6">
                 {% for aud in proximas_audiencias %}
-                <div class="relative pl-5 group cursor-default">
+                <div class="relative pl-5 group cursor-pointer" onclick="mostrarDetalleAudiencia('{{ aud.id }}', '{{ aud.titulo }}', '{{ aud.inicio|date:"Y-m-d\\TH:i:s" }}', '{{ aud.cliente.nombre_empresa|escapejs }}', '{{ aud.descripcion|escapejs }}')">
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-full group-hover:w-1.5 transition-all"></div>
                     
                     <p class="text-[10px] font-black text-red-500 mb-1 uppercase tracking-tighter">{{ aud.inicio|date:"d M — H:i" }} hrs</p>
@@ -51,12 +52,12 @@
     </div>
 
     <div class="flex-1 bg-white p-6 rounded-[2.5rem] shadow-xl border border-gray-100 relative overflow-hidden">
-        <div id='calendar' class="h-full"></div>
+        <div id='calendar' class="h-full w-full"></div>
     </div>
 
 </div>
 
-<div id="modal-evento" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4">
+<div id="modal-evento" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-evento')">
     <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
         <button type="button" onclick="closeModal('modal-evento')" class="absolute top-6 right-6 text-gray-300 hover:text-red-500 transition-colors">
             <i class="fas fa-times text-xl"></i>
@@ -125,7 +126,7 @@
     </div>
 </div>
 
-<div id="modal-detalle" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 p-4">
+<div id="modal-detalle" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-detalle')">
     <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-sm m-4 shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
         <button type="button" onclick="closeModal('modal-detalle')" class="absolute top-6 right-6 text-gray-300 hover:text-red-500">
             <i class="fas fa-times text-xl"></i>
@@ -155,13 +156,47 @@
         </div>
 
         <button id="btn-eliminar" class="w-full bg-red-50 text-red-600 py-4 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-red-500 hover:text-white transition-all border-2 border-red-100 hover:border-red-500 flex items-center justify-center gap-3 group">
-            <i class="fas fa-trash group-hover:animate-bounce"></i> Eliminar Evento permanentemente
+            <i class="fas fa-trash group-hover:animate-bounce"></i> Eliminar Evento
         </button>
     </div>
 </div>
 
 <script>
-    // --- GESTIÓN DE SEGURIDAD DJANGO ---
+    // ==========================================
+    // 1. CONTROLADORES GLOBALES DE MODALES
+    // ==========================================
+    let activeModalId = null;
+
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden'; 
+        activeModalId = modalId;
+    }
+
+    function closeModal(modalId = null) {
+        const idToClose = modalId || activeModalId;
+        if (!idToClose) return;
+        const modal = document.getElementById(idToClose);
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = ''; 
+        activeModalId = null;
+    }
+
+    // Cerrar modales con tecla Escape
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeModalId) {
+            closeModal();
+        }
+    });
+
+    // ==========================================
+    // 2. SEGURIDAD CSRF PARA PETICIONES AJAX
+    // ==========================================
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -177,60 +212,77 @@
         return cookieValue;
     }
 
+    // ==========================================
+    // 3. INICIALIZACIÓN DE FULLCALENDAR
+    // ==========================================
     document.addEventListener('DOMContentLoaded', function() {
         const calendarEl = document.getElementById('calendar');
+        
         const calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
-            locale: 'es',
-            firstDay: 1, // Lunes inicio de semana
+            locale: 'es', // Ahora funcionará gracias a locales-all.global.min.js
+            firstDay: 1, 
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
-                right: 'dayGridMonth,timeGridWeek'
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
             buttonText: {
                 today: 'Hoy',
                 month: 'Mes',
-                week: 'Semana'
+                week: 'Semana',
+                day: 'Día'
             },
-            events: '/agenda/api/', 
+            events: '/agenda/api/', // Tu endpoint JSON
             editable: true,
             selectable: true,
-            dayMaxEvents: true, // +mas eventos si hay muchos
+            dayMaxEvents: true, 
+            height: '100%', // Para que ocupe todo el div padre
             
+            // Al hacer clic en un cuadro vacío del calendario
             dateClick: function(info) {
                 document.getElementById('input-fecha').value = info.dateStr;
                 openModal('modal-evento');
             },
 
+            // Al hacer clic sobre un evento existente
             eventClick: function(info) {
                 mostrarDetalle(info.event);
             },
 
+            // Al arrastrar un evento a otro día
             eventDrop: function(info) {
                 actualizarFecha(info.event);
             },
             
             // Estilizar eventos al renderizar
             eventDidMount: function(info) {
-                // Agregar sombreado sutil
-                info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+                info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                info.el.style.transition = 'transform 0.2s';
+                info.el.addEventListener('mouseenter', () => info.el.style.transform = 'scale(1.02)');
+                info.el.addEventListener('mouseleave', () => info.el.style.transform = 'scale(1)');
             }
         });
+        
         calendar.render();
     });
 
+    // ==========================================
+    // 4. FUNCIONES DE LÓGICA DE EVENTOS
+    // ==========================================
     function mostrarDetalle(event) {
         document.getElementById('det-titulo').innerText = event.title;
-        // Formatear fecha legible
+        
+        // Formatear fecha para que sea legible en español
         const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' };
         document.getElementById('det-fecha').innerText = event.start.toLocaleDateString('es-ES', options);
         
+        // Rellenar datos extendidos
         document.getElementById('det-cliente').innerText = event.extendedProps.cliente || "Evento Personal";
         document.getElementById('det-tipo').innerText = event.extendedProps.tipo ? event.extendedProps.tipo.toUpperCase() : "GENERAL";
         document.getElementById('det-desc').innerText = event.extendedProps.descripcion || "Sin notas adicionales.";
         
-        // Reset color del borde según tipo
+        // Cambiar el color del borde del modal según el tipo
         const header = document.getElementById('detalle-header');
         const tipoColores = {
             'audiencia': '#ef4444',
@@ -240,21 +292,30 @@
         };
         header.style.borderColor = tipoColores[event.extendedProps.tipo] || '#d1d5db';
 
+        // Lógica del botón eliminar
         const btn = document.getElementById('btn-eliminar');
         btn.onclick = function() {
-            if(confirm('⚠️ ¿Estás seguro de eliminar este evento? Esta acción es definitiva.')) {
+            if(confirm('⚠️ ¿Estás seguro de eliminar este evento? Esta acción no se puede deshacer.')) {
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+                
                 fetch(`/agenda/eliminar/${event.id}/`, {
                     method: 'POST',
-                    headers: { 'X-CSRFToken': getCookie('csrftoken') } // Seguridad CSRF
+                    headers: { 'X-CSRFToken': getCookie('csrftoken') }
                 })
                 .then(res => res.json())
                 .then(data => {
                     if(data.status === 'ok') {
-                        event.remove();
+                        event.remove(); // Quita el evento del calendario visualmente
                         closeModal('modal-detalle');
                     } else {
                         alert("Error: No tienes permisos para esta acción.");
                     }
+                })
+                .catch(error => {
+                    alert("Error de conexión al eliminar.");
+                })
+                .finally(() => {
+                    btn.innerHTML = '<i class="fas fa-trash"></i> Eliminar Evento';
                 });
             }
         };
@@ -262,12 +323,29 @@
         openModal('modal-detalle');
     }
 
+    // Permite que la barra lateral de la izquierda también abra los detalles al hacer clic
+    function mostrarDetalleAudiencia(id, titulo, fechaISO, cliente, descripcion) {
+        // Simulamos un objeto 'event' de FullCalendar para reciclar la función
+        const eventoSimulado = {
+            id: id,
+            title: titulo,
+            start: new Date(fechaISO),
+            extendedProps: {
+                cliente: cliente,
+                tipo: 'audiencia',
+                descripcion: descripcion
+            },
+            remove: function() { location.reload(); } // Si se elimina desde aquí, recargamos para actualizar la lista
+        };
+        mostrarDetalle(eventoSimulado);
+    }
+
     function actualizarFecha(event) {
         fetch('/agenda/mover/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken') // Seguridad CSRF
+                'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({
                 id: event.id,
@@ -277,8 +355,11 @@
         }).then(res => res.json()).then(data => {
             if(data.status !== 'ok') {
                 alert("Error de sincronización: El servidor rechazó el cambio.");
-                location.reload(); // Recargar para revertir visualmente
+                location.reload(); 
             }
+        }).catch(error => {
+            alert("Error de red al intentar mover el evento.");
+            location.reload();
         });
     }
 </script>
@@ -295,14 +376,14 @@
     }
     
     .fc { font-family: 'Lato', sans-serif; }
-    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #2D1B4B; font-size: 1.5rem; }
+    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #2D1B4B; font-size: 1.5rem; text-transform: capitalize; }
     
     .fc .fc-button { 
         text-transform: uppercase; 
         font-size: 10px !important; 
         font-weight: 900 !important; 
         letter-spacing: 1px; 
-        padding: 10px 15px !important; 
+        padding: 8px 16px !important; 
         border-radius: 12px !important;
         transition: all 0.2s;
     }
@@ -310,22 +391,24 @@
     .fc-event { 
         border: none !important; 
         padding: 3px 6px !important; 
-        border-radius: 8px !important; 
+        border-radius: 6px !important; 
         font-size: 10px !important; 
         font-weight: 900 !important;
         cursor: pointer !important;
     }
 
-    /* Colores por tipo inyectados por FullCalendar */
-    .fc-event-audiencia { background-color: #ef4444 !important; }
-    .fc-event-vencimiento { background-color: #f59e0b !important; }
-    .fc-event-reunion { background-color: #3b82f6 !important; }
-    .fc-event-tramite { background-color: #10b981 !important; }
+    /* Colores inyectados por FullCalendar usando classNames */
+    .fc-event-audiencia, .audiencia { background-color: #ef4444 !important; }
+    .fc-event-vencimiento, .vencimiento { background-color: #f59e0b !important; }
+    .fc-event-reunion, .reunion { background-color: #3b82f6 !important; }
+    .fc-event-tramite, .tramite { background-color: #10b981 !important; }
 
     .fc-daygrid-day-top { flex-direction: row !important; padding: 5px; }
-    .fc-daygrid-day-number { font-weight: 900; color: #2D1B4B; font-size: 0.8rem; }
-    .fc-col-header-cell { background-color: #fafafa; padding: 10px 0 !important; }
-    .fc-col-header-cell-cushion { color: #9CA3AF !important; font-size: 9px !important; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 1px; }
+    .fc-daygrid-day-number { font-weight: 900; color: #2D1B4B; font-size: 0.8rem; text-decoration: none !important; }
+    .fc-daygrid-day-number:hover { color: #A855F7; }
+    
+    .fc-col-header-cell { background-color: #fafafa; padding: 10px 0 !important; border-bottom: 2px solid #f3f4f6 !important; }
+    .fc-col-header-cell-cushion { color: #9CA3AF !important; font-size: 10px !important; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 1px; text-decoration: none !important; }
     
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #E5E7EB; border-radius: 10px; }
