@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="animate__animated animate__fadeIn max-w-7xl mx-auto px-4">
+<div class="animate__animated animate__fadeIn max-w-7xl mx-auto px-4 pb-10">
     
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-8 gap-6">
         <div>
@@ -12,27 +12,46 @@
         </div>
         
         <div class="flex flex-col sm:flex-row gap-4 w-full lg:w-auto">
-            <div class="relative flex-1 sm:w-64">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs"></i>
-                <input type="text" placeholder="Buscar analista..." 
-                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm text-xs focus:outline-none focus:ring-2 focus:ring-[#A855F7]/20 transition-all">
+            <div class="relative flex-1 sm:w-64 group">
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-xs group-focus-within:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+                <input type="text" id="buscador-usuarios" placeholder="Buscar analista o email..." autocomplete="off"
+                    class="w-full pl-10 pr-4 py-3 bg-white border border-gray-100 rounded-2xl shadow-sm text-sm font-bold text-[#2D1B4B] focus:outline-none focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 transition-all">
             </div>
 
-            <div class="bg-white px-5 py-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3">
-                <div class="bg-purple-50 text-purple-600 w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg">
-                    {{ usuarios.count }}
+            <div class="bg-white px-5 py-3 rounded-2xl shadow-sm border border-gray-100 flex items-center gap-3 shrink-0">
+                <div class="bg-purple-50 text-[#A855F7] w-10 h-10 rounded-xl flex items-center justify-center font-black text-lg">
+                    <span id="contador-usuarios">{{ usuarios.count }}</span>
                 </div>
                 <div>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">Total</p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Total</p>
                     <p class="text-xs font-bold text-[#2D1B4B]">Usuarios</p>
                 </div>
             </div>
         </div>
     </div>
 
+    {% if messages %}
+        <div class="mb-6 space-y-2">
+            {% for message in messages %}
+                <div class="p-4 rounded-xl shadow-sm border-l-4 flex items-center justify-between gap-3 animate__animated animate__fadeInDown 
+                    {% if message.tags == 'success' %}bg-green-50 border-green-500 text-green-800
+                    {% elif message.tags == 'error' %}bg-red-50 border-red-500 text-red-800
+                    {% else %}bg-blue-50 border-blue-500 text-blue-800{% endif %}" role="alert">
+                    <div class="flex items-center gap-3">
+                        <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %}" aria-hidden="true"></i>
+                        <span class="font-bold text-sm">{{ message }}</span>
+                    </div>
+                    <button type="button" onclick="this.parentElement.remove()" class="opacity-50 hover:opacity-100 transition-opacity" aria-label="Cerrar mensaje">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
     <div class="bg-white rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100 overflow-hidden">
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
+            <table class="w-full text-left border-collapse" id="tabla-usuarios">
                 <thead>
                     <tr class="bg-gray-50/50 text-gray-400 text-[11px] uppercase tracking-widest border-b border-gray-100 sticky top-0 bg-white z-10">
                         <th class="p-6 font-black">Analista / Usuario</th>
@@ -44,111 +63,124 @@
                 </thead>
                 <tbody class="divide-y divide-gray-50">
                     {% for u in usuarios %} 
-                    <tr class="group hover:bg-slate-50/80 transition-all duration-300 {% if not u.is_active %}bg-gray-50/50{% endif %}">
+                    <tr class="usuario-row group hover:bg-purple-50/30 transition-all duration-300 {% if not u.is_active %}bg-gray-50/50{% endif %}"
+                        data-search="{{ u.username|lower }} {{ u.first_name|lower }} {{ u.last_name|lower }} {{ u.email|lower }}">
                         
                         <td class="p-6">
                             <div class="flex items-center gap-4">
-                                <div class="relative">
-                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-sm border-2 border-white transition-transform group-hover:scale-110 group-hover:rotate-3
-                                        {% if u.is_superuser %}bg-gradient-to-br from-[#A855F7] to-[#C084FC] text-white
-                                        {% elif not u.is_active %}bg-gray-200 text-gray-400
-                                        {% else %}bg-[#2D1B4B] text-white{% endif %}">
+                                <div class="relative shrink-0">
+                                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-sm border border-gray-100 transition-transform group-hover:scale-110 group-hover:rotate-3
+                                        {% if u.rol == 'admin' %}bg-gradient-to-br from-[#2D1B4B] to-[#1E1233] text-[#C0A062]
+                                        {% elif not u.is_active %}bg-gray-100 text-gray-400
+                                        {% else %}bg-purple-50 text-[#A855F7]{% endif %}">
                                         {{ u.username|first|upper }}
                                     </div>
                                     {% if u.is_active %}
-                                    <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full"></span>
+                                    <span class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm" title="Usuario Activo"></span>
                                     {% endif %}
                                 </div>
-                                <div>
-                                    <p class="font-bold text-[#2D1B4B] text-sm group-hover:text-[#A855F7] transition-colors">{{ u.username }}</p>
-                                    <p class="text-[11px] text-gray-400 font-medium">{{ u.email }}</p>
+                                <div class="min-w-0">
+                                    <p class="font-bold text-[#2D1B4B] text-sm group-hover:text-[#A855F7] transition-colors truncate" title="{{ u.get_full_name|default:u.username }}">
+                                        {{ u.get_full_name|default:u.username }}
+                                    </p>
+                                    <p class="text-[11px] text-gray-400 font-bold truncate mt-0.5">{{ u.email }}</p>
                                 </div>
                             </div>
                         </td>
 
                         <td class="p-6">
                             <div class="flex flex-col items-start gap-1">
-                                <span class="px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-wide border
-                                    {% if u.rol == 'admin' %}bg-purple-50 text-purple-700 border-purple-100
-                                    {% elif u.rol == 'analista_sr' %}bg-blue-50 text-blue-700 border-blue-100
+                                <span class="px-3 py-1.5 text-[10px] font-black rounded-lg uppercase tracking-widest border
+                                    {% if u.rol == 'admin' %}bg-[#2D1B4B] text-[#C0A062] border-[#1E1233] shadow-sm
+                                    {% elif u.rol == 'analista_sr' %}bg-blue-50 text-blue-600 border-blue-100
                                     {% else %}bg-gray-50 text-gray-600 border-gray-200{% endif %}">
-                                    {{ u.get_rol_display }}
+                                    {% if u.rol == 'admin' %}👑 {% endif %}{{ u.get_rol_display }}
                                 </span>
-                                {% if u.area %}
-                                <span class="text-[9px] text-gray-400 font-bold ml-1 flex items-center gap-1 uppercase">
-                                    <i class="fas fa-layer-group text-[8px]"></i> {{ u.area }}
-                                </span>
-                                {% endif %}
                             </div>
                         </td>
 
                         <td class="p-6">
                             {% if u.last_login %}
                                 <p class="text-xs font-bold text-gray-700">{{ u.last_login|date:"d M Y" }}</p>
-                                <p class="text-[10px] text-gray-400 font-medium">{{ u.last_login|date:"H:i" }} hrs</p>
+                                <p class="text-[10px] text-gray-400 font-bold mt-0.5">{{ u.last_login|date:"H:i" }} hrs</p>
                             {% else %}
-                                <span class="text-[10px] text-gray-300 font-bold uppercase italic tracking-tighter">Sin actividad</span>
+                                <span class="text-[10px] text-gray-300 font-bold uppercase italic tracking-widest border border-dashed border-gray-200 px-2 py-1 rounded">Sin acceso</span>
                             {% endif %}
                         </td>
 
                         <td class="p-6 text-center">
                             {% if u.is_active %}
-                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-100">
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-50 border border-green-100 shadow-sm">
                                     <span class="relative flex h-2 w-2">
                                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
                                       <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
                                     </span>
-                                    <span class="text-[9px] font-black text-green-700 uppercase">Activo</span>
+                                    <span class="text-[9px] font-black text-green-700 uppercase tracking-widest">Activo</span>
                                 </div>
                             {% else %}
-                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 border border-red-100">
-                                    <i class="fas fa-ban text-red-400 text-[10px]"></i>
-                                    <span class="text-[9px] font-black text-red-700 uppercase">Restringido</span>
+                                <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-50 border border-red-100 shadow-sm">
+                                    <i class="fas fa-ban text-red-400 text-[10px]" aria-hidden="true"></i>
+                                    <span class="text-[9px] font-black text-red-700 uppercase tracking-widest">Restringido</span>
                                 </div>
                             {% endif %}
                         </td>
 
                         <td class="p-6 text-right">
-                            <div class="flex justify-end items-center gap-2">
+                            <div class="flex justify-end items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                                
                                 {% if not u.is_active %}
-                                    <a href="{% url 'autorizar_usuario' u.id %}" class="flex items-center gap-2 bg-[#2D1B4B] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase hover:bg-green-600 transition-all shadow-md active:scale-95">
-                                        <i class="fas fa-check-shield"></i> Autorizar
+                                    <a href="{% url 'autorizar_usuario' u.id %}" class="flex items-center gap-2 bg-[#2D1B4B] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-500 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-green-400" title="Aprobar Acceso">
+                                        <i class="fas fa-check-shield" aria-hidden="true"></i> Autorizar
                                     </a>
                                 {% endif %}
                                 
-                                <a href="{% url 'editar_usuario' u.id %}" class="w-9 h-9 flex items-center justify-center bg-gray-50 text-gray-400 rounded-xl hover:bg-[#A855F7] hover:text-white transition-all duration-300 shadow-sm" title="Configurar Cuenta">
-                                    <i class="fas fa-sliders-h text-xs"></i>
+                                <a href="{% url 'editar_usuario' u.id %}" class="w-9 h-9 flex items-center justify-center bg-white border border-gray-200 text-gray-500 rounded-xl hover:bg-[#A855F7] hover:text-white hover:border-[#A855F7] transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-300" title="Configurar Permisos">
+                                    <i class="fas fa-sliders-h text-xs" aria-hidden="true"></i>
                                 </a>
                                 
-                                <button onclick="confirmDelete('{{ u.id }}')" class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-400 rounded-xl hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm" title="Eliminar Acceso">
-                                    <i class="fas fa-trash-alt text-xs"></i>
+                                {% if request.user != u %}
+                                <button type="button" onclick="abrirModalEliminar('{{ u.id }}', '{{ u.username|escapejs }}')" class="w-9 h-9 flex items-center justify-center bg-red-50 text-red-500 border border-red-100 rounded-xl hover:bg-red-500 hover:text-white transition-all duration-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-red-400" title="Eliminar Usuario">
+                                    <i class="fas fa-trash-alt text-xs" aria-hidden="true"></i>
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
                     {% empty %}
-                    <tr>
+                    <tr id="empty-native">
                         <td colspan="5" class="p-20 text-center">
                             <div class="flex flex-col items-center justify-center">
-                                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
-                                    <i class="fas fa-users-slash text-3xl text-gray-200"></i>
+                                <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100 shadow-sm">
+                                    <i class="fas fa-users-slash text-3xl text-gray-300" aria-hidden="true"></i>
                                 </div>
-                                <h3 class="text-lg font-black text-[#2D1B4B] font-serif">Directorio Vacío</h3>
-                                <p class="text-sm text-gray-400 max-w-xs mx-auto">No hay analistas registrados en el sistema actualmente.</p>
+                                <h3 class="text-xl font-black text-[#2D1B4B] font-serif">Directorio Vacío</h3>
+                                <p class="text-sm text-gray-400 max-w-xs mx-auto mt-2">No hay analistas registrados en el sistema actualmente.</p>
                             </div>
                         </td>
                     </tr>
                     {% endfor %}
+
+                    <tr id="empty-state-js" class="hidden">
+                        <td colspan="5" class="p-16 text-center animate__animated animate__fadeIn">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-16 h-16 bg-gray-50 border border-gray-100 rounded-full flex items-center justify-center mb-3">
+                                    <i class="fas fa-search text-gray-300 text-xl" aria-hidden="true"></i>
+                                </div>
+                                <h3 class="text-gray-400 font-bold text-sm uppercase tracking-wide">Sin coincidencias</h3>
+                                <p class="text-gray-300 text-xs mt-1">No se encontraron usuarios con ese nombre o email.</p>
+                            </div>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
         
         <div class="bg-gray-50/80 p-5 border-t border-gray-100 flex flex-col sm:flex-row justify-between items-center gap-4 px-8">
-            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">
-                <i class="fas fa-database mr-1"></i> Base de datos sincronizada
+            <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
+                <i class="fas fa-database text-green-400" aria-hidden="true"></i> Base de datos encriptada
             </span>
             <div class="flex items-center gap-2">
-                <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest bg-white px-3 py-1 rounded-full border border-gray-100">
+                <span class="text-[10px] text-gray-500 font-black uppercase tracking-widest bg-white px-3 py-1.5 rounded-lg border border-gray-200 shadow-sm" id="label-mostrando">
                     Mostrando {{ usuarios.count }} analistas
                 </span>
             </div>
@@ -156,13 +188,153 @@
     </div>
 </div>
 
+<div id="modal-eliminar" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative text-center transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        
+        <div class="w-16 h-16 bg-red-50 border border-red-100 rounded-full flex items-center justify-center mx-auto mb-4 shadow-inner">
+            <i class="fas fa-user-times text-3xl text-red-500" aria-hidden="true"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-[#1A2238] mb-2 font-serif">¿Eliminar Usuario?</h3>
+        <p class="text-sm text-gray-500 mb-6">
+            Estás a punto de revocar el acceso y borrar permanentemente a <br>
+            <strong id="modal-username" class="text-[#1A2238] text-base"></strong>.<br>
+            <span class="text-red-500 font-bold block mt-2 text-xs">Esta acción no se puede deshacer.</span>
+        </p>
+        
+        <form method="POST" action="" id="form-eliminar">
+            {% csrf_token %}
+            <div class="flex gap-3 justify-center border-t border-gray-100 pt-6">
+                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Cancelar
+                </button>
+                <button type="submit" id="btn-eliminar-submit" class="px-6 py-3 bg-red-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-red-600 shadow-lg transition-transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-red-300 flex items-center gap-2 group">
+                    <span class="btn-text">Sí, Eliminar</span>
+                    <i class="fas fa-trash hidden icon-loading" aria-hidden="true"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
-    function confirmDelete(userId) {
-        // Aquí podrías disparar un SweetAlert o un modal custom
-        if(confirm('¿Estás seguro de que deseas revocar el acceso a este usuario?')) {
-            console.log('Eliminando usuario:', userId);
-            // window.location.href = `/usuarios/eliminar/${userId}`;
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // ==========================================
+        // 1. BUSCADOR EN TIEMPO REAL (Normalizado)
+        // ==========================================
+        const searchInput = document.getElementById('buscador-usuarios');
+        const rows = document.querySelectorAll('.usuario-row');
+        const emptyStateJS = document.getElementById('empty-state-js');
+        const emptyNative = document.getElementById('empty-native');
+        const contadorMain = document.getElementById('contador-usuarios');
+        const labelMostrando = document.getElementById('label-mostrando');
+
+        const normalizeText = (text) => text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        if(searchInput) {
+            searchInput.addEventListener('input', function(e) {
+                const term = normalizeText(e.target.value.toLowerCase().trim());
+                let visibles = 0;
+
+                rows.forEach(row => {
+                    const searchData = normalizeText(row.getAttribute('data-search') || '');
+                    
+                    if(searchData.includes(term)) {
+                        row.classList.remove('hidden');
+                        visibles++;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                // Manejo de Estados Vacíos
+                if(emptyNative) emptyNative.classList.add('hidden');
+                
+                if(visibles === 0 && rows.length > 0) {
+                    emptyStateJS.classList.remove('hidden');
+                } else {
+                    emptyStateJS.classList.add('hidden');
+                }
+
+                // Actualizar Contadores Visibles
+                contadorMain.textContent = visibles;
+                labelMostrando.textContent = `Mostrando ${visibles} analistas`;
+            });
         }
+
+        // ==========================================
+        // 2. PREVENCIÓN DOBLE CLIC EN ELIMINAR
+        // ==========================================
+        const formEliminar = document.getElementById('form-eliminar');
+        if(formEliminar) {
+            formEliminar.addEventListener('submit', function() {
+                const btn = document.getElementById('btn-eliminar-submit');
+                if(!btn) return;
+                
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-not-allowed', 'transform-none');
+                btn.querySelector('.btn-text').textContent = 'BORRANDO...';
+                btn.querySelector('.icon-loading').classList.remove('hidden', 'fa-trash');
+                btn.querySelector('.icon-loading').classList.add('fa-spinner', 'fa-spin');
+            });
+        }
+    });
+
+    // ==========================================
+    // 3. MOTOR DEL MODAL DE ELIMINACIÓN
+    // ==========================================
+    const modalEliminar = document.getElementById('modal-eliminar');
+    const formEliminar = document.getElementById('form-eliminar');
+    const labelUsername = document.getElementById('modal-username');
+    const modalContent = modalEliminar ? modalEliminar.querySelector('.modal-content') : null;
+
+    function abrirModalEliminar(idUsuario, username) {
+        // Generar URL Segura sin romper Django
+        const urlBase = "{% url 'eliminar_usuario' 999999 %}".replace('999999', idUsuario);
+        formEliminar.action = urlBase;
+        
+        labelUsername.textContent = username;
+
+        // Mostrar Modal con Animación
+        modalEliminar.classList.remove('hidden');
+        modalEliminar.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+        
+        setTimeout(() => {
+            modalEliminar.classList.remove('opacity-0');
+            if(modalContent) {
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }
+        }, 10);
+    }
+
+    function cerrarModalEliminar() {
+        modalEliminar.classList.add('opacity-0');
+        if(modalContent) {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+        }
+        
+        setTimeout(() => {
+            modalEliminar.classList.add('hidden');
+            modalEliminar.classList.remove('flex');
+            document.body.style.overflow = '';
+        }, 300); // Sincronizado con Tailwind duration-300
+    }
+
+    // UX: Cerrar con Escape o clic fuera
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalEliminar && !modalEliminar.classList.contains('hidden')) {
+            cerrarModalEliminar();
+        }
+    });
+
+    if(modalEliminar) {
+        modalEliminar.addEventListener('click', (e) => {
+            if (e.target === modalEliminar) cerrarModalEliminar();
+        });
     }
 </script>
 {% endblock %}
