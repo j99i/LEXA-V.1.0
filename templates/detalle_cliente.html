@@ -85,28 +85,35 @@
                 </a>
                 {% endif %}
                 
-                {% if user.rol == 'admin' %}
-                <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 shadow-md flex items-center gap-2 transition-colors">
-                    <i class="fas fa-link"></i> LINK CLIENTE
-                </a>
-                {% endif %}
+                {# === BOTONES QUE SOLO APARECEN EN LA RAÍZ === #}
+                {% if not carpeta_actual %}
+                    
+                    {% if user.rol == 'admin' %}
+                    <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 shadow-md flex items-center gap-2 transition-colors">
+                        <i class="fas fa-link"></i> LINK CLIENTE
+                    </a>
+                    {% endif %}
 
-                {% if user.access_contratos or user.rol == 'admin' %}
-                <a href="{% url 'generador_contratos' cliente.id %}" class="bg-[#A855F7] text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-[#9333EA] shadow-md flex items-center gap-2">
-                    <i class="fas fa-file-signature"></i> CONTRATO
-                </a>
+                    {% if user.access_contratos or user.rol == 'admin' %}
+                    <a href="{% url 'generador_contratos' cliente.id %}" class="bg-[#A855F7] text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-[#9333EA] shadow-md flex items-center gap-2">
+                        <i class="fas fa-file-signature"></i> CONTRATO
+                    </a>
+                    {% endif %}
+                    
+                    {% if user.can_create_client or user.rol == 'admin' %}
+                    <button onclick="openModal('modal-carpetas-especiales')" class="bg-yellow-400 text-[#2D1B4B] px-4 py-2 rounded-xl font-bold text-xs hover:bg-yellow-500 shadow-md flex items-center gap-1 transition-colors">
+                        <i class="fas fa-star"></i> ESPECIALES
+                    </button>
+                    {% endif %}
+
                 {% endif %}
+                {# ========================================== #}
                 
                 {% if carpeta_actual %}
                 <a href="{% url 'descargar_carpeta_zip' carpeta_actual.id %}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-blue-200"><i class="fas fa-file-archive"></i> ZIP</a>
                 {% endif %}
                 
                 {% if user.can_create_client or user.rol == 'admin' %}
-                
-                <button onclick="openModal('modal-carpetas-especiales')" class="bg-yellow-400 text-[#2D1B4B] px-4 py-2 rounded-xl font-bold text-xs hover:bg-yellow-500 shadow-md flex items-center gap-1 transition-colors">
-                    <i class="fas fa-star"></i> ESPECIALES
-                </button>
-                
                 <button onclick="openModal('modal-carpeta')" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50"><i class="fas fa-folder-plus"></i></button>
                 {% endif %}
                 
@@ -318,7 +325,7 @@
         </div>
     </div>
 
-    {# ==================== TAB: BITÁCORA ==================== #}
+    {# ==================== TAB: BITÁCORA CON FILTROS ==================== #}
     <div id="history-content" class="hidden animate__animated animate__fadeIn">
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
             <div class="flex justify-between items-center mb-6 border-b pb-4">
@@ -328,96 +335,150 @@
                 <span class="text-xs text-gray-400 font-bold">{{ historial|length }} registro(s)</span>
             </div>
 
+            {# --- BARRA DE FILTROS --- #}
+            <div class="flex flex-col md:flex-row gap-4 mb-6 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Acción</label>
+                    <select id="filter-accion" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                        <option value="all">Todas las acciones</option>
+                        <option value="subida">Subida</option>
+                        <option value="eliminacion">Eliminación</option>
+                        <option value="edicion">Edición / Movimiento</option>
+                        <option value="pago">Pago</option>
+                        <option value="generacion">Generación</option>
+                        <option value="correo">Correo</option>
+                        <option value="creacion">Creación</option>
+                        <option value="visualizacion">Visualización / Descarga</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Mes</label>
+                    <select id="filter-mes" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                        <option value="all">Todos los meses</option>
+                        <option value="01">Enero</option>
+                        <option value="02">Febrero</option>
+                        <option value="03">Marzo</option>
+                        <option value="04">Abril</option>
+                        <option value="05">Mayo</option>
+                        <option value="06">Junio</option>
+                        <option value="07">Julio</option>
+                        <option value="08">Agosto</option>
+                        <option value="09">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                </div>
+                <div class="flex-1">
+                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Día Específico</label>
+                    <input type="date" id="filter-fecha" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="limpiarFiltrosBitacora()" class="bg-gray-200 hover:bg-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm font-bold transition-colors w-full md:w-auto">
+                        <i class="fas fa-eraser"></i> Limpiar
+                    </button>
+                </div>
+            </div>
+
             {# --- Leyenda de colores --- #}
             <div class="flex flex-wrap gap-2 mb-6">
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700"><i class="fas fa-circle text-[8px]"></i> Subida</span>
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-red-700"><i class="fas fa-circle text-[8px]"></i> Eliminación</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><i class="fas fa-circle text-[8px]"></i> Edición</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><i class="fas fa-circle text-[8px]"></i> Edición / Mov.</span>
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700"><i class="fas fa-circle text-[8px]"></i> Pago</span>
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700"><i class="fas fa-circle text-[8px]"></i> Generación</span>
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700"><i class="fas fa-circle text-[8px]"></i> Correo</span>
                 <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-teal-100 text-teal-700"><i class="fas fa-circle text-[8px]"></i> Creación</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600"><i class="fas fa-circle text-[8px]"></i> Otros</span>
+                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600"><i class="fas fa-circle text-[8px]"></i> Otros / Visitas</span>
             </div>
 
             {% if historial %}
-            <div class="space-y-2">
+            <div class="space-y-2" id="contenedor-bitacora">
                 {% for b in historial %}
-                    {% if b.accion == 'subida' %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-cloud-upload-alt text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-green-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                    <div class="bitacora-item" data-accion="{{ b.accion|lower }}" data-fecha="{{ b.fecha|date:'Y-m-d' }}" data-mes="{{ b.fecha|date:'m' }}">
+                        {% if b.accion == 'subida' %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-cloud-upload-alt text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-green-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% elif b.accion == 'eliminacion' %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-trash text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-red-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                        {% elif b.accion == 'eliminacion' %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-trash text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-red-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% elif b.accion == 'edicion' %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-pen text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-blue-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                        {% elif b.accion == 'edicion' or b.accion == 'movimiento' %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-exchange-alt text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-blue-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% elif b.accion == 'pago' %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-yellow-100 bg-yellow-50/50 hover:bg-yellow-50 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-dollar-sign text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-yellow-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                        {% elif b.accion == 'pago' %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-yellow-100 bg-yellow-50/50 hover:bg-yellow-50 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-dollar-sign text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-yellow-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% elif b.accion == 'generacion' %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-magic text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-purple-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                        {% elif b.accion == 'generacion' %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-magic text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-purple-700 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% else %}
-                        <div class="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
-                            <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-info text-xs"></i></div>
-                            <div class="flex-1 min-w-0">
-                                <div class="flex items-center justify-between gap-2 flex-wrap">
-                                    <span class="text-xs font-black text-gray-600 uppercase tracking-wide">{{ b.accion }}</span>
-                                    <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                        {% else %}
+                            <div class="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
+                                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-info text-xs"></i></div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-center justify-between gap-2 flex-wrap">
+                                        <span class="text-xs font-black text-gray-600 uppercase tracking-wide">{{ b.accion }}</span>
+                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
+                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                                 </div>
-                                <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
                             </div>
-                        </div>
-                    {% endif %}
+                        {% endif %}
+                    </div>
                 {% endfor %}
             </div>
+
+            <div id="bitacora-no-results" class="hidden text-center py-10 text-gray-400 bg-gray-50 rounded-xl mt-4 border border-dashed border-gray-200">
+                <i class="fas fa-search text-3xl mb-3 opacity-30"></i>
+                <p class="font-bold text-sm">No se encontraron movimientos con estos filtros.</p>
+                <button onclick="limpiarFiltrosBitacora()" class="text-[#A855F7] hover:underline mt-2 text-xs font-bold">Ver todo el historial</button>
+            </div>
+
             {% else %}
             <div class="text-center py-20 text-gray-300">
                 <i class="fas fa-history text-5xl mb-4 opacity-40"></i>
@@ -453,13 +514,13 @@
             {% csrf_token %}
             <div class="max-h-[45vh] overflow-y-auto mb-6 pr-2 space-y-2 custom-scrollbar border-y border-gray-100 py-4">
                 
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="CARPETA ADMINISTRATIVA" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CARPETA ADMINISTRATIVA</span>
-                </label>
                 <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors border border-red-100 bg-red-50/30">
                     <input type="checkbox" name="carpetas" value="Autorizaciones liberadas" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
                     <span class="text-[10px] font-black text-red-600 uppercase"><i class="fas fa-shield-alt mr-1"></i> AUTORIZACIONES LIBERADAS</span>
+                </label>
+                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
+                    <input type="checkbox" name="carpetas" value="CARPETA ADMINISTRATIVA" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CARPETA ADMINISTRATIVA</span>
                 </label>
                 <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
                     <input type="checkbox" name="carpetas" value="LICENCIA DE FUNCIONAMIENTO" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
@@ -830,6 +891,53 @@
         openModal('modal-auditoria');
         
         viewer.onload = function() { loader.classList.add('hidden'); viewer.classList.remove('hidden'); };
+    }
+
+    // ==========================================
+    // LÓGICA DE FILTROS PARA BITÁCORA
+    // ==========================================
+    function filtrarBitacora() {
+        const accionVal = document.getElementById('filter-accion').value.toLowerCase();
+        const fechaVal = document.getElementById('filter-fecha').value;
+        const mesVal = document.getElementById('filter-mes').value;
+        
+        const items = document.querySelectorAll('.bitacora-item');
+        let visibles = 0;
+
+        items.forEach(item => {
+            const itemAccion = item.dataset.accion;
+            const itemFecha = item.dataset.fecha;
+            const itemMes = item.dataset.mes;
+
+            let mostrar = true;
+
+            if (accionVal !== 'all' && !itemAccion.includes(accionVal)) mostrar = false;
+            if (fechaVal && itemFecha !== fechaVal) mostrar = false;
+            if (mesVal !== 'all' && itemMes !== mesVal) mostrar = false;
+
+            if (mostrar) {
+                item.style.display = 'block';
+                visibles++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+
+        const noResults = document.getElementById('bitacora-no-results');
+        if (noResults) {
+            if (visibles === 0 && items.length > 0) {
+                noResults.classList.remove('hidden');
+            } else {
+                noResults.classList.add('hidden');
+            }
+        }
+    }
+
+    function limpiarFiltrosBitacora() {
+        document.getElementById('filter-accion').value = 'all';
+        document.getElementById('filter-fecha').value = '';
+        document.getElementById('filter-mes').value = 'all';
+        filtrarBitacora(); 
     }
 </script>
 {% endblock %}
