@@ -1695,6 +1695,9 @@ Gestiones Cordpad
 
     return redirect('detalle_cliente', cliente_id=cliente.id)
 
+# Asegúrate de tener 'Image' importado al principio de tu views.py, si no lo tienes agrégalo:
+# from PIL import Image
+
 @login_required
 @requiere_permiso('access_qr')
 def generador_qr(request):
@@ -1709,13 +1712,48 @@ def generador_qr(request):
         color_back = request.POST.get('color_back', '#FFFFFF')
 
         if data:
-            qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_H, box_size=10, border=4)
+            # 1. Creamos el QR base (Usamos ERROR_CORRECT_H para que soporte tapar el centro)
+            qr = qrcode.QRCode(
+                version=1, 
+                error_correction=qrcode.constants.ERROR_CORRECT_H, 
+                box_size=10, 
+                border=4
+            )
             qr.add_data(data)
             qr.make(fit=True)
-            img = qr.make_image(fill_color=color_fill, back_color=color_back)
+            
+            # Generamos la imagen del QR y la convertimos a formato RGBA (para soportar transparencias)
+            img_qr = qr.make_image(fill_color=color_fill, back_color=color_back).convert('RGBA')
 
+            # 2. Cargamos el logo de Corpad
+            logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
+            
+            if os.path.exists(logo_path):
+                from PIL import Image # Importación segura
+                
+                logo = Image.open(logo_path)
+                
+                # Calculamos el tamaño del logo (máximo el 25% del QR para no romper la lectura)
+                basewidth = int(img_qr.size[0] * 0.25)
+                wpercent = (basewidth / float(logo.size[0]))
+                hsize = int((float(logo.size[1]) * float(wpercent)))
+                
+                # Redimensionamos el logo
+                logo = logo.resize((basewidth, hsize), Image.Resampling.LANCZOS)
+                
+                # Calculamos la posición central exacta
+                pos_x = (img_qr.size[0] - logo.size[0]) // 2
+                pos_y = (img_qr.size[1] - logo.size[1]) // 2
+                
+                # Pegamos el logo en el centro del QR usando la máscara alfa si es PNG
+                if logo.mode in ('RGBA', 'LA') or (logo.mode == 'P' and 'transparency' in logo.info):
+                    img_qr.paste(logo, (pos_x, pos_y), logo)
+                else:
+                    img_qr.paste(logo, (pos_x, pos_y))
+
+            # 3. Convertimos la imagen final a Base64 para enviarla al template
             buffer = BytesIO()
-            img.save(buffer, format="PNG")
+            img_qr.save(buffer, format="PNG")
             img_str = base64.b64encode(buffer.getvalue()).decode()
             qr_url = f"data:image/png;base64,{img_str}"
 
@@ -1725,37 +1763,6 @@ def generador_qr(request):
         'color_fill': color_fill,
         'color_back': color_back
     })
-
-@login_required
-def buscar_cliente_api(request):
-    query = request.GET.get('q', '')
-    if len(query) < 2:
-        return JsonResponse([], safe=False)
-    
-    clientes_encontrados = Cliente.objects.filter(
-        Q(nombre_empresa__icontains=query) | 
-        Q(nombre_contacto__icontains=query)
-    )[:5]
-
-    resultados = []
-    for c in clientes_encontrados:
-        direccion = ""
-        cargo = ""
-        if c.datos_extra and isinstance(c.datos_extra, dict):
-            direccion = c.datos_extra.get('direccion', '')
-            cargo = c.datos_extra.get('cargo', '')
-
-        resultados.append({
-            'prospecto_empresa': c.nombre_empresa,
-            'prospecto_nombre': c.nombre_contacto,
-            'prospecto_email': c.email,
-            'prospecto_telefono': c.telefono,
-            'prospecto_direccion': direccion,
-            'prospecto_cargo': cargo
-        })
-
-    return JsonResponse(resultados, safe=False)
-
 @login_required
 def generar_link_externo(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
