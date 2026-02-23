@@ -69,8 +69,10 @@
                     <div class="input-group relative group">
                         <label for="username" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Usuario</label>
                         <div class="relative flex items-center">
-                            <i class="fas fa-user input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                            <input type="text" id="username" name="username" autocomplete="username" class="w-full pl-7 pr-4 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="Ej. administrador" required>
+                            <i class="fas fa-user input-icon text-gray-300 absolute left-0 text-sm smooth-transition" aria-hidden="true"></i>
+                            <input type="text" id="username" name="username" autocomplete="username" autofocus 
+                                class="w-full pl-7 pr-4 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
+                                placeholder="Ej. administrador" required>
                         </div>
                         <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
                     </div>
@@ -78,10 +80,14 @@
                     <div class="input-group relative group">
                         <label for="password" class="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1 block cursor-pointer">Contraseña</label>
                         <div class="relative flex items-center">
-                            <i class="fas fa-lock input-icon text-gray-300 absolute left-0 text-sm smooth-transition"></i>
-                            <input type="password" id="password" name="password" autocomplete="current-password" class="w-full pl-7 pr-10 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" placeholder="••••••••" required>
-                            <button type="button" onclick="togglePass()" class="absolute right-0 text-gray-300 hover:text-[#A855F7] focus:outline-none">
-                                <i id="eyeIcon" class="fas fa-eye text-sm"></i>
+                            <i class="fas fa-lock input-icon text-gray-300 absolute left-0 text-sm smooth-transition" aria-hidden="true"></i>
+                            <input type="password" id="password" name="password" autocomplete="current-password" 
+                                class="w-full pl-7 pr-10 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
+                                placeholder="••••••••" required>
+                            
+                            <button type="button" id="togglePassBtn" aria-label="Mostrar u ocultar contraseña" 
+                                class="absolute right-0 text-gray-300 hover:text-[#A855F7] focus:outline-none transition-colors">
+                                <i id="eyeIcon" class="fas fa-eye text-sm" aria-hidden="true"></i>
                             </button>
                         </div>
                         <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
@@ -95,9 +101,9 @@
                         <a href="{% url 'password_reset' %}" class="text-[10px] text-[#A855F7] font-black uppercase tracking-tighter hover:underline">¿Olvidaste tu contraseña?</a>
                     </div>
 
-                    <button type="submit" id="btnLogin" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group flex items-center justify-center">
+                    <button type="submit" id="btnLogin" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
                         <span id="btnText">Ingresar</span>
-                        <i id="btnIcon" class="fas fa-shield-alt ml-2 opacity-50 group-hover:opacity-100 transition-all"></i>
+                        <i id="btnIcon" class="fas fa-shield-alt ml-2 opacity-50 group-hover:opacity-100 transition-all" aria-hidden="true"></i>
                     </button>
                 </form>
 
@@ -114,27 +120,46 @@
     </div>
 
     <script>
-        function togglePass() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Lógica para mostrar/ocultar contraseña
+            const toggleBtn = document.getElementById('togglePassBtn');
             const passInput = document.getElementById('password');
             const eyeIcon = document.getElementById('eyeIcon');
-            if (passInput.type === 'password') {
-                passInput.type = 'text';
-                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-            } else {
-                passInput.type = 'password';
-                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-            }
-        }
 
-        document.getElementById('loginForm').onsubmit = function() {
-            const btn = document.getElementById('btnLogin');
-            const btnText = document.getElementById('btnText');
-            const btnIcon = document.getElementById('btnIcon');
-            btn.disabled = true;
-            btn.classList.add('opacity-80', 'cursor-not-allowed');
-            btnText.innerText = 'Validando...';
-            btnIcon.className = 'fas fa-circle-notch fa-spin ml-2';
-        }
+            if(toggleBtn && passInput && eyeIcon) {
+                toggleBtn.addEventListener('click', function() {
+                    if (passInput.type === 'password') {
+                        passInput.type = 'text';
+                        eyeIcon.classList.remove('fa-eye');
+                        eyeIcon.classList.add('fa-eye-slash');
+                    } else {
+                        passInput.type = 'password';
+                        eyeIcon.classList.remove('fa-eye-slash');
+                        eyeIcon.classList.add('fa-eye');
+                    }
+                });
+            }
+
+            // Lógica para evitar doble envío del formulario
+            const loginForm = document.getElementById('loginForm');
+            if(loginForm) {
+                loginForm.addEventListener('submit', function(e) {
+                    const btn = document.getElementById('btnLogin');
+                    
+                    if (btn.disabled) {
+                        e.preventDefault();
+                        return;
+                    }
+                    
+                    const btnText = document.getElementById('btnText');
+                    const btnIcon = document.getElementById('btnIcon');
+                    
+                    btn.disabled = true;
+                    btnText.innerText = 'VALIDANDO...';
+                    btnIcon.className = 'fas fa-circle-notch fa-spin ml-2 opacity-100';
+                });
+            }
+        });
     </script>
 </body>
 </html>

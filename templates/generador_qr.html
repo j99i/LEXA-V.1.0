@@ -3,9 +3,9 @@
 {% block content %}
 <div class="max-w-6xl mx-auto animate__animated animate__fadeIn px-4">
 
-    <div class="mb-8 flex items-center gap-4">
-        <div class="w-14 h-14 rounded-2xl bg-[#2D1B4B] flex items-center justify-center text-white text-2xl shadow-xl border-4 border-white">
-            <i class="fas fa-qrcode"></i>
+    <div class="mb-8 flex items-center gap-4 no-print">
+        <div class="w-14 h-14 rounded-2xl bg-[#2D1B4B] flex items-center justify-center text-white text-2xl shadow-xl border-4 border-white shrink-0">
+            <i class="fas fa-qrcode" aria-hidden="true"></i>
         </div>
         <div>
             <h2 class="text-3xl font-black text-[#2D1B4B] font-serif tracking-tight">Generador de Identidad QR</h2>
@@ -15,7 +15,7 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
-        <div class="lg:col-span-1">
+        <div class="lg:col-span-1 no-print">
             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100 h-full relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-24 h-24 bg-[#A855F7] opacity-5 rounded-full -mr-12 -mt-12"></div>
                 
@@ -26,28 +26,28 @@
                         <label for="id_data" class="block text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-3">Contenido o Enlace Final</label>
                         <textarea id="id_data" name="data" rows="4" 
                             class="w-full p-4 bg-gray-50 rounded-2xl border border-gray-100 focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 outline-none text-[#2D1B4B] font-bold text-sm resize-none transition-all placeholder-gray-300" 
-                            placeholder="https://applegal.com/ver/folio-123" required>{{ data_input }}</textarea>
+                            placeholder="https://applegal.com/ver/folio-123" required>{{ data_input|default:"" }}</textarea>
                     </div>
 
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Color QR</label>
-                            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 group hover:border-[#A855F7] transition-colors">
-                                <input type="color" name="color_fill" value="{{ color_fill|default:'#2D1B4B' }}" class="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent">
+                            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 group hover:border-[#A855F7] transition-colors" title="Color de los puntos del QR">
+                                <input type="color" name="color_fill" value="{{ color_fill|default:'#2D1B4B' }}" class="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent outline-none">
                                 <span class="text-[10px] font-bold text-[#2D1B4B]">PUNTOS</span>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest">Fondo</label>
-                            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 group hover:border-[#A855F7] transition-colors">
-                                <input type="color" name="color_back" value="{{ color_back|default:'#ffffff' }}" class="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent">
+                            <div class="flex items-center gap-3 bg-gray-50 p-3 rounded-2xl border border-gray-100 group hover:border-[#A855F7] transition-colors" title="Color del fondo del QR">
+                                <input type="color" name="color_back" value="{{ color_back|default:'#ffffff' }}" class="w-8 h-8 rounded-lg cursor-pointer border-none bg-transparent outline-none">
                                 <span class="text-[10px] font-bold text-[#2D1B4B]">FONDO</span>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" id="genBtn" class="w-full bg-[#2D1B4B] hover:bg-[#A855F7] text-white py-4 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg shadow-purple-200 transition-all transform active:scale-95 flex items-center justify-center gap-3 group">
-                        <i id="genIcon" class="fas fa-wand-magic-sparkles group-hover:rotate-12 transition-transform"></i> 
+                    <button type="submit" id="genBtn" class="w-full bg-[#2D1B4B] hover:bg-[#A855F7] text-white py-4 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg shadow-purple-200 transition-all transform active:scale-95 flex items-center justify-center gap-3 group disabled:opacity-70 disabled:cursor-not-allowed">
+                        <i id="genIcon" class="fas fa-wand-magic-sparkles group-hover:rotate-12 transition-transform" aria-hidden="true"></i> 
                         <span id="genText">Generar Código</span>
                     </button>
                 </form>
@@ -55,42 +55,45 @@
         </div>
 
         <div class="lg:col-span-2">
-            <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100 h-full flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]">
+            <div class="bg-white p-8 md:p-12 rounded-[2.5rem] shadow-xl shadow-gray-100/50 border border-gray-100 h-full flex flex-col items-center justify-center relative overflow-hidden min-h-[400px] print-container">
                 
                 {% if qr_url %}
-                    <div class="relative group animate__animated animate__zoomIn">
-                        <div class="absolute -inset-4 bg-gradient-to-tr from-[#A855F7] to-[#2D1B4B] rounded-[2rem] opacity-10 blur-xl group-hover:opacity-20 transition-opacity"></div>
-                        <div class="bg-white p-6 rounded-[2rem] shadow-2xl border border-gray-100 relative">
-                            <img src="{{ qr_url }}" alt="Código QR Generado" class="w-64 h-64 object-contain rounded-xl">
+                    <div class="print-area flex flex-col items-center">
+                        <div class="relative group animate__animated animate__zoomIn">
+                            <div class="absolute -inset-4 bg-gradient-to-tr from-[#A855F7] to-[#2D1B4B] rounded-[2rem] opacity-10 blur-xl group-hover:opacity-20 transition-opacity no-print"></div>
+                            <div class="bg-white p-6 rounded-[2rem] shadow-2xl border border-gray-100 relative">
+                                <img src="{{ qr_url }}" alt="Código QR Generado" class="w-64 h-64 object-contain rounded-xl">
+                            </div>
+                        </div>
+
+                        <div class="mt-8 px-6 py-3 bg-purple-50 rounded-full border border-purple-100 print-text-black">
+                            <p class="text-[10px] text-[#A855F7] font-black uppercase tracking-widest text-center print-text-black">
+                                Destino: <span class="text-[#2D1B4B] ml-1 print-text-black">{{ data_input|default:'Sin destino especificado'|truncatechars:50 }}</span>
+                            </p>
                         </div>
                     </div>
 
-                    <div class="flex flex-wrap justify-center gap-4 mt-10">
+                    <div class="flex flex-wrap justify-center gap-4 mt-10 no-print">
                         <a href="{{ qr_url }}" download="QR_AppLegal.png" class="bg-[#2D1B4B] hover:bg-[#A855F7] text-white px-8 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase shadow-lg transition-all flex items-center gap-3">
-                            <i class="fas fa-download"></i> Descargar Imagen
+                            <i class="fas fa-download" aria-hidden="true"></i> Descargar Imagen
                         </a>
-                        <button onclick="window.print()" class="bg-gray-50 hover:bg-gray-100 text-[#2D1B4B] px-6 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all flex items-center gap-3">
-                            <i class="fas fa-print"></i> Imprimir
+                        <button type="button" onclick="window.print()" class="bg-gray-50 hover:bg-gray-100 text-[#2D1B4B] px-6 py-4 rounded-2xl font-black text-[10px] tracking-widest uppercase transition-all flex items-center gap-3 border border-gray-200 shadow-sm">
+                            <i class="fas fa-print" aria-hidden="true"></i> Imprimir
                         </button>
                     </div>
 
-                    <div class="mt-8 px-6 py-3 bg-purple-50 rounded-full border border-purple-100">
-                        <p class="text-[10px] text-[#A855F7] font-black uppercase tracking-widest text-center">
-                            Destino: <span class="text-[#2D1B4B] ml-1">{{ data_input|truncatechars:40 }}</span>
-                        </p>
-                    </div>
                 {% else %}
-                    <div class="text-center group">
-                        <div class="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
-                            <i class="fas fa-qrcode text-6xl text-gray-200"></i>
+                    <div class="text-center group no-print">
+                        <div class="w-32 h-32 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500 border border-gray-100">
+                            <i class="fas fa-qrcode text-6xl text-gray-200" aria-hidden="true"></i>
                         </div>
                         <h3 class="text-xl font-black text-[#2D1B4B] font-serif mb-2">Visualización Previa</h3>
                         <p class="text-sm text-gray-400 max-w-xs mx-auto">Ingresa los datos en el panel izquierdo para generar una vista previa del código QR.</p>
                     </div>
                 {% endif %}
 
-                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-50 rounded-full blur-3xl opacity-50 -z-10"></div>
-                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl opacity-50 -z-10"></div>
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-purple-50 rounded-full blur-3xl opacity-50 -z-10 no-print"></div>
+                <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-blue-50 rounded-full blur-3xl opacity-50 -z-10 no-print"></div>
             </div>
         </div>
 
@@ -98,24 +101,56 @@
 </div>
 
 <script>
-    document.getElementById('qrForm').onsubmit = function() {
-        const btn = document.getElementById('genBtn');
-        const text = document.getElementById('genText');
-        const icon = document.getElementById('genIcon');
+    document.addEventListener("DOMContentLoaded", () => {
+        const qrForm = document.getElementById('qrForm');
         
-        btn.disabled = true;
-        btn.classList.add('opacity-70', 'cursor-not-allowed');
-        text.innerText = 'PROCESANDO...';
-        icon.className = 'fas fa-sync fa-spin';
-    };
+        if(qrForm) {
+            qrForm.addEventListener('submit', function(e) {
+                const btn = document.getElementById('genBtn');
+                
+                // Prevenir doble envío
+                if (btn.disabled) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                const text = document.getElementById('genText');
+                const icon = document.getElementById('genIcon');
+                
+                // Cambiar estado visual del botón
+                btn.disabled = true;
+                text.innerText = 'PROCESANDO...';
+                icon.className = 'fas fa-sync fa-spin';
+            });
+        }
+    });
 </script>
 
 <style>
+    /* Estilos súper limpios para impresión */
     @media print {
+        @page { margin: 1cm; }
+        
+        /* Ocultar elementos innecesarios y limpiar fondos */
+        body { background: white !important; }
+        aside, header, nav, .no-print { display: none !important; }
+        
+        /* Aislar la zona de impresión */
         body * { visibility: hidden; }
-        .lg\:col-span-2, .lg\:col-span-2 * { visibility: visible; }
-        .lg\:col-span-2 { position: absolute; left: 0; top: 0; width: 100%; }
-        .flex.gap-4 { display: none; } /* Ocultar botones de descarga al imprimir */
+        .print-area, .print-area * { visibility: visible; }
+        
+        /* Centrar la tarjeta del QR en la hoja impresa */
+        .print-area { 
+            position: absolute; 
+            left: 50%; 
+            top: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 100%; 
+            text-align: center; 
+        }
+
+        /* Asegurar que el texto se lea bien (quitar fondos tenues si la impresora es a B/N) */
+        .print-text-black { color: black !important; border: none !important; }
     }
 </style>
 {% endblock %}
