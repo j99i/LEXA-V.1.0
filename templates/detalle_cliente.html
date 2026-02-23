@@ -2,123 +2,129 @@
 {% load static %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto animate__animated animate__fadeIn relative">
+<div class="max-w-7xl mx-auto animate__animated animate__fadeIn relative pb-10">
     
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
         <div class="flex items-center gap-4 w-full">
-            <div class="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden">
+            <div class="w-16 h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
                 {% if cliente.logo %}
-                <img src="{{ cliente.logo.url }}" class="w-full h-full object-cover">
+                <img src="{{ cliente.logo.url }}" class="w-full h-full object-cover" alt="Logo de {{ cliente.nombre_empresa }}">
                 {% else %}
-                <span class="text-2xl font-black text-gray-300">{{ cliente.nombre_empresa|slice:":1" }}</span>
+                <span class="text-2xl font-black text-gray-300">{{ cliente.nombre_empresa|slice:":1"|upper }}</span>
                 {% endif %}
             </div>
             <div>
-                <h2 class="text-2xl font-black text-[#2D1B4B] leading-none">{{ cliente.nombre_empresa }}</h2>
+                <h2 class="text-2xl font-black text-[#2D1B4B] leading-none">{{ cliente.nombre_empresa|default:"Cliente" }}</h2>
                 {% if user.rol == 'admin' %}
-                    <p class="text-xs text-gray-400 mt-1">{{ cliente.nombre_contacto }} | {{ cliente.telefono }}</p>
+                    <p class="text-xs text-gray-400 mt-1"><i class="fas fa-user-circle mr-1" aria-hidden="true"></i> {{ cliente.nombre_contacto }} | {{ cliente.telefono }}</p>
                 {% else %}
-                    <p class="text-xs text-gray-400 mt-1">Contacto restringido</p>
+                    <p class="text-xs text-gray-400 mt-1"><i class="fas fa-lock mr-1" aria-hidden="true"></i> Contacto restringido</p>
                 {% endif %}
                 
                 {% if not carpeta_actual %}
                     {% if user.can_edit_client or user.rol == 'admin' %}
-                    <div class="flex flex-wrap items-center mt-2">
-                        <a href="{% url 'editar_cliente' cliente.id %}" class="inline-flex items-center gap-1 text-[10px] font-bold text-[#A855F7] hover:underline bg-purple-50 px-2 py-1 rounded-md mr-2">
-                            <i class="fas fa-pen"></i> Editar Información
+                    <div class="flex flex-wrap items-center mt-3 gap-2">
+                        <a href="{% url 'editar_cliente' cliente.id %}" class="inline-flex items-center gap-1 text-[10px] font-bold text-[#A855F7] hover:underline bg-purple-50 px-2 py-1.5 rounded-md transition-colors">
+                            <i class="fas fa-pen" aria-hidden="true"></i> Editar Información
                         </a>
-                        <a href="{% url 'enviar_correo_universal' cliente.id 'recordatorio' %}" class="inline-flex items-center gap-1 text-[10px] font-bold text-white hover:bg-orange-600 bg-orange-500 px-3 py-1 rounded-md shadow-md transition-colors">
-                            <i class="fas fa-bell"></i> Recordar Faltantes
+                        <a href="{% url 'enviar_correo_universal' cliente.id 'recordatorio' %}" class="inline-flex items-center gap-1 text-[10px] font-bold text-white hover:bg-orange-600 bg-orange-500 px-3 py-1.5 rounded-md shadow-sm transition-colors">
+                            <i class="fas fa-bell" aria-hidden="true"></i> Recordar Faltantes
                         </a>
                     </div>
                     {% endif %}
                 {% endif %}
             </div>
         </div>
-        <div class="flex gap-4 text-right">
-            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Archivos</p><p class="text-xl font-black text-[#2D1B4B]">{{ stats_cliente.total_docs }}</p></div>
-            <div><p class="text-[10px] font-bold text-gray-400 uppercase">Casos</p><p class="text-xl font-black text-[#2D1B4B]">{{ stats_cliente.expedientes_activos }}</p></div>
+        <div class="flex gap-6 text-right bg-gray-50 px-6 py-3 rounded-2xl border border-gray-100 w-full md:w-auto shrink-0">
+            <div>
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Archivos</p>
+                <p class="text-xl font-black text-[#2D1B4B]">{{ stats_cliente.total_docs|default:"0" }}</p>
+            </div>
+            <div class="border-l border-gray-200 pl-6">
+                <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Casos</p>
+                <p class="text-xl font-black text-[#2D1B4B]">{{ stats_cliente.expedientes_activos|default:"0" }}</p>
+            </div>
         </div>
     </div>
 
     <div class="mb-6 border-b border-gray-200">
-        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center">
-            <li class="mr-2">
-                <button class="inline-block p-4 border-b-2 rounded-t-lg border-[#A855F7] text-[#2D1B4B] font-bold" id="drive-tab" onclick="switchTab('drive')">
-                    <i class="fas fa-folder-open mr-2"></i> Expediente
+        <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" role="tablist">
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 rounded-t-lg border-[#A855F7] text-[#2D1B4B] font-black tracking-wide transition-colors" id="drive-tab" onclick="switchTab('drive')" role="tab" aria-selected="true">
+                    <i class="fas fa-folder-open mr-2 text-[#A855F7]" aria-hidden="true"></i> Expediente
                 </button>
             </li>
-            <li class="mr-2">
-                <button class="inline-block p-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600" id="rec-tab" onclick="switchTab('rec')">
-                    <i class="fas fa-calendar-check mr-2"></i> Agenda y Recordatorios
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-bold transition-colors" id="rec-tab" onclick="switchTab('rec')" role="tab" aria-selected="false">
+                    <i class="fas fa-calendar-check mr-2" aria-hidden="true"></i> Agenda y Tareas
                 </button>
             </li>
-            <li class="mr-2">
-                <button class="inline-block p-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600" id="history-tab" onclick="switchTab('history')">
-                    <i class="fas fa-history mr-2"></i> Bitácora
+            <li class="mr-2" role="presentation">
+                <button class="inline-block p-4 border-b-2 border-transparent text-gray-400 hover:text-gray-600 font-bold transition-colors" id="history-tab" onclick="switchTab('history')" role="tab" aria-selected="false">
+                    <i class="fas fa-history mr-2" aria-hidden="true"></i> Bitácora
                     {% if historial %}
-                    <span class="ml-1 bg-purple-100 text-purple-700 text-[10px] font-black px-2 py-0.5 rounded-full">{{ historial|length }}</span>
+                    <span class="ml-1 bg-gray-100 text-gray-500 text-[10px] font-black px-2 py-0.5 rounded-full" id="badge-history">{{ historial|length }}</span>
                     {% endif %}
                 </button>
             </li>
         </ul>
     </div>
 
-    {# ==================== TAB: EXPEDIENTE ==================== #}
+    {# ==================== TAB: EXPEDIENTE (DRIVE) ==================== #}
     <div id="drive-content" class="animate__animated animate__fadeIn">
         
-        <div class="flex justify-between items-center mb-4">
-            <nav class="flex text-sm font-bold text-gray-400">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+            <nav class="flex text-sm font-bold text-gray-400 bg-white px-4 py-2 rounded-xl shadow-sm border border-gray-100">
                 {% if carpeta_actual %}
-                <a href="{% url 'detalle_cliente' cliente.id %}" class="hover:text-[#2D1B4B]"><i class="fas fa-home"></i></a>
-                {% for crumb in breadcrumbs %}
-                <span class="mx-2">/</span> <a href="{% url 'detalle_carpeta' cliente.id crumb.id %}" class="hover:text-[#2D1B4B]">{{ crumb.nombre }}</a>
-                {% endfor %}
-                <span class="mx-2">/</span> <span class="text-[#2D1B4B]">{{ carpeta_actual.nombre }}</span>
-                {% else %} <span class="text-[#2D1B4B]">Carpeta Raíz</span> {% endif %}
+                    <a href="{% url 'detalle_cliente' cliente.id %}" class="hover:text-[#A855F7] transition-colors"><i class="fas fa-home" aria-hidden="true"></i></a>
+                    {% for crumb in breadcrumbs %}
+                        <span class="mx-2 text-gray-300">/</span> 
+                        <a href="{% url 'detalle_carpeta' cliente.id crumb.id %}" class="hover:text-[#A855F7] transition-colors">{{ crumb.nombre }}</a>
+                    {% endfor %}
+                    <span class="mx-2 text-gray-300">/</span> 
+                    <span class="text-[#2D1B4B]">{{ carpeta_actual.nombre }}</span>
+                {% else %} 
+                    <span class="text-[#2D1B4B]"><i class="fas fa-hdd mr-2 text-[#A855F7]" aria-hidden="true"></i> Raíz del Expediente</span> 
+                {% endif %}
             </nav>
-            <div class="flex gap-2">
-                
+
+            <div class="flex flex-wrap gap-2 w-full md:w-auto">
                 {% if carpeta_actual and carpeta_actual.nombre == 'Autorizaciones liberadas' and user.rol == 'admin' %}
-                <a href="{% url 'preparar_entrega' cliente.id carpeta_actual.id %}" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:from-red-600 hover:to-red-700 shadow-lg flex items-center gap-2 animate__animated animate__pulse">
-                    <i class="fas fa-paper-plane"></i> ENVIAR AUTORIZACIONES
-                </a>
+                    <a href="{% url 'preparar_entrega' cliente.id carpeta_actual.id %}" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:from-red-600 hover:to-red-700 shadow-lg flex items-center gap-2 animate__animated animate__pulse">
+                        <i class="fas fa-paper-plane" aria-hidden="true"></i> ENVIAR AUTORIZACIONES
+                    </a>
                 {% endif %}
                 
-                {# === BOTONES QUE SOLO APARECEN EN LA RAÍZ === #}
                 {% if not carpeta_actual %}
-                    
                     {% if user.rol == 'admin' %}
-                    <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 shadow-md flex items-center gap-2 transition-colors">
-                        <i class="fas fa-link"></i> LINK CLIENTE
+                    <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-50 text-indigo-600 border border-indigo-200 px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-indigo-600 hover:text-white shadow-sm flex items-center gap-2 transition-all">
+                        <i class="fas fa-link" aria-hidden="true"></i> Link Cliente
                     </a>
                     {% endif %}
-
                     {% if user.access_contratos or user.rol == 'admin' %}
-                    <a href="{% url 'generador_contratos' cliente.id %}" class="bg-[#A855F7] text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-[#9333EA] shadow-md flex items-center gap-2">
-                        <i class="fas fa-file-signature"></i> CONTRATO
+                    <a href="{% url 'generador_contratos' cliente.id %}" class="bg-purple-50 text-[#A855F7] border border-purple-200 px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#A855F7] hover:text-white shadow-sm flex items-center gap-2 transition-all">
+                        <i class="fas fa-file-signature" aria-hidden="true"></i> Contrato
                     </a>
                     {% endif %}
-                    
                     {% if user.can_create_client or user.rol == 'admin' %}
-                    <button onclick="openModal('modal-carpetas-especiales')" class="bg-yellow-400 text-[#2D1B4B] px-4 py-2 rounded-xl font-bold text-xs hover:bg-yellow-500 shadow-md flex items-center gap-1 transition-colors">
-                        <i class="fas fa-star"></i> ESPECIALES
+                    <button type="button" onclick="openModal('modal-carpetas-especiales')" class="bg-yellow-50 text-yellow-600 border border-yellow-200 px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-yellow-400 hover:text-[#2D1B4B] shadow-sm flex items-center gap-1 transition-all focus:outline-none">
+                        <i class="fas fa-star" aria-hidden="true"></i> Especiales
                     </button>
                     {% endif %}
-
                 {% endif %}
-                {# ========================================== #}
                 
                 {% if carpeta_actual %}
-                <a href="{% url 'descargar_carpeta_zip' carpeta_actual.id %}" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-blue-200"><i class="fas fa-file-archive"></i> ZIP</a>
+                    <a href="{% url 'descargar_carpeta_zip' carpeta_actual.id %}" class="bg-blue-50 text-blue-600 border border-blue-200 px-4 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-blue-500 hover:text-white transition-all"><i class="fas fa-file-archive mr-1" aria-hidden="true"></i> ZIP</a>
                 {% endif %}
                 
                 {% if user.can_create_client or user.rol == 'admin' %}
-                <button onclick="openModal('modal-carpeta')" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50"><i class="fas fa-folder-plus"></i></button>
+                    <button type="button" onclick="openModal('modal-carpeta')" class="bg-white border border-gray-200 text-gray-700 px-4 py-2 rounded-xl font-bold text-xs hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-gray-200" title="Nueva Carpeta"><i class="fas fa-folder-plus" aria-hidden="true"></i></button>
                 {% endif %}
                 
                 {% if user.can_upload_files or user.rol == 'admin' %}
-                <button onclick="openModal('modal-archivo')" class="bg-[#2D1B4B] text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-[#1E1233] shadow-lg"><i class="fas fa-cloud-upload-alt"></i> SUBIR</button>
+                    <button type="button" onclick="openModal('modal-archivo')" class="bg-[#2D1B4B] text-white px-5 py-2 rounded-xl font-bold text-[10px] uppercase tracking-widest hover:bg-[#A855F7] shadow-lg transition-all flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-purple-300">
+                        <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i> SUBIR
+                    </button>
                 {% endif %}
             </div>
         </div>
@@ -126,15 +132,15 @@
         {% if archivos_pendientes %}
         <div class="bg-gradient-to-r from-gray-900 to-[#2D1B4B] p-6 rounded-[2rem] shadow-xl mb-8 relative overflow-hidden animate__animated animate__fadeIn">
             <div class="absolute top-0 right-0 opacity-10 transform translate-x-10 -translate-y-10">
-                <i class="fas fa-search-dollar text-9xl text-white"></i>
+                <i class="fas fa-search-dollar text-9xl text-white" aria-hidden="true"></i>
             </div>
             <div class="flex justify-between items-center mb-6 relative z-10">
                 <div>
                     <h3 class="text-xl font-black text-white flex items-center gap-3">
-                        <span class="bg-yellow-400 text-[#2D1B4B] text-xs px-2 py-1 rounded-md font-bold animate-pulse">ACCIÓN REQUERIDA</span>
+                        <span class="bg-yellow-400 text-[#2D1B4B] text-[10px] px-2 py-1 rounded-md font-black tracking-widest uppercase animate-pulse">Revisión Requerida</span>
                         Auditoría de Documentos
                     </h3>
-                    <p class="text-gray-300 text-sm mt-1">El cliente ha enviado <strong>{{ archivos_pendientes.count }}</strong> archivos para revisión.</p>
+                    <p class="text-gray-300 text-sm mt-1">El cliente ha enviado <strong>{{ archivos_pendientes.count }}</strong> archivos pendientes de validación.</p>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 relative z-10">
@@ -142,15 +148,14 @@
                 <div class="bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-xl hover:bg-white/20 transition-all group">
                     <div class="flex justify-between items-start mb-3">
                         <div class="w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center text-white text-lg">
-                            <i class="fas fa-file-pdf"></i>
+                            <i class="fas fa-file-pdf" aria-hidden="true"></i>
                         </div>
                         <span class="text-[10px] text-gray-300 font-mono">{{ temp.fecha_subida|date:"d M H:i" }}</span>
                     </div>
                     <h4 class="font-bold text-white text-sm mb-1 truncate" title="{{ temp.nombre_requisito }}">{{ temp.nombre_requisito }}</h4>
-                    <p class="text-xs text-gray-400 mb-4">Pendiente de validación</p>
-                    <button onclick="abrirModalAuditoria('{{ temp.id }}', '{{ temp.nombre_requisito }}', '{{ temp.archivo.url }}')" 
-                       class="w-full bg-white text-[#2D1B4B] hover:bg-yellow-400 font-bold py-2 rounded-lg text-xs transition-colors shadow-lg flex items-center justify-center gap-2">
-                        <i class="fas fa-microscope"></i> AUDITAR AHORA
+                    <button type="button" onclick="abrirModalAuditoria('{{ temp.id }}', '{{ temp.nombre_requisito|escapejs }}', '{{ temp.archivo.url }}')" 
+                        class="w-full mt-3 bg-white text-[#2D1B4B] hover:bg-yellow-400 font-bold py-2 rounded-lg text-xs transition-colors shadow-lg flex items-center justify-center gap-2 focus:outline-none">
+                        <i class="fas fa-microscope" aria-hidden="true"></i> AUDITAR AHORA
                     </button>
                 </div>
                 {% endfor %}
@@ -158,56 +163,50 @@
         </div>
         {% endif %}
 
-        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[500px]">
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[400px]">
             
             {% if carpetas %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {% for carpeta in carpetas %}
-                
                 <div class="rounded-xl p-4 border shadow-sm relative transition-all hover:shadow-md 
-                    {% if carpeta.nombre == 'Autorizaciones liberadas' %}
-                        bg-red-50 border-red-300 shadow-red-100
-                    {% else %}
-                        bg-gray-50 border-gray-200 
-                    {% endif %}">
+                    {% if carpeta.nombre == 'Autorizaciones liberadas' %}bg-red-50/50 border-red-200{% else %}bg-gray-50/50 border-gray-200{% endif %}">
                     
-                    <div class="flex items-center justify-between mb-4 pb-2 border-b 
-                        {% if carpeta.nombre == 'Autorizaciones liberadas' %}border-red-200{% else %}border-gray-200{% endif %}">
+                    <div class="flex items-center justify-between mb-4 pb-3 border-b {% if carpeta.nombre == 'Autorizaciones liberadas' %}border-red-200{% else %}border-gray-200{% endif %}">
                         <div class="flex items-center gap-3">
                             {% if carpeta.nombre == 'Autorizaciones liberadas' %}
-                                <i class="fas fa-shield-alt text-2xl text-red-500 animate-pulse"></i>
-                                <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="font-black text-red-600 uppercase text-sm hover:underline">{{ carpeta.nombre }}</a>
+                                <i class="fas fa-shield-alt text-2xl text-red-500 animate-pulse" aria-hidden="true"></i>
+                                <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="font-black text-red-600 uppercase text-xs tracking-wider hover:underline leading-tight">{{ carpeta.nombre }}</a>
                             {% else %}
-                                <i class="fas fa-folder text-2xl text-[#2D1B4B]"></i>
-                                <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="font-black text-[#2D1B4B] uppercase text-sm hover:underline">{{ carpeta.nombre }}</a>
+                                <i class="fas fa-folder text-2xl text-[#A855F7]" aria-hidden="true"></i>
+                                <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="font-black text-[#2D1B4B] uppercase text-xs tracking-wider hover:underline leading-tight">{{ carpeta.nombre }}</a>
                             {% endif %}
                         </div>
                         {% if user.can_delete_client or user.rol == 'admin' %}
-                        <a href="{% url 'eliminar_carpeta' carpeta.id %}" onclick="return confirm('¿Borrar carpeta?')" class="text-gray-300 hover:text-red-500"><i class="fas fa-times"></i></a>
+                        <a href="{% url 'eliminar_carpeta' carpeta.id %}" onclick="return confirm('¿Borrar carpeta permanentemente?')" class="text-gray-300 hover:text-red-500 transition-colors p-1"><i class="fas fa-times" aria-hidden="true"></i></a>
                         {% endif %}
                     </div>
 
                     {% with detalle=carpeta.obtener_detalle_cumplimiento %}
                     {% if detalle %}
-                        <div class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar">
+                        <div class="space-y-2 max-h-56 overflow-y-auto pr-1 custom-scrollbar">
                             {% for item in detalle %}
-                            <div class="flex justify-between items-center bg-white p-2 rounded-lg border 
-                                    {% if item.estado == 'ok' %}border-green-200 bg-green-50{% else %}border-red-100 bg-red-50{% endif %}">
+                            <div class="flex justify-between items-center bg-white p-2.5 rounded-lg border shadow-sm transition-colors
+                                    {% if item.estado == 'ok' %}border-green-200 bg-green-50/30 hover:border-green-300{% else %}border-red-100 bg-red-50/30 hover:border-red-200{% endif %}">
                                 <div class="flex items-center gap-2 overflow-hidden">
                                     {% if item.estado == 'ok' %}
-                                        <div class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm"><i class="fas fa-check"></i></div>
+                                        <div class="w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm"><i class="fas fa-check" aria-hidden="true"></i></div>
                                     {% else %}
-                                        <div class="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm animate-pulse"><i class="fas fa-times"></i></div>
+                                        <div class="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] shrink-0 shadow-sm animate-pulse"><i class="fas fa-times" aria-hidden="true"></i></div>
                                     {% endif %}
                                     <span class="text-[10px] font-bold text-gray-600 leading-tight truncate" title="{{ item.nombre }}">{{ item.nombre }}</span>
                                 </div>
                                 <div class="shrink-0 flex gap-1">
                                     {% if item.estado == 'ok' %}
-                                        <button type="button" onclick="abrirPreview('{{ item.doc.id }}')" class="w-6 h-6 rounded bg-white text-gray-500 border border-gray-200 hover:text-[#A855F7] flex items-center justify-center transition-colors"><i class="fas fa-eye text-[10px]"></i></button>
-                                        <button type="button" onclick="abrirModalMover('{{ item.doc.id }}', '{{ item.doc.nombre_archivo }}')" class="w-6 h-6 rounded bg-white text-blue-400 border border-gray-200 hover:text-blue-600 flex items-center justify-center transition-colors"><i class="fas fa-exchange-alt text-[10px]"></i></button>
-                                        <a href="{% url 'eliminar_archivo_drive' item.doc.id %}" onclick="return confirm('¿Eliminar documento? Volverá a estado ROJO.')" class="w-6 h-6 rounded bg-white text-red-300 border border-gray-200 hover:text-red-500 flex items-center justify-center transition-colors"><i class="fas fa-trash text-[10px]"></i></a>
+                                        <button type="button" onclick="abrirPreview('{{ item.doc.id }}')" class="w-6 h-6 rounded bg-white text-gray-500 border border-gray-200 hover:text-[#A855F7] hover:border-[#A855F7] flex items-center justify-center transition-colors focus:outline-none"><i class="fas fa-eye text-[10px]" aria-hidden="true"></i></button>
+                                        <button type="button" onclick="abrirModalMover('{{ item.doc.id }}', '{{ item.doc.nombre_archivo|escapejs }}')" class="w-6 h-6 rounded bg-white text-blue-400 border border-gray-200 hover:text-blue-600 hover:border-blue-300 flex items-center justify-center transition-colors focus:outline-none"><i class="fas fa-exchange-alt text-[10px]" aria-hidden="true"></i></button>
+                                        <a href="{% url 'eliminar_archivo_drive' item.doc.id %}" onclick="return confirm('¿Eliminar documento? El semáforo volverá a ROJO.')" class="w-6 h-6 rounded bg-white text-red-400 border border-gray-200 hover:text-white hover:bg-red-500 hover:border-red-500 flex items-center justify-center transition-colors"><i class="fas fa-trash text-[10px]" aria-hidden="true"></i></a>
                                     {% else %}
-                                        <button type="button" onclick="abrirModalRequisito('{{ carpeta.id }}', '{{ item.nombre }}')" class="px-2 py-1 bg-[#2D1B4B] text-white text-[9px] font-bold rounded hover:bg-[#A855F7] transition-colors shadow-sm">SUBIR</button>
+                                        <button type="button" onclick="abrirModalRequisito('{{ carpeta.id }}', '{{ item.nombre|escapejs }}')" class="px-2 py-1 bg-[#2D1B4B] text-white text-[9px] font-bold rounded hover:bg-[#A855F7] transition-colors shadow-sm focus:outline-none">SUBIR</button>
                                     {% endif %}
                                 </div>
                             </div>
@@ -215,14 +214,13 @@
                         </div>
                     {% else %}
                         <div class="text-center py-6 text-gray-400 text-xs">
-                            <i class="fas fa-folder-open text-3xl mb-2 opacity-30"></i>
+                            <i class="fas fa-folder-open text-3xl mb-2 opacity-30" aria-hidden="true"></i>
                             <p>Carpeta general</p>
                             <a href="{% url 'detalle_carpeta' cliente.id carpeta.id %}" class="text-[#A855F7] hover:underline mt-2 inline-block font-bold">Ver contenido</a>
                         </div>
                     {% endif %}
                     {% endwith %}
                 </div>
-                
                 {% endfor %}
             </div>
             {% endif %}
@@ -230,46 +228,57 @@
             <form id="form-masivo" action="{% url 'acciones_masivas_drive' %}" method="POST">
                 {% csrf_token %}
                 <input type="hidden" name="accion" id="input-accion">
+                
                 {% if documentos %}
-                <h3 class="text-sm font-bold text-gray-400 uppercase mb-4 mt-8 border-b pb-2">Archivos Sueltos / Otros</h3>
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="text-xs text-gray-400 border-b border-gray-100">
-                            <th class="py-2 pl-2 w-10"><input type="checkbox" onclick="toggleTodos(this)" class="rounded text-[#2D1B4B] accent-[#A855F7]"></th>
-                            <th class="py-2 font-bold uppercase w-1/2">Nombre</th>
-                            <th class="py-2 font-bold uppercase">Fecha</th>
-                            <th class="py-2 font-bold uppercase text-right">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-sm">
-                        {% for doc in documentos %}
-                        <tr class="border-b border-gray-50 hover:bg-gray-50 group">
-                            <td class="py-3 pl-2"><input type="checkbox" name="doc_ids" value="{{ doc.id }}" class="doc-check rounded text-[#2D1B4B] accent-[#A855F7]" onchange="verificarSeleccion()"></td>
-                            <td class="py-3 flex items-center gap-3">
-                                <i class="fas fa-file text-gray-400"></i>
-                                <span class="font-bold text-[#2D1B4B] truncate max-w-xs cursor-pointer hover:underline" onclick="abrirPreview('{{ doc.id }}')">{{ doc.nombre_archivo }}</span>
-                                {% if doc.fecha_vencimiento %}
-                                    <span class="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full font-bold ml-2 shadow-sm border border-orange-200">
-                                        <i class="fas fa-clock mr-1"></i> Vence: {{ doc.fecha_vencimiento|date:"d/m/y" }}
-                                    </span>
-                                {% endif %}
-                            </td>
-                            <td class="py-3 text-gray-500 text-xs">{{ doc.fecha_subida|date:"d/m/y" }}</td>
-                            <td class="py-3 text-right">
-                                <button type="button" onclick="abrirPreview('{{ doc.id }}')" class="text-gray-400 hover:text-[#A855F7] mx-1"><i class="fas fa-eye"></i></button>
-                                <a href="{% url 'descargar_archivo_oficial' doc.id %}" class="text-gray-400 hover:text-[#2D1B4B] mx-1" title="Descargar"><i class="fas fa-download"></i></a>
-                                <button type="button" onclick="abrirModalMover('{{ doc.id }}', '{{ doc.nombre_archivo }}')" class="text-blue-400 hover:text-blue-600 mx-1"><i class="fas fa-exchange-alt"></i></button>
-                                {% if user.can_delete_client or user.rol == 'admin' %}
-                                <a href="{% url 'eliminar_archivo_drive' doc.id %}" onclick="return confirm('¿Estás seguro de eliminar este archivo?')" class="text-red-300 hover:text-red-500 mx-1"><i class="fas fa-trash"></i></a>
-                                {% endif %}
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+                <h3 class="text-xs font-black text-gray-400 uppercase tracking-widest mb-4 mt-8 border-b pb-2">Archivos Sueltos / Otros</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                                <th class="py-3 pl-3 w-10"><input type="checkbox" onclick="toggleTodos(this)" class="rounded text-[#A855F7] focus:ring-[#A855F7] border-gray-300 cursor-pointer"></th>
+                                <th class="py-3 font-bold w-1/2">Nombre del Documento</th>
+                                <th class="py-3 font-bold">Fecha de Carga</th>
+                                <th class="py-3 font-bold text-right pr-3">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            {% for doc in documentos %}
+                            <tr class="border-b border-gray-50 hover:bg-purple-50/30 transition-colors group">
+                                <td class="py-3 pl-3"><input type="checkbox" name="doc_ids" value="{{ doc.id }}" class="doc-check rounded text-[#A855F7] focus:ring-[#A855F7] border-gray-300 cursor-pointer" onchange="verificarSeleccion()"></td>
+                                <td class="py-3 flex items-center gap-3">
+                                    <i class="fas fa-file-alt text-gray-300 group-hover:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+                                    <span class="font-bold text-[#2D1B4B] truncate max-w-[200px] md:max-w-xs cursor-pointer hover:text-[#A855F7] transition-colors" onclick="abrirPreview('{{ doc.id }}')">{{ doc.nombre_archivo }}</span>
+                                    {% if doc.fecha_vencimiento %}
+                                        <span class="text-[9px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-md font-bold ml-2 shadow-sm border border-orange-200 tracking-wider uppercase">
+                                            <i class="fas fa-clock mr-1" aria-hidden="true"></i> Vence: {{ doc.fecha_vencimiento|date:"d/m/y" }}
+                                        </span>
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 text-gray-500 text-xs font-medium">{{ doc.fecha_subida|date:"d M Y" }}</td>
+                                <td class="py-3 text-right pr-3">
+                                    <div class="flex items-center justify-end gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <button type="button" onclick="abrirPreview('{{ doc.id }}')" class="w-8 h-8 rounded-lg text-gray-400 hover:text-[#A855F7] hover:bg-purple-50 flex items-center justify-center transition-colors focus:outline-none" title="Vista Previa"><i class="fas fa-eye text-xs" aria-hidden="true"></i></button>
+                                        <a href="{% url 'descargar_archivo_oficial' doc.id %}" class="w-8 h-8 rounded-lg text-gray-400 hover:text-[#2D1B4B] hover:bg-gray-100 flex items-center justify-center transition-colors" title="Descargar"><i class="fas fa-download text-xs" aria-hidden="true"></i></a>
+                                        <button type="button" onclick="abrirModalMover('{{ doc.id }}', '{{ doc.nombre_archivo|escapejs }}')" class="w-8 h-8 rounded-lg text-blue-400 hover:text-blue-600 hover:bg-blue-50 flex items-center justify-center transition-colors focus:outline-none" title="Mover a Carpeta"><i class="fas fa-exchange-alt text-xs" aria-hidden="true"></i></button>
+                                        {% if user.can_delete_client or user.rol == 'admin' %}
+                                        <a href="{% url 'eliminar_archivo_drive' doc.id %}" onclick="return confirm('¿Estás seguro de eliminar permanentemente este archivo?')" class="w-8 h-8 rounded-lg text-red-400 hover:text-red-600 hover:bg-red-50 flex items-center justify-center transition-colors" title="Eliminar"><i class="fas fa-trash-alt text-xs" aria-hidden="true"></i></a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
                 {% else %}
                     {% if not carpetas %}
-                    <div class="text-center text-gray-300 py-20"><i class="fas fa-cloud-upload-alt text-6xl mb-4 opacity-50"></i><p class="font-bold text-sm">Carpeta vacía</p></div>
+                    <div class="text-center text-gray-300 py-24 flex flex-col items-center">
+                        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                            <i class="fas fa-folder-open text-3xl text-gray-200" aria-hidden="true"></i>
+                        </div>
+                        <p class="font-black text-xl text-[#2D1B4B] font-serif">Expediente Vacío</p>
+                        <p class="text-sm text-gray-400 mt-2 max-w-sm">Comienza subiendo archivos o creando la estructura de carpetas para este cliente.</p>
+                    </div>
                     {% endif %}
                 {% endif %}
             </form>
@@ -279,454 +288,335 @@
     {# ==================== TAB: AGENDA ==================== #}
     <div id="rec-content" class="hidden animate__animated animate__fadeIn">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-lg font-bold text-[#2D1B4B]"><i class="fas fa-tasks mr-2 text-orange-500"></i> Tareas Pendientes</h3>
-                    <button onclick="openModal('modal-tarea')" class="text-xs bg-orange-100 text-orange-600 px-3 py-1 rounded-full font-bold hover:bg-orange-200">+ Nueva</button>
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-50 pb-4">
+                    <h3 class="text-lg font-black text-[#2D1B4B]"><i class="fas fa-tasks mr-2 text-orange-500" aria-hidden="true"></i> Tareas Pendientes</h3>
+                    <button type="button" onclick="openModal('modal-tarea')" class="text-[10px] bg-orange-50 text-orange-600 px-4 py-2 rounded-xl font-black uppercase tracking-widest hover:bg-orange-500 hover:text-white transition-colors shadow-sm focus:outline-none">+ Nueva</button>
                 </div>
                 <div class="space-y-3">
                     {% for tarea in cliente.tareas.all %}
                         {% if not tarea.completada %}
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl hover:bg-white hover:shadow-md transition-all border border-transparent hover:border-orange-100">
-                            <div class="flex items-center gap-3">
-                                <a href="{% url 'toggle_tarea' tarea.id %}" class="w-5 h-5 border-2 border-gray-300 rounded-full hover:border-green-500 hover:bg-green-50"></a>
+                        <div class="flex items-center justify-between p-4 bg-gray-50/50 rounded-2xl hover:bg-white hover:shadow-md transition-all border border-gray-100 group">
+                            <div class="flex items-center gap-4">
+                                <a href="{% url 'toggle_tarea' tarea.id %}" class="w-6 h-6 border-2 border-gray-300 rounded-full hover:border-green-500 hover:bg-green-50 flex items-center justify-center text-transparent hover:text-green-500 transition-colors" title="Marcar como completada">
+                                    <i class="fas fa-check text-[10px]" aria-hidden="true"></i>
+                                </a>
                                 <div>
                                     <p class="text-sm font-bold text-[#2D1B4B]">{{ tarea.titulo }}</p>
-                                    <p class="text-[10px] text-red-500 font-bold">Vence: {{ tarea.fecha_limite|date:"d M Y" }}</p>
+                                    <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mt-0.5"><i class="fas fa-clock mr-1" aria-hidden="true"></i> Vence: {{ tarea.fecha_limite|date:"d M Y" }}</p>
                                 </div>
                             </div>
-                            <a href="{% url 'eliminar_tarea' tarea.id %}" onclick="return confirm('¿Borrar?')" class="text-gray-300 hover:text-red-500"><i class="fas fa-trash"></i></a>
+                            <a href="{% url 'eliminar_tarea' tarea.id %}" onclick="return confirm('¿Borrar tarea?')" class="text-gray-300 hover:text-red-500 p-2 transition-colors opacity-0 group-hover:opacity-100"><i class="fas fa-trash-alt" aria-hidden="true"></i></a>
                         </div>
                         {% endif %}
                     {% empty %}
-                        <p class="text-center text-gray-400 text-xs py-4">No hay tareas pendientes.</p>
+                        <div class="text-center py-10">
+                            <i class="fas fa-check-circle text-4xl text-gray-200 mb-3" aria-hidden="true"></i>
+                            <p class="text-gray-400 text-sm font-bold">Todo al día.</p>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#2D1B4B] mb-6"><i class="fas fa-calendar-alt mr-2 text-blue-500"></i> Eventos Próximos</h3>
-                <div class="space-y-3">
+            <div class="bg-white p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <h3 class="text-lg font-black text-[#2D1B4B] mb-6 border-b border-gray-50 pb-4"><i class="fas fa-calendar-alt mr-2 text-blue-500" aria-hidden="true"></i> Eventos Próximos</h3>
+                <div class="space-y-4">
                     {% for evento in cliente.eventos.all %}
-                    <div class="flex items-center gap-4 p-3 border-l-4 border-blue-500 bg-blue-50/30 rounded-r-xl">
-                        <div class="text-center">
-                            <p class="text-xs font-bold text-gray-400 uppercase">{{ evento.inicio|date:"M" }}</p>
-                            <p class="text-xl font-black text-[#2D1B4B]">{{ evento.inicio|date:"d" }}</p>
+                    <div class="flex items-center gap-5 p-4 border-l-4 border-blue-500 bg-blue-50/30 rounded-r-2xl border-y border-r border-gray-100">
+                        <div class="text-center shrink-0 w-12">
+                            <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{{ evento.inicio|date:"M" }}</p>
+                            <p class="text-2xl font-black text-[#2D1B4B] leading-none">{{ evento.inicio|date:"d" }}</p>
                         </div>
-                        <div>
+                        <div class="border-l border-blue-100 pl-5">
                             <p class="text-sm font-bold text-[#2D1B4B]">{{ evento.titulo }}</p>
-                            <p class="text-xs text-gray-500">{{ evento.inicio|date:"H:i" }} hrs - {{ evento.usuario.username }}</p>
+                            <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest mt-1">
+                                <i class="far fa-clock text-blue-400 mr-1" aria-hidden="true"></i> {{ evento.inicio|date:"H:i" }} hrs 
+                                <span class="mx-1 text-gray-300">|</span> 
+                                <i class="fas fa-user text-blue-400 mr-1" aria-hidden="true"></i> {{ evento.usuario.username }}
+                            </p>
                         </div>
                     </div>
                     {% empty %}
-                        <p class="text-center text-gray-400 text-xs py-4">No hay eventos programados.</p>
+                        <div class="text-center py-10">
+                            <i class="far fa-calendar-times text-4xl text-gray-200 mb-3" aria-hidden="true"></i>
+                            <p class="text-gray-400 text-sm font-bold">No hay eventos programados.</p>
+                        </div>
                     {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 
-    {# ==================== TAB: BITÁCORA CON FILTROS ==================== #}
+    {# ==================== TAB: BITÁCORA ==================== #}
     <div id="history-content" class="hidden animate__animated animate__fadeIn">
-        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
-                <h3 class="text-lg font-bold text-[#2D1B4B]">
-                    <i class="fas fa-list-alt mr-2"></i> Bitácora de Actividad
+        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+            <div class="flex justify-between items-center mb-6 border-b border-gray-100 pb-4">
+                <h3 class="text-xl font-black text-[#2D1B4B] font-serif">
+                    <i class="fas fa-history text-[#A855F7] mr-2" aria-hidden="true"></i> Registro de Actividad
                 </h3>
-                <span class="text-xs text-gray-400 font-bold">{{ historial|length }} registro(s)</span>
+                <span class="text-[10px] text-gray-400 font-black uppercase tracking-widest bg-gray-50 px-3 py-1 rounded-full">{{ historial|length }} movimientos</span>
             </div>
 
-            {# --- BARRA DE FILTROS --- #}
-            <div class="flex flex-col md:flex-row gap-4 mb-6 bg-purple-50/50 p-4 rounded-xl border border-purple-100">
+            <div class="flex flex-col md:flex-row gap-4 mb-8 bg-gray-50/50 p-5 rounded-2xl border border-gray-100">
                 <div class="flex-1">
-                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Acción</label>
-                    <select id="filter-accion" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1" for="filter-accion">Tipo de Acción</label>
+                    <select id="filter-accion" class="w-full mt-2 p-3 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] focus:border-[#A855F7] focus:ring-2 focus:ring-purple-50 outline-none transition-all cursor-pointer" onchange="filtrarBitacora()">
                         <option value="all">Todas las acciones</option>
-                        <option value="subida">Subida</option>
+                        <option value="subida">Subida de Documentos</option>
                         <option value="eliminacion">Eliminación</option>
                         <option value="edicion">Edición / Movimiento</option>
-                        <option value="pago">Pago</option>
-                        <option value="generacion">Generación</option>
-                        <option value="correo">Correo</option>
-                        <option value="creacion">Creación</option>
-                        <option value="visualizacion">Visualización / Descarga</option>
+                        <option value="pago">Registro de Pago</option>
+                        <option value="generacion">Generación Docs/Links</option>
+                        <option value="correo">Envío de Correos</option>
+                        <option value="creacion">Creación Carpetas/Tareas</option>
                     </select>
                 </div>
                 <div class="flex-1">
-                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Mes</label>
-                    <select id="filter-mes" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1" for="filter-mes">Mes</label>
+                    <select id="filter-mes" class="w-full mt-2 p-3 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] focus:border-[#A855F7] focus:ring-2 focus:ring-purple-50 outline-none transition-all cursor-pointer" onchange="filtrarBitacora()">
                         <option value="all">Todos los meses</option>
-                        <option value="01">Enero</option>
-                        <option value="02">Febrero</option>
-                        <option value="03">Marzo</option>
-                        <option value="04">Abril</option>
-                        <option value="05">Mayo</option>
-                        <option value="06">Junio</option>
-                        <option value="07">Julio</option>
-                        <option value="08">Agosto</option>
-                        <option value="09">Septiembre</option>
-                        <option value="10">Octubre</option>
-                        <option value="11">Noviembre</option>
-                        <option value="12">Diciembre</option>
+                        <option value="01">Enero</option><option value="02">Febrero</option><option value="03">Marzo</option>
+                        <option value="04">Abril</option><option value="05">Mayo</option><option value="06">Junio</option>
+                        <option value="07">Julio</option><option value="08">Agosto</option><option value="09">Septiembre</option>
+                        <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
                     </select>
                 </div>
                 <div class="flex-1">
-                    <label class="text-[10px] font-bold text-[#2D1B4B] uppercase">Día Específico</label>
-                    <input type="date" id="filter-fecha" class="w-full mt-1 p-2 rounded-lg border-gray-200 text-sm font-bold text-gray-600 focus:ring-[#A855F7] outline-none" onchange="filtrarBitacora()">
+                    <label class="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1" for="filter-fecha">Fecha Exacta</label>
+                    <input type="date" id="filter-fecha" class="w-full mt-2 p-3 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] focus:border-[#A855F7] focus:ring-2 focus:ring-purple-50 outline-none transition-all cursor-pointer" onchange="filtrarBitacora()">
                 </div>
                 <div class="flex items-end">
-                    <button onclick="limpiarFiltrosBitacora()" class="bg-gray-200 hover:bg-gray-300 text-gray-600 px-4 py-2 rounded-lg text-sm font-bold transition-colors w-full md:w-auto">
-                        <i class="fas fa-eraser"></i> Limpiar
+                    <button type="button" onclick="limpiarFiltrosBitacora()" class="bg-gray-200 hover:bg-gray-300 text-gray-600 px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest transition-colors w-full md:w-auto shadow-sm focus:outline-none">
+                        <i class="fas fa-eraser" aria-hidden="true"></i> Limpiar
                     </button>
                 </div>
             </div>
 
-            {# --- Leyenda de colores --- #}
-            <div class="flex flex-wrap gap-2 mb-6">
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-green-100 text-green-700"><i class="fas fa-circle text-[8px]"></i> Subida</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-red-100 text-red-700"><i class="fas fa-circle text-[8px]"></i> Eliminación</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-blue-100 text-blue-700"><i class="fas fa-circle text-[8px]"></i> Edición / Mov.</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-yellow-100 text-yellow-700"><i class="fas fa-circle text-[8px]"></i> Pago</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-purple-100 text-purple-700"><i class="fas fa-circle text-[8px]"></i> Generación</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-orange-100 text-orange-700"><i class="fas fa-circle text-[8px]"></i> Correo</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-teal-100 text-teal-700"><i class="fas fa-circle text-[8px]"></i> Creación</span>
-                <span class="flex items-center gap-1 text-[10px] font-bold px-2 py-1 rounded-full bg-gray-100 text-gray-600"><i class="fas fa-circle text-[8px]"></i> Otros / Visitas</span>
-            </div>
-
             {% if historial %}
-            <div class="space-y-2" id="contenedor-bitacora">
+            <div class="space-y-3 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-200 before:to-transparent" id="contenedor-bitacora">
                 {% for b in historial %}
-                    <div class="bitacora-item" data-accion="{{ b.accion|lower }}" data-fecha="{{ b.fecha|date:'Y-m-d' }}" data-mes="{{ b.fecha|date:'m' }}">
-                        {% if b.accion == 'subida' %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-green-100 bg-green-50/50 hover:bg-green-50 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-cloud-upload-alt text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-green-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
+                    <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active bitacora-item" data-accion="{{ b.accion|lower }}" data-fecha="{{ b.fecha|date:'Y-m-d' }}" data-mes="{{ b.fecha|date:'m' }}">
+                        
+                        <div class="flex items-center justify-center w-10 h-10 rounded-full border-4 border-white shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 shadow-md z-10
+                            {% if b.accion == 'subida' %}bg-green-500
+                            {% elif b.accion == 'eliminacion' %}bg-red-500
+                            {% elif b.accion == 'edicion' or b.accion == 'movimiento' %}bg-blue-500
+                            {% elif b.accion == 'pago' %}bg-yellow-500
+                            {% elif b.accion == 'generacion' %}bg-purple-500
+                            {% elif b.accion == 'correo' %}bg-orange-500
+                            {% elif b.accion == 'creacion' %}bg-teal-500
+                            {% else %}bg-gray-400{% endif %} text-white">
+                            <i class="fas text-sm 
+                                {% if b.accion == 'subida' %}fa-cloud-upload-alt
+                                {% elif b.accion == 'eliminacion' %}fa-trash
+                                {% elif b.accion == 'edicion' or b.accion == 'movimiento' %}fa-exchange-alt
+                                {% elif b.accion == 'pago' %}fa-dollar-sign
+                                {% elif b.accion == 'generacion' %}fa-magic
+                                {% elif b.accion == 'correo' %}fa-envelope
+                                {% elif b.accion == 'creacion' %}fa-plus
+                                {% else %}fa-info{% endif %}" aria-hidden="true"></i>
+                        </div>
+                        
+                        <div class="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-5 rounded-2xl shadow-sm border border-gray-100 bg-white hover:shadow-md transition-shadow">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[10px] font-black uppercase tracking-widest
+                                    {% if b.accion == 'subida' %}text-green-600
+                                    {% elif b.accion == 'eliminacion' %}text-red-600
+                                    {% elif b.accion == 'edicion' or b.accion == 'movimiento' %}text-blue-600
+                                    {% elif b.accion == 'pago' %}text-yellow-600
+                                    {% elif b.accion == 'generacion' %}text-purple-600
+                                    {% elif b.accion == 'correo' %}text-orange-600
+                                    {% elif b.accion == 'creacion' %}text-teal-600
+                                    {% else %}text-gray-500{% endif %}">{{ b.accion }}</span>
+                                <time class="text-[10px] font-bold text-gray-400">{{ b.fecha|date:"d/m/Y H:i" }}</time>
                             </div>
-                        {% elif b.accion == 'eliminacion' %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-red-100 bg-red-50/50 hover:bg-red-50 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-trash text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-red-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
-                            </div>
-                        {% elif b.accion == 'edicion' or b.accion == 'movimiento' %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-blue-100 bg-blue-50/50 hover:bg-blue-50 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-exchange-alt text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-blue-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
-                            </div>
-                        {% elif b.accion == 'pago' %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-yellow-100 bg-yellow-50/50 hover:bg-yellow-50 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-yellow-100 text-yellow-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-dollar-sign text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-yellow-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
-                            </div>
-                        {% elif b.accion == 'generacion' %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-purple-100 bg-purple-50/50 hover:bg-purple-50 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-purple-100 text-purple-600 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-magic text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-purple-700 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
-                            </div>
-                        {% else %}
-                            <div class="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-gray-50 hover:bg-gray-100 transition-colors">
-                                <div class="w-8 h-8 rounded-full bg-gray-200 text-gray-500 flex items-center justify-center shrink-0 mt-0.5"><i class="fas fa-info text-xs"></i></div>
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-center justify-between gap-2 flex-wrap">
-                                        <span class="text-xs font-black text-gray-600 uppercase tracking-wide">{{ b.accion }}</span>
-                                        <span class="text-[10px] text-gray-400 font-mono shrink-0">{{ b.fecha|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p class="text-sm text-gray-700 mt-0.5">{{ b.descripcion }}</p>
-                                    <p class="text-[10px] text-gray-400 mt-1"><i class="fas fa-user mr-1"></i>{{ b.usuario.get_full_name|default:b.usuario.username }}</p>
-                                </div>
-                            </div>
-                        {% endif %}
+                            <p class="text-sm font-bold text-[#2D1B4B] leading-snug mb-2">{{ b.descripcion }}</p>
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1">
+                                <i class="fas fa-user-circle" aria-hidden="true"></i> {{ b.usuario.get_full_name|default:b.usuario.username }}
+                            </p>
+                        </div>
                     </div>
                 {% endfor %}
             </div>
 
-            <div id="bitacora-no-results" class="hidden text-center py-10 text-gray-400 bg-gray-50 rounded-xl mt-4 border border-dashed border-gray-200">
-                <i class="fas fa-search text-3xl mb-3 opacity-30"></i>
-                <p class="font-bold text-sm">No se encontraron movimientos con estos filtros.</p>
-                <button onclick="limpiarFiltrosBitacora()" class="text-[#A855F7] hover:underline mt-2 text-xs font-bold">Ver todo el historial</button>
+            <div id="bitacora-no-results" class="hidden text-center py-16 text-gray-400 bg-gray-50 rounded-2xl mt-4 border border-dashed border-gray-200">
+                <i class="fas fa-search text-4xl mb-4 text-gray-300" aria-hidden="true"></i>
+                <p class="font-black text-lg text-[#2D1B4B]">Sin coincidencias</p>
+                <p class="text-sm mt-1">No se encontraron movimientos con estos filtros.</p>
+                <button type="button" onclick="limpiarFiltrosBitacora()" class="bg-[#2D1B4B] text-white px-6 py-2 rounded-xl text-xs font-bold mt-4 hover:bg-[#A855F7] transition-colors focus:outline-none">Ver todo el historial</button>
             </div>
 
             {% else %}
-            <div class="text-center py-20 text-gray-300">
-                <i class="fas fa-history text-5xl mb-4 opacity-40"></i>
-                <p class="font-bold text-sm">Sin actividad registrada aún.</p>
-                <p class="text-xs mt-1">Las acciones realizadas en este expediente aparecerán aquí.</p>
+            <div class="text-center py-24 bg-gray-50 rounded-3xl border border-dashed border-gray-200">
+                <i class="fas fa-history text-5xl mb-4 text-gray-300" aria-hidden="true"></i>
+                <p class="font-black text-xl text-[#2D1B4B] font-serif">Bitácora Vacía</p>
+                <p class="text-sm text-gray-400 mt-2">Aún no hay actividad registrada en el expediente de este cliente.</p>
             </div>
             {% endif %}
         </div>
     </div>
 
-    {# ==================== BARRA MASIVA ==================== #}
-    <div id="barra-masiva" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#2D1B4B] text-white px-6 py-3 rounded-full shadow-2xl items-center gap-6 z-40">
-        <span class="font-bold text-sm"><span id="conteo-sel">0</span> seleccionados</span>
-        <div class="flex gap-2">
-            <button onclick="ejecutarMasivo('descargar')" class="bg-white/20 hover:bg-white/30 px-4 py-1 rounded-full text-xs font-bold">ZIP</button>
-            {% if user.can_delete_client or user.rol == 'admin' %}
-            <button onclick="ejecutarMasivo('eliminar')" class="bg-red-500 hover:bg-red-600 px-4 py-1 rounded-full text-xs font-bold">Eliminar</button>
-            {% endif %}
+    {# ==================== BARRA MASIVA FLOTANTE ==================== #}
+    <div id="barra-masiva" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#1A2238]/95 backdrop-blur-md text-white px-6 py-4 rounded-2xl shadow-2xl items-center gap-8 z-40 border border-white/10 animate__animated animate__slideInUp">
+        <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-full bg-[#A855F7] flex items-center justify-center font-black text-sm" id="conteo-sel">0</span>
+            <span class="font-bold text-sm tracking-wide uppercase">Archivos<br>Seleccionados</span>
         </div>
-        <button onclick="cerrarMasivo()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+        <div class="flex items-center gap-3 border-l border-white/20 pl-6">
+            <button type="button" onclick="ejecutarMasivo('descargar')" class="bg-blue-500 hover:bg-blue-600 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-colors flex items-center gap-2 focus:outline-none">
+                <i class="fas fa-file-archive" aria-hidden="true"></i> ZIP
+            </button>
+            {% if user.can_delete_client or user.rol == 'admin' %}
+            <button type="button" onclick="ejecutarMasivo('eliminar')" class="bg-red-500 hover:bg-red-600 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase transition-colors flex items-center gap-2 focus:outline-none">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i> Eliminar
+            </button>
+            {% endif %}
+            <button type="button" onclick="cerrarMasivo()" class="text-gray-400 hover:text-white ml-2 p-2 focus:outline-none" title="Cancelar selección">
+                <i class="fas fa-times text-lg" aria-hidden="true"></i>
+            </button>
+        </div>
     </div>
 </div>
 
 {# ==================== MODALES ==================== #}
 
-<div id="modal-carpetas-especiales" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-carpetas-especiales')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
-        <h3 class="text-xl font-black text-[#2D1B4B] mb-1"><i class="fas fa-star text-yellow-400 mr-2"></i>Especiales</h3>
-        <p class="text-xs text-gray-500 mb-4 leading-tight">Selecciona las carpetas con semáforo que deseas agregar a este cliente (no se duplicarán si ya existen).</p>
+<div id="modal-carpeta" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-carpeta')" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"><i class="fas fa-times" aria-hidden="true"></i></button>
         
-        <form action="{% url 'crear_carpetas_especiales' cliente.id %}" method="POST">
-            {% csrf_token %}
-            <div class="max-h-[45vh] overflow-y-auto mb-6 pr-2 space-y-2 custom-scrollbar border-y border-gray-100 py-4">
-                
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors border border-red-100 bg-red-50/30">
-                    <input type="checkbox" name="carpetas" value="Autorizaciones liberadas" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-black text-red-600 uppercase"><i class="fas fa-shield-alt mr-1"></i> AUTORIZACIONES LIBERADAS</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="CARPETA ADMINISTRATIVA" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CARPETA ADMINISTRATIVA</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="LICENCIA DE FUNCIONAMIENTO" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">LICENCIA DE FUNCIONAMIENTO</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROG. ESPECÍFICO DE PROT. CIVIL</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="PROTECCIÓN CIVIL MUNICIPAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROTECCIÓN CIVIL MUNICIPAL</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="PROTECCIÓN CIVIL ESTATAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">PROTECCIÓN CIVIL ESTATAL</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="MEDIO AMBIENTE" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">MEDIO AMBIENTE</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="REGISTRO AMBIENTAL ESTATAL" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">REGISTRO AMBIENTAL ESTATAL</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="CEDULA DE ZONIFICACIÓN" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">CÉDULA DE ZONIFICACIÓN</span>
-                </label>
-                <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors">
-                    <input type="checkbox" name="carpetas" value="LICENCIA DE USO DE SUELO" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
-                    <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">LICENCIA DE USO DE SUELO</span>
-                </label>
-            </div>
-
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2">
-                <i class="fas fa-folder-plus"></i> GENERAR
-            </button>
-        </form>
-    </div>
-</div>
-
-<div id="modal-preview" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50">
-    <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden relative flex flex-col shadow-2xl" onclick="event.stopPropagation()">
-        <div class="bg-[#2D1B4B] p-4 flex justify-between items-center shrink-0">
-            <h3 id="preview-title" class="text-white font-bold truncate">Vista Previa</h3>
-            <div class="flex gap-4 items-center">
-                <a id="preview-download" href="#" class="text-white hover:text-[#A855F7] mx-2" title="Descargar archivo original">
-                    <i class="fas fa-download"></i> <span class="text-xs font-bold ml-1">DESCARGAR</span>
-                </a>
-                <button type="button" onclick="closeModal('modal-preview')" class="text-white hover:text-red-500 ml-4"><i class="fas fa-times text-xl"></i></button>
-            </div>
+        <div class="w-12 h-12 rounded-xl bg-purple-50 text-[#A855F7] flex items-center justify-center text-xl mb-4">
+            <i class="fas fa-folder-plus" aria-hidden="true"></i>
         </div>
-        <div id="preview-body" class="flex-1 bg-gray-100 overflow-hidden relative flex items-center justify-center"></div>
-    </div>
-</div>
-
-<div id="modal-carpeta" class="fixed inset-0 bg-[#2D1B4B]/90 hidden items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-carpeta')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-        <h3 class="text-xl font-black text-[#2D1B4B] mb-4">Nueva Carpeta</h3>
+        <h3 class="text-xl font-black text-[#2D1B4B] mb-6 font-serif">Nueva Carpeta</h3>
+        
         <form action="{% url 'crear_carpeta' cliente.id %}" method="POST">
             {% csrf_token %}
             {% if carpeta_actual %}<input type="hidden" name="padre_id" value="{{ carpeta_actual.id }}">{% endif %}
-            <input type="text" name="nombre" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none mb-4" placeholder="Nombre..." required>
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] transition-colors flex justify-center items-center">CREAR</button>
-        </form>
-    </div>
-</div>
-
-<div id="modal-archivo" class="fixed inset-0 bg-[#2D1B4B]/90 hidden items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-archivo')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-        <h3 class="text-xl font-black text-[#2D1B4B] mb-4">Subir Archivos</h3>
-        <form action="{% url 'subir_archivo_drive' cliente.id %}" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            {% if carpeta_actual %}<input type="hidden" name="carpeta_id" value="{{ carpeta_actual.id }}">{% endif %}
-            <label class="block mb-2 text-xs font-bold text-gray-400">Seleccionar Archivo(s):</label>
-            <input type="file" name="archivo" multiple required class="w-full p-3 bg-gray-50 rounded-xl mb-4 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#A855F7] hover:file:bg-purple-100">
-            <label class="block mb-2 text-xs font-bold text-[#A855F7]">¿Tiene Vencimiento? (Opcional):</label>
-            <div class="flex items-center gap-2 mb-6 bg-purple-50 p-2 rounded-xl border border-purple-100">
-                <i class="fas fa-calendar-alt text-[#A855F7] ml-2"></i>
-                <input type="date" name="fecha_vencimiento" class="w-full bg-transparent border-none focus:ring-0 text-sm text-gray-600 font-bold">
+            <div class="mb-6">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" for="nombre_carpeta">Nombre de la carpeta</label>
+                <input type="text" name="nombre" id="nombre_carpeta" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#A855F7] focus:bg-white outline-none transition-colors shadow-sm" placeholder="Ej. Documentos Legales" required>
             </div>
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] transition-colors flex justify-center items-center">SUBIR</button>
-        </form>
-    </div>
-</div>
-
-<div id="modal-tarea" class="fixed inset-0 bg-[#2D1B4B]/90 hidden items-center justify-center z-50">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-tarea')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500"><i class="fas fa-times"></i></button>
-        <h3 class="text-xl font-black text-[#2D1B4B] mb-4">Nueva Tarea</h3>
-        <form action="{% url 'gestionar_tarea' cliente.id %}" method="POST">
-            {% csrf_token %}
-            <input type="text" name="titulo" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none mb-4" placeholder="Título de la tarea" required>
-            <input type="date" name="fecha_limite" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none mb-4" required>
-            <select name="prioridad" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none mb-4">
-                <option value="alta">Alta Prioridad</option>
-                <option value="media" selected>Media</option>
-                <option value="baja">Baja</option>
-            </select>
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] transition-colors flex justify-center items-center">GUARDAR</button>
-        </form>
-    </div>
-</div>
-
-<div id="modal-requisito" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-requisito')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
-        <h3 class="text-lg font-black text-[#2D1B4B] mb-2">Subir Documento Requerido</h3>
-        <p id="lbl-requisito" class="text-sm font-bold text-[#A855F7] mb-6 uppercase border-b pb-2"></p>
-        <form id="form-requisito" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <input type="hidden" name="nombre_requisito" id="input-req-nombre">
-            <label class="block mb-6 cursor-pointer">
-                <span class="text-xs font-bold text-gray-400 mb-2 block">Selecciona el archivo:</span>
-                <input type="file" name="archivo" required class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-bold file:bg-purple-50 file:text-[#A855F7] hover:file:bg-purple-100 transition-all"/>
-            </label>
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-green-500 transition-colors flex items-center justify-center gap-2 shadow-lg"><i class="fas fa-cloud-upload-alt"></i> CARGAR Y VALIDAR</button>
-        </form>
-    </div>
-</div>
-
-<div id="modal-mover" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-mover')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
-        <h3 class="text-lg font-black text-[#2D1B4B] mb-2">Mover Archivo</h3>
-        <p id="lbl-mover-archivo" class="text-sm font-bold text-gray-400 mb-6 truncate"></p>
-        <form id="form-mover" method="POST">
-           {% csrf_token %}
-           <label class="block mb-4">
-                <span class="text-xs font-bold text-gray-400 mb-2 block">Selecciona la carpeta destino:</span>
-                <select name="carpeta_destino" id="select-destino-mover" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none text-[#2D1B4B] focus:ring-2 focus:ring-[#A855F7] outline-none" onchange="verificarDestinoMover(this)">
-                    <option value="ROOT" data-nombre="ROOT">📂 -- Carpeta Raíz --</option>
-                    {% for c in todas_carpetas %}
-                        <option value="{{ c.id }}" data-nombre="{{ c.nombre }}">📂 {{ c.nombre }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            
-            <div id="bloque-vigencia-mover" class="hidden mb-6 animate__animated animate__fadeIn">
-                <label class="block mb-2 text-xs font-bold text-red-500">
-                    <i class="fas fa-exclamation-circle mr-1"></i> Vigencia de la Autorización:
-                </label>
-                <div class="flex items-center gap-2 bg-red-50 p-2 rounded-xl border border-red-200 shadow-sm">
-                    <i class="fas fa-calendar-alt text-red-500 ml-2"></i>
-                    <input type="date" name="fecha_vencimiento" id="input-vigencia-mover" class="w-full bg-transparent border-none focus:ring-0 text-sm text-red-700 font-bold outline-none">
-                </div>
-            </div>
-
-            <button type="submit" class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg">
-                <i class="fas fa-exchange-alt"></i> MOVER AHORA
+            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2 group focus:outline-none focus:ring-4 focus:ring-purple-300">
+                <i class="fas fa-check-circle text-green-400" aria-hidden="true"></i> CREAR CARPETA
             </button>
         </form>
     </div>
 </div>
 
-<div id="modal-auditoria" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
-    <div class="w-full max-w-6xl h-[90vh] flex flex-col md:flex-row bg-white rounded-2xl overflow-hidden shadow-2xl relative" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-auditoria')" class="absolute top-4 right-4 z-50 bg-black/50 text-white w-10 h-10 rounded-full hover:bg-red-500 transition-colors flex items-center justify-center"><i class="fas fa-times"></i></button>
-        <div class="flex-1 bg-gray-100 relative flex items-center justify-center p-4 border-r border-gray-200">
-            <div id="auditoria-loader" class="absolute inset-0 flex items-center justify-center bg-gray-100 z-10">
-                <div class="flex flex-col items-center">
-                    <i class="fas fa-circle-notch fa-spin text-4xl text-[#2D1B4B] mb-2"></i>
-                    <p class="text-xs font-bold text-gray-500">Cargando...</p>
+<div id="modal-archivo" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-lg m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-archivo')" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none z-10"><i class="fas fa-times" aria-hidden="true"></i></button>
+        
+        <div class="text-center mb-6">
+            <div class="w-14 h-14 rounded-2xl bg-[#2D1B4B] text-white flex items-center justify-center text-2xl mx-auto mb-3 shadow-lg">
+                <i class="fas fa-cloud-upload-alt" aria-hidden="true"></i>
+            </div>
+            <h3 class="text-xl font-black text-[#2D1B4B] font-serif">Subir Documentos</h3>
+            <p class="text-xs text-gray-500 mt-1 font-bold">Selecciona el tipo de subida que deseas realizar.</p>
+        </div>
+
+        <div class="flex p-1 bg-gray-100 rounded-xl mb-6">
+            <button type="button" id="tab-subir-archivos" class="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg bg-white shadow-sm text-[#A855F7] transition-all focus:outline-none" onclick="cambiarTipoSubida('archivos')">Archivos Sueltos</button>
+            <button type="button" id="tab-subir-carpeta" class="flex-1 py-2 text-xs font-black uppercase tracking-wider rounded-lg text-gray-400 hover:text-gray-600 transition-all focus:outline-none" onclick="cambiarTipoSubida('carpeta')">Carpeta Completa</button>
+        </div>
+        
+        <form action="{% url 'subir_archivo_drive' cliente.id %}" method="POST" enctype="multipart/form-data" id="form-subida-principal">
+            {% csrf_token %}
+            {% if carpeta_actual %}<input type="hidden" name="carpeta_id" value="{{ carpeta_actual.id }}">{% endif %}
+            
+            <input type="hidden" name="rutas_json" id="rutas_json_input">
+
+            <div class="border-2 border-dashed border-[#A855F7]/30 bg-purple-50/30 rounded-2xl p-8 text-center relative group hover:bg-purple-50/50 hover:border-[#A855F7] transition-all mb-6 cursor-pointer" id="dropzone-area" onclick="document.getElementById('input-archivo-real').click()">
+                <i class="fas fa-folder-open text-4xl text-[#A855F7] mb-3 group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                <p class="text-sm font-bold text-[#2D1B4B] mb-1" id="dropzone-text">Haz clic para buscar archivos</p>
+                <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">O arrastra y suelta aquí</p>
+                
+                <input type="file" name="archivo" id="input-archivo-real" multiple class="hidden" onchange="manejarSeleccionArchivos(event)">
+            </div>
+
+            <div id="lista-archivos-seleccionados" class="hidden mb-6 bg-gray-50 rounded-xl p-4 border border-gray-100 max-h-40 overflow-y-auto custom-scrollbar"></div>
+
+            <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 mb-6">
+                <label class="flex items-center gap-2 cursor-pointer mb-3" onclick="document.getElementById('div-vencimiento').classList.toggle('hidden')">
+                    <input type="checkbox" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
+                    <span class="text-xs font-bold text-[#2D1B4B] uppercase tracking-widest">¿Establecer Vencimiento?</span>
+                </label>
+                
+                <div id="div-vencimiento" class="hidden flex items-center gap-3 bg-white p-2 rounded-lg border border-gray-200">
+                    <div class="w-8 h-8 rounded bg-orange-100 text-orange-500 flex items-center justify-center shrink-0">
+                        <i class="fas fa-calendar-alt" aria-hidden="true"></i>
+                    </div>
+                    <input type="date" name="fecha_vencimiento" class="w-full bg-transparent border-none focus:ring-0 text-sm font-bold text-[#2D1B4B] outline-none cursor-pointer">
                 </div>
             </div>
-            <iframe id="auditoria-viewer" src="" class="w-full h-full shadow-lg bg-white rounded-lg border-none"></iframe>
-        </div>
-        <div class="w-full md:w-80 bg-white p-8 flex flex-col justify-between shrink-0">
-            <div>
-                <h6 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">AUDITANDO:</h6>
-                <h2 id="auditoria-titulo" class="text-xl font-black text-[#2D1B4B] leading-tight mb-6 border-b pb-4"></h2>
-                <div class="bg-blue-50 p-4 rounded-xl mb-6">
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-info-circle text-blue-500 mt-1"></i>
-                        <p class="text-xs text-blue-800 leading-relaxed">Al aprobar, se renombrará y distribuirá automáticamente.</p>
-                    </div>
-                </div>
-            </div>
-            <div class="space-y-3">
-                <a id="btn-auditoria-aprobar" href="#" class="block w-full bg-green-500 hover:bg-green-600 text-white p-4 rounded-xl text-center transition-all shadow-lg hover:shadow-green-500/30 group" onclick="this.innerHTML='<i class=\'fas fa-spinner fa-spin\'></i> Procesando...'; this.classList.add('opacity-70', 'pointer-events-none');">
-                    <div class="flex items-center justify-center gap-2 mb-1">
-                        <i class="fas fa-check-circle text-2xl group-hover:scale-110 transition-transform"></i>
-                        <span class="font-black text-lg">APROBAR</span>
-                    </div>
-                </a>
-                <a id="btn-auditoria-rechazar" href="#" onclick="return confirm('¿Rechazar y eliminar?')" class="block w-full bg-white border-2 border-red-100 hover:border-red-500 text-gray-500 hover:text-red-500 p-3 rounded-xl text-center transition-colors group">
-                    <div class="flex items-center justify-center gap-2">
-                        <i class="fas fa-times-circle text-lg group-hover:rotate-90 transition-transform"></i>
-                        <span class="font-bold">RECHAZAR</span>
-                    </div>
-                </a>
-            </div>
-        </div>
+
+            <button type="submit" id="btn-submit-subida" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2 group focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-70 disabled:cursor-not-allowed">
+                <i class="fas fa-cloud-upload-alt text-lg group-hover:-translate-y-1 transition-transform icon-normal" aria-hidden="true"></i> 
+                <i class="fas fa-circle-notch fa-spin hidden icon-loading text-lg" aria-hidden="true"></i>
+                <span class="btn-text">INICIAR CARGA</span>
+            </button>
+        </form>
     </div>
 </div>
 
+<div id="modal-mover" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-mover')" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"><i class="fas fa-times" aria-hidden="true"></i></button>
+        
+        <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center text-xl mb-4">
+            <i class="fas fa-exchange-alt" aria-hidden="true"></i>
+        </div>
+        <h3 class="text-xl font-black text-[#2D1B4B] mb-2 font-serif">Mover Archivo</h3>
+        <p id="lbl-mover-archivo" class="text-xs font-bold text-gray-500 mb-6 bg-gray-50 p-2 rounded-lg truncate border border-gray-100"></p>
+        
+        <form id="form-mover" method="POST">
+           {% csrf_token %}
+           <div class="mb-6">
+                <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1" for="select-destino-mover">Carpeta Destino</label>
+                <div class="relative">
+                    <i class="fas fa-folder absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                    <select name="carpeta_destino" id="select-destino-mover" class="w-full pl-10 pr-4 py-3 bg-gray-50 rounded-xl font-bold border-2 border-transparent text-[#2D1B4B] focus:border-blue-400 focus:bg-white outline-none transition-colors cursor-pointer appearance-none" onchange="verificarDestinoMover(this)">
+                        <option value="ROOT" data-nombre="ROOT">-- Mover a Raíz --</option>
+                        {% for c in todas_carpetas %}
+                            <option value="{{ c.id }}" data-nombre="{{ c.nombre }}">{{ c.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div id="bloque-vigencia-mover" class="hidden mb-6 animate__animated animate__fadeInDown">
+                <label class="block text-[10px] font-black text-red-500 uppercase tracking-widest mb-2 ml-1">
+                    <i class="fas fa-exclamation-circle mr-1" aria-hidden="true"></i> Vigencia (Requerido)
+                </label>
+                <div class="flex items-center gap-3 bg-red-50 p-3 rounded-xl border border-red-200 shadow-inner">
+                    <i class="fas fa-calendar-alt text-red-500 ml-1" aria-hidden="true"></i>
+                    <input type="date" name="fecha_vencimiento" id="input-vigencia-mover" class="w-full bg-transparent border-none focus:ring-0 text-sm text-red-700 font-bold outline-none cursor-pointer">
+                </div>
+            </div>
+
+            <button type="submit" class="w-full bg-blue-500 text-white py-4 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-blue-600 transition-colors flex items-center justify-center gap-2 shadow-lg focus:outline-none focus:ring-4 focus:ring-blue-300">
+                <i class="fas fa-check-circle" aria-hidden="true"></i> CONFIRMAR TRASLADO
+            </button>
+        </form>
+    </div>
+</div>
+
+<style>
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 20px; }
+</style>
+
 <script>
-    // 1. GESTOR CENTRALIZADO DE MODALES
+    // ==========================================
+    // 1. MOTOR CENTRAL DE MODALES (TAILWIND ANIMADO)
+    // ==========================================
     let activeModalId = null;
 
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
         if (!modal) return;
+        
+        const content = modal.querySelector('.modal-content') || modal.children[0];
         
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -734,9 +624,14 @@
         activeModalId = modalId;
         
         setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            if(content.classList.contains('scale-95')) {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }
             const firstInput = modal.querySelector('input:not([type="hidden"]), select, textarea');
             if(firstInput) firstInput.focus();
-        }, 100);
+        }, 10);
     }
 
     function closeModal(modalId = null) {
@@ -745,104 +640,178 @@
         
         const modal = document.getElementById(idToClose);
         if (!modal) return;
+        const content = modal.querySelector('.modal-content') || modal.children[0];
 
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = ''; 
-        activeModalId = null;
+        modal.classList.add('opacity-0');
+        if(content.classList.contains('scale-100')) {
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+        }
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = ''; 
+            activeModalId = null;
 
-        if(idToClose === 'modal-preview') {
-            document.getElementById('preview-body').innerHTML = '';
-        }
-        if(idToClose === 'modal-auditoria') {
-            document.getElementById('auditoria-viewer').src = '';
-        }
+            if(idToClose === 'modal-preview') document.getElementById('preview-body').innerHTML = '';
+            if(idToClose === 'modal-auditoria') document.getElementById('auditoria-viewer').src = '';
+        }, 300);
     }
 
-    // Tecla ESC para cerrar modal
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && activeModalId) closeModal();
     });
+    
+    // ==========================================
+    // 2. LÓGICA DE SUBIDA DE CARPETAS (NUEVO)
+    // ==========================================
+    const inputReal = document.getElementById('input-archivo-real');
+    const tabArchivos = document.getElementById('tab-subir-archivos');
+    const tabCarpeta = document.getElementById('tab-subir-carpeta');
+    const textDropzone = document.getElementById('dropzone-text');
+    const listaArchivosVisual = document.getElementById('lista-archivos-seleccionados');
+    const inputRutasJson = document.getElementById('rutas_json_input');
+    let modoSubida = 'archivos';
 
-    // Clic en overlay para cerrar modal
-    document.addEventListener('click', (e) => {
-        if (activeModalId) {
-            const modal = document.getElementById(activeModalId);
-            if (e.target === modal) closeModal();
+    function cambiarTipoSubida(tipo) {
+        modoSubida = tipo;
+        listaArchivosVisual.classList.add('hidden');
+        listaArchivosVisual.innerHTML = '';
+        inputReal.value = ''; // Limpiar selección previa
+        inputRutasJson.value = '';
+
+        if(tipo === 'archivos') {
+            tabArchivos.classList.replace('text-gray-400', 'text-[#A855F7]');
+            tabArchivos.classList.replace('hover:text-gray-600', 'bg-white');
+            tabArchivos.classList.add('shadow-sm');
+            
+            tabCarpeta.classList.replace('text-[#A855F7]', 'text-gray-400');
+            tabCarpeta.classList.replace('bg-white', 'hover:text-gray-600');
+            tabCarpeta.classList.remove('shadow-sm');
+            
+            inputReal.removeAttribute('webkitdirectory');
+            inputReal.removeAttribute('directory');
+            textDropzone.innerText = 'Haz clic para buscar archivos';
+        } else {
+            tabCarpeta.classList.replace('text-gray-400', 'text-[#A855F7]');
+            tabCarpeta.classList.replace('hover:text-gray-600', 'bg-white');
+            tabCarpeta.classList.add('shadow-sm');
+            
+            tabArchivos.classList.replace('text-[#A855F7]', 'text-gray-400');
+            tabArchivos.classList.replace('bg-white', 'hover:text-gray-600');
+            tabArchivos.classList.remove('shadow-sm');
+            
+            inputReal.setAttribute('webkitdirectory', '');
+            inputReal.setAttribute('directory', '');
+            textDropzone.innerText = 'Haz clic para elegir una carpeta';
         }
-    });
+    }
 
-    // 2. PREVENCIÓN DOBLE CLIC EN FORMS
-    document.querySelectorAll('form').forEach(form => {
-        form.addEventListener('submit', function() {
-            const submitBtn = this.querySelector('button[type="submit"]');
-            if(submitBtn) {
-                submitBtn.disabled = true;
-                const originalText = submitBtn.innerHTML;
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> PROCESANDO...';
-                submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                
-                setTimeout(() => {
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = originalText;
-                    submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
-                }, 8000); 
+    function manejarSeleccionArchivos(event) {
+        const files = event.target.files;
+        if (files.length === 0) return;
+
+        let dictRutas = {};
+        listaArchivosVisual.innerHTML = '';
+        listaArchivosVisual.classList.remove('hidden');
+
+        // Mostrar un resumen visual (máximo 5 archivos para no crashear la UI)
+        let limit = Math.min(files.length, 5);
+        for (let i = 0; i < limit; i++) {
+            let file = files[i];
+            let path = file.webkitRelativePath || file.name;
+            dictRutas[file.name] = path; // Guardamos ruta para el backend
+            
+            listaArchivosVisual.innerHTML += `
+                <div class="flex items-center gap-2 text-xs text-gray-600 mb-1 truncate border-b border-gray-100 pb-1">
+                    <i class="fas fa-file-alt text-[#A855F7]" aria-hidden="true"></i> 
+                    <span class="truncate" title="${path}">${path}</span>
+                </div>`;
+        }
+
+        // Si hay más de 5, iterar el resto solo para armar el JSON en silencio
+        if (files.length > 5) {
+            for(let i = 5; i < files.length; i++) {
+                dictRutas[files[i].name] = files[i].webkitRelativePath || files[i].name;
             }
-        });
+            listaArchivosVisual.innerHTML += `
+                <div class="text-xs font-black text-[#A855F7] mt-2 pt-1">
+                    + ${files.length - 5} archivos adicionales
+                </div>`;
+        }
+
+        // Inyectamos el JSON en el formulario para que Django lo lea
+        inputRutasJson.value = JSON.stringify(dictRutas);
+        
+        textDropzone.innerHTML = `<span class="text-green-600 font-black"><i class="fas fa-check-circle mr-1"></i> ${files.length} elementos listos</span>`;
+    }
+
+    // Prevención Doble Submit en Subida
+    document.getElementById('form-subida-principal').addEventListener('submit', function() {
+        const btn = document.getElementById('btn-submit-subida');
+        btn.disabled = true;
+        btn.querySelector('.icon-normal').classList.add('hidden');
+        btn.querySelector('.icon-loading').classList.remove('hidden');
+        btn.querySelector('.btn-text').innerText = 'SUBIENDO...';
     });
 
+
+    // ==========================================
     // 3. TABS Y FUNCIONES GLOBALES
+    // ==========================================
     function switchTab(id) {
         ['drive', 'rec', 'history'].forEach(t => {
             document.getElementById(t + '-content').classList.add('hidden');
-            document.getElementById(t + '-tab').classList.remove('border-[#A855F7]', 'text-[#2D1B4B]', 'font-bold');
-            document.getElementById(t + '-tab').classList.add('text-gray-400', 'border-transparent');
+            const tabBtn = document.getElementById(t + '-tab');
+            tabBtn.classList.remove('border-[#A855F7]', 'text-[#2D1B4B]', 'font-black');
+            tabBtn.classList.add('text-gray-400', 'border-transparent', 'font-bold');
+            tabBtn.setAttribute('aria-selected', 'false');
+            tabBtn.querySelector('i').classList.remove('text-[#A855F7]');
         });
+        
         document.getElementById(id + '-content').classList.remove('hidden');
-        document.getElementById(id + '-tab').classList.add('border-[#A855F7]', 'text-[#2D1B4B]', 'font-bold');
-        document.getElementById(id + '-tab').classList.remove('text-gray-400', 'border-transparent');
+        const activeBtn = document.getElementById(id + '-tab');
+        activeBtn.classList.add('border-[#A855F7]', 'text-[#2D1B4B]', 'font-black');
+        activeBtn.classList.remove('text-gray-400', 'border-transparent', 'font-bold');
+        activeBtn.setAttribute('aria-selected', 'true');
+        activeBtn.querySelector('i').classList.add('text-[#A855F7]');
     }
 
-    function toggleTodos(s) { document.querySelectorAll('.doc-check').forEach(c => c.checked = s.checked); verificarSeleccion(); }
+    // Funciones Masivas
+    function toggleTodos(s) { 
+        document.querySelectorAll('.doc-check').forEach(c => c.checked = s.checked); 
+        verificarSeleccion(); 
+    }
+    
     function verificarSeleccion() { 
         const c = document.querySelectorAll('.doc-check:checked').length; 
         const b = document.getElementById('barra-masiva');
-        if(c>0){b.classList.remove('hidden');b.classList.add('flex');document.getElementById('conteo-sel').innerText=c;}
-        else{b.classList.add('hidden');b.classList.remove('flex');}
+        if(c > 0) {
+            b.classList.remove('hidden');
+            b.classList.add('flex');
+            document.getElementById('conteo-sel').innerText=c;
+        } else {
+            b.classList.add('hidden');
+            b.classList.remove('flex');
+        }
     }
-    function ejecutarMasivo(a) { if(a==='eliminar' && !confirm('¿Estás totalmente seguro de eliminar estos archivos?'))return; document.getElementById('input-accion').value=a; document.getElementById('form-masivo').submit(); }
-    function cerrarMasivo() { document.querySelectorAll('.doc-check').forEach(c => c.checked=false); verificarSeleccion(); }
     
-    // 4. PREPARADORES DE MODALES DE NEGOCIO
-    function abrirPreview(id) {
-        const body = document.getElementById('preview-body');
-        const title = document.getElementById('preview-title');
-        const downloadBtn = document.getElementById('preview-download');
-        
-        openModal('modal-preview');
-        body.innerHTML = '<div class="flex flex-col items-center justify-center h-full"><i class="fas fa-circle-notch fa-spin text-5xl text-[#2D1B4B] mb-4"></i><p class="text-gray-500 font-bold">Procesando archivo...</p></div>';
-        
-        fetch(`/drive/preview/${id}/`)
-            .then(response => response.json())
-            .then(data => {
-                
-                title.innerText = data.nombre;
-                downloadBtn.href = `/archivo/descargar/${id}/`; // Usa la nueva función del backend
-                
-                let cHTML = '';
-                if (data.tipo === 'imagen') cHTML = `<div class="flex items-center justify-center h-full bg-black/5"><img src="${data.url}" class="max-w-full max-h-full object-contain shadow-lg rounded"></div>`;
-                else if (data.tipo === 'pdf') cHTML = `<iframe src="${data.url}" title="${data.nombre}" class="w-full h-full border-none rounded bg-white"></iframe>`;
-                else if (data.tipo === 'docx') cHTML = `<div class="bg-white w-full h-full p-10 overflow-auto prose max-w-none shadow-inner">${data.html}</div>`;
-                else if (data.tipo === 'excel') cHTML = `<div class="bg-white w-full h-full p-6 overflow-auto shadow-inner"><h4 class="text-sm font-bold text-gray-400 mb-4 uppercase">Vista previa</h4><div class="overflow-x-auto border rounded-lg"><table class="w-full text-sm text-left text-gray-500">${data.html}</table></div></div>`;
-                else if (data.tipo === 'video') cHTML = `<div class="flex items-center justify-center h-full bg-black"><video controls class="max-w-full max-h-full outline-none"><source src="${data.url}" type="video/mp4"></video></div>`;
-                else if (data.tipo === 'audio') cHTML = `<div class="flex flex-col items-center justify-center h-full bg-gray-50"><div class="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mb-6 animate-pulse"><i class="fas fa-music text-4xl text-gray-400"></i></div><audio controls class="w-1/2"><source src="${data.url}" type="audio/mpeg"></audio></div>`;
-                else if (data.tipo === 'texto') cHTML = `<div class="bg-gray-900 w-full h-full p-6 overflow-auto"><pre class="text-green-400 font-mono text-sm whitespace-pre-wrap">${data.html}</pre></div>`;
-                else cHTML = `<div class="flex flex-col items-center justify-center h-full text-center"><div class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4"><i class="fas fa-file-download text-4xl text-gray-400"></i></div><h3 class="text-xl font-bold text-gray-700 mb-2">Vista previa no disponible</h3><a href="/archivo/descargar/${id}/" download class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#A855F7] transition-colors shadow-lg">Descargar Archivo</a></div>`;
-                body.innerHTML = cHTML;
-            })
-            .catch(error => { body.innerHTML = '<div class="flex items-center justify-center h-full text-red-500 font-bold">Error al cargar el archivo.</div>'; });
+    function ejecutarMasivo(a) { 
+        if(a === 'eliminar' && !confirm('¿Estás totalmente seguro de eliminar estos archivos de forma irreversible?')) return; 
+        document.getElementById('input-accion').value = a; 
+        document.getElementById('form-masivo').submit(); 
     }
-
+    
+    function cerrarMasivo() { 
+        document.querySelectorAll('.doc-check').forEach(c => c.checked=false); 
+        // También desmarcar el checkbox principal si existe
+        const mainCheck = document.querySelector('thead input[type="checkbox"]');
+        if(mainCheck) mainCheck.checked = false;
+        verificarSeleccion(); 
+    }
+    
+    // Manejo de Modales de Negocio (Mover)
     function abrirModalMover(archivoId, nombreArchivo) {
         document.getElementById('form-mover').action = `/archivo/mover/${archivoId}/`;
         document.getElementById('lbl-mover-archivo').innerText = nombreArchivo;
@@ -870,31 +839,8 @@
         }
     }
 
-    function abrirModalRequisito(carpetaId, nombreRequisito) {
-        document.getElementById('form-requisito').action = `/drive/subir-requisito/${carpetaId}/`;
-        document.getElementById('lbl-requisito').innerText = nombreRequisito;
-        document.getElementById('input-req-nombre').value = nombreRequisito;
-        openModal('modal-requisito');
-    }
-
-    function abrirModalAuditoria(id, nombre, url) {
-        const viewer = document.getElementById('auditoria-viewer');
-        const loader = document.getElementById('auditoria-loader');
-        
-        viewer.classList.add('hidden'); loader.classList.remove('hidden');
-        document.getElementById('auditoria-titulo').innerText = nombre; viewer.src = url;
-        
-        const btnAprobar = document.getElementById('btn-auditoria-aprobar');
-        btnAprobar.href = `/aprobar-archivo/${id}/`;
-        document.getElementById('btn-auditoria-rechazar').href = `/rechazar-archivo/${id}/`;
-        
-        openModal('modal-auditoria');
-        
-        viewer.onload = function() { loader.classList.add('hidden'); viewer.classList.remove('hidden'); };
-    }
-
     // ==========================================
-    // LÓGICA DE FILTROS PARA BITÁCORA
+    // 4. LÓGICA DE FILTROS PARA BITÁCORA
     // ==========================================
     function filtrarBitacora() {
         const accionVal = document.getElementById('filter-accion').value.toLowerCase();
@@ -908,7 +854,6 @@
             const itemAccion = item.dataset.accion;
             const itemFecha = item.dataset.fecha;
             const itemMes = item.dataset.mes;
-
             let mostrar = true;
 
             if (accionVal !== 'all' && !itemAccion.includes(accionVal)) mostrar = false;
@@ -916,10 +861,12 @@
             if (mesVal !== 'all' && itemMes !== mesVal) mostrar = false;
 
             if (mostrar) {
-                item.style.display = 'block';
+                item.classList.remove('hidden');
+                item.classList.add('flex');
                 visibles++;
             } else {
-                item.style.display = 'none';
+                item.classList.add('hidden');
+                item.classList.remove('flex');
             }
         });
 
