@@ -430,26 +430,15 @@ def crear_carpetas_base(sender, instance, created, **kwargs):
             'REGISTRO AMBIENTAL ESTATAL', 
             'CEDULA DE ZONIFICACIÓN', 
             'LICENCIA DE USO DE SUELO',
-            'Cotizaciones' # Carpeta del sistema
+            'Cotizaciones',
+            'Autorizaciones liberadas'  # <-- Agregada como carpeta raíz
         ]
         for nombre in carpetas_nombres:
-            carpeta_padre, _ = Carpeta.objects.get_or_create(
+            Carpeta.objects.get_or_create(
                 nombre=nombre,
                 cliente=instance,
                 defaults={'es_expediente': False}
             )
-            
-            # --- CREACIÓN AUTOMÁTICA DE SUB-CARPETA DE ENTREGA ---
-            # Si la carpeta es una de las principales (tiene requisitos),
-            # le creamos su subcarpeta para entregar el documento final.
-            if nombre != 'CARPETA ADMINISTRATIVA' and nombre != 'Cotizaciones':
-                Carpeta.objects.get_or_create(
-                    nombre="Autorizaciones liberadas",
-                    cliente=instance,
-                    padre=carpeta_padre,
-                    defaults={'es_expediente': False}
-                )
-
 # ==========================================
 # 9. CARGA EXTERNA (CLIENT PORTAL)
 # ==========================================

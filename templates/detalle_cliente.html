@@ -79,12 +79,13 @@
             </nav>
             <div class="flex gap-2">
                 
-                {% if carpeta_actual and carpeta_actual.nombre == 'Autorizaciones liberadas' %}
+                {% if carpeta_actual and carpeta_actual.nombre == 'Autorizaciones liberadas' and user.rol == 'admin' %}
                 <a href="{% url 'preparar_entrega' cliente.id carpeta_actual.id %}" class="bg-gradient-to-r from-red-500 to-red-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:from-red-600 hover:to-red-700 shadow-lg flex items-center gap-2 animate__animated animate__pulse">
                     <i class="fas fa-paper-plane"></i> ENVIAR AUTORIZACIONES
                 </a>
                 {% endif %}
-                {% if user.can_edit_client or user.rol == 'admin' %}
+                
+                {% if user.rol == 'admin' %}
                 <a href="{% url 'generar_link_externo' cliente.id %}" class="bg-indigo-600 text-white px-4 py-2 rounded-xl font-bold text-xs hover:bg-indigo-700 shadow-md flex items-center gap-2 transition-colors">
                     <i class="fas fa-link"></i> LINK CLIENTE
                 </a>
@@ -151,8 +152,6 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                 {% for carpeta in carpetas %}
                 
-                {% if carpeta.nombre != 'Autorizaciones liberadas' or user.rol == 'admin' %}
-                
                 <div class="rounded-xl p-4 border shadow-sm relative transition-all hover:shadow-md 
                     {% if carpeta.nombre == 'Autorizaciones liberadas' %}
                         bg-red-50 border-red-300 shadow-red-100
@@ -212,7 +211,7 @@
                     {% endwith %}
                 </div>
                 
-                {% endif %} {% endfor %}
+                {% endfor %}
             </div>
             {% endif %}
 
@@ -530,9 +529,7 @@
                 <select name="carpeta_destino" class="w-full p-3 bg-gray-50 rounded-xl font-bold border-none text-[#2D1B4B] focus:ring-2 focus:ring-[#A855F7] outline-none" onchange="verificarDestinoMover(this)">
                     <option value="ROOT" data-nombre="ROOT">📂 -- Carpeta Raíz --</option>
                     {% for c in todas_carpetas %}
-                        {% if c.nombre != 'Autorizaciones liberadas' or user.rol == 'admin' %}
-                            <option value="{{ c.id }}" data-nombre="{{ c.nombre }}">📂 {{ c.nombre }}</option>
-                        {% endif %}
+                        <option value="{{ c.id }}" data-nombre="{{ c.nombre }}">📂 {{ c.nombre }}</option>
                     {% endfor %}
                 </select>
             </label>
