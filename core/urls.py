@@ -109,7 +109,7 @@ urlpatterns = [
     path('agenda/crear/', views.crear_evento, name='crear_evento'),
     path('agenda/eliminar/<int:evento_id>/', views.eliminar_evento, name='eliminar_evento'),
     path('agenda/mover/', views.mover_evento_api, name='mover_evento_api'),
-    path('cliente/<int:cliente_id>/carpetas-especiales/', views.crear_carpetas_especiales, name='crear_carpetas_especiales'),
+    path('cliente/<uuid:cliente_id>/carpetas-especiales/', views.crear_carpetas_especiales, name='crear_carpetas_especiales'),
     # PARCHE DE EMERGENCIA: Acepta la ruta vieja por si el navegador tiene caché
     path('expedientes/drive/subir-requisito/<int:carpeta_id>/', views.subir_archivo_requisito),
 ]
