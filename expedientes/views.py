@@ -337,9 +337,8 @@ def detalle_cliente(request, cliente_id, carpeta_id=None):
 
     todas_carpetas = cliente.carpetas_drive.all()
     
-    historial = [] 
-    if hasattr(cliente, 'bitacora'):
-        historial = cliente.bitacora.all().select_related('usuario').order_by('-fecha')[:10]
+    # ---> AQUI ESTÁ LA CORRECCIÓN: 'bitacora_set' EN LUGAR DE 'hasattr' <---
+    historial = cliente.bitacora_set.all().select_related('usuario').order_by('-fecha')[:10]
 
     archivos_pendientes = ArchivoTemporal.objects.filter(solicitud__cliente=cliente)
 
@@ -1952,6 +1951,9 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
+        # ---> REGISTRO EN BITÁCORA AÑADIDO <---
+        registrar_bitacora(request.user, doc.cliente, 'descarga', f"Descargó el archivo individual: '{doc.nombre_archivo}'.")
+        
         # En lugar de redirigir a S3, leemos el archivo y forzamos el nombre original
         response = HttpResponse(doc.archivo.read())
         
@@ -1964,7 +1966,7 @@ def descargar_archivo_oficial(request, archivo_id):
     except Exception as e:
         logger.error(f"Error crítico en descarga: {str(e)}")
         messages.error(request, f"Error técnico al descargar: {str(e)}")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)    
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)
@@ -2537,11 +2539,14 @@ def crear_carpetas_especiales(request, cliente_id):
         carpetas_seleccionadas = request.POST.getlist('carpetas')
         
         for nombre in carpetas_seleccionadas:
-            Carpeta.objects.get_or_create(
+            carpeta, creada = Carpeta.objects.get_or_create(
                 nombre=nombre,
                 cliente=cliente,
                 defaults={'es_expediente': False}
             )
+            # ---> REGISTRO EN BITÁCORA AÑADIDO <---
+            if creada:
+                registrar_bitacora(request.user, cliente, 'creacion', f"Se generó la carpeta del sistema: '{nombre}'.")
         
         messages.success(request, f"Se generaron o actualizaron {len(carpetas_seleccionadas)} carpetas especiales.")
         
