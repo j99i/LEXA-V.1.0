@@ -1763,6 +1763,37 @@ def generador_qr(request):
         'color_fill': color_fill,
         'color_back': color_back
     })
+
+@login_required
+def buscar_cliente_api(request):
+    query = request.GET.get('q', '')
+    if len(query) < 2:
+        return JsonResponse([], safe=False)
+    
+    clientes_encontrados = Cliente.objects.filter(
+        Q(nombre_empresa__icontains=query) | 
+        Q(nombre_contacto__icontains=query)
+    )[:5]
+
+    resultados = []
+    for c in clientes_encontrados:
+        direccion = ""
+        cargo = ""
+        if c.datos_extra and isinstance(c.datos_extra, dict):
+            direccion = c.datos_extra.get('direccion', '')
+            cargo = c.datos_extra.get('cargo', '')
+
+        resultados.append({
+            'prospecto_empresa': c.nombre_empresa,
+            'prospecto_nombre': c.nombre_contacto,
+            'prospecto_email': c.email,
+            'prospecto_telefono': c.telefono,
+            'prospecto_direccion': direccion,
+            'prospecto_cargo': cargo
+        })
+
+    return JsonResponse(resultados, safe=False)
+
 @login_required
 def generar_link_externo(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
