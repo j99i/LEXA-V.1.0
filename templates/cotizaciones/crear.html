@@ -10,7 +10,7 @@
         <div class="mb-8">
             <label class="block text-xs font-bold text-gray-400 uppercase mb-2" for="titulo">Nombre del Proyecto *</label>
             <div class="relative group">
-                <i class="fas fa-pen absolute left-0 top-3 text-gray-300 group-hover:text-[#A855F7] transition-colors"></i>
+                <i class="fas fa-pen absolute left-0 top-3 text-gray-300 group-hover:text-[#A855F7] transition-colors" aria-hidden="true"></i>
                 <input type="text" name="titulo" id="titulo" required
                        class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#2D1B4B] placeholder-gray-300 focus:border-[#A855F7] focus:outline-none py-2 pl-8 transition-all"
                        placeholder="Ej. Licencia 2026 - Coca Cola" autofocus>
@@ -21,60 +21,60 @@
             
             <div class="lg:col-span-1 space-y-6">
                 
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-hidden">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-visible z-20">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#2D1B4B] to-[#A855F7]"></div>
                     <h3 class="text-lg font-bold text-[#2D1B4B] mb-6 flex items-center gap-2">
-                        <i class="fas fa-user-tie text-[#A855F7]"></i> Datos del Cliente
+                        <i class="fas fa-user-tie text-[#A855F7]" aria-hidden="true"></i> Datos del Cliente
                     </h3>
                     
                     <div class="space-y-4">
                         <div class="relative">
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="input-empresa">Empresa *</label>
                             <input type="text" id="input-empresa" name="prospecto_empresa" autocomplete="off" required
-                                   class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]" 
+                                   class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B] transition-colors" 
                                    placeholder="Buscar o escribir...">
                             
                             <div id="spinner-busqueda" class="hidden absolute right-3 top-9 text-[#A855F7] animate-spin">
-                                <i class="fas fa-circle-notch"></i>
+                                <i class="fas fa-circle-notch" aria-hidden="true"></i>
                             </div>
 
-                            <ul id="lista-sugerencias" class="hidden absolute z-50 w-full bg-white border border-gray-100 rounded-xl shadow-2xl mt-1 max-h-60 overflow-y-auto"></ul>
+                            <ul id="lista-sugerencias" role="listbox" class="hidden absolute z-50 w-full bg-white border border-gray-100 rounded-xl shadow-2xl mt-1 max-h-60 overflow-y-auto custom-scrollbar"></ul>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Contacto *</label>
-                            <input type="text" name="prospecto_nombre" id="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B]">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_nombre">Contacto *</label>
+                            <input type="text" name="prospecto_nombre" id="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B] transition-colors">
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cargo *</label>
-                            <input type="text" name="prospecto_cargo" id="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-gray-600">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_cargo">Cargo *</label>
+                            <input type="text" name="prospecto_cargo" id="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-gray-600 transition-colors">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Email *</label>
-                                <input type="email" name="prospecto_email" id="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_email">Email *</label>
+                                <input type="email" name="prospecto_email" id="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm transition-colors">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Teléfono *</label>
-                                <input type="text" name="prospecto_telefono" id="prospecto_telefono" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm">
+                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_telefono">Teléfono *</label>
+                                <input type="text" name="prospecto_telefono" id="prospecto_telefono" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm transition-colors">
                             </div>
                         </div>
 
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Dirección Fiscal *</label>
-                            <textarea name="prospecto_direccion" id="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm resize-none"></textarea>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_direccion">Dirección Fiscal *</label>
+                            <textarea name="prospecto_direccion" id="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm resize-none transition-colors"></textarea>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100">
+                <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 z-10 relative">
                      <h3 class="text-sm font-bold text-[#2D1B4B] mb-4">Condiciones Comerciales</h3>
                      <div class="space-y-4">
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Tiempo de Gestión</label>
-                            <select name="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7]">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="tiempo_entrega">Tiempo de Gestión</label>
+                            <select name="tiempo_entrega" id="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors cursor-pointer">
                                 <option value="30_dias">30 Días Hábiles</option>
                                 <option value="60_dias">60 Días Hábiles</option>
                                 <option value="90_dias">90 Días Hábiles</option>
@@ -82,8 +82,8 @@
                             </select>
                         </div>
                         <div>
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Condiciones de Pago</label>
-                            <select name="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7]">
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="condiciones_pago">Condiciones de Pago</label>
+                            <select name="condiciones_pago" id="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors cursor-pointer">
                                 <option value="50_50">50% Anticipo - 50% Final</option>
                                 <option value="100_entrega">100% Contra Entrega</option>
                                 <option value="contado">Pago de Contado</option>
@@ -94,21 +94,21 @@
 
             </div>
 
-            <div class="lg:col-span-2 space-y-6">
+            <div class="lg:col-span-2 space-y-6 z-10 relative">
                 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-lg font-bold text-[#2D1B4B] flex items-center gap-2">
-                            <i class="fas fa-list-ul text-[#A855F7]"></i> Conceptos
+                            <i class="fas fa-list-ul text-[#A855F7]" aria-hidden="true"></i> Conceptos
                         </h3>
-                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md">
+                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md active:scale-95">
                             + AGREGAR
                         </button>
                     </div>
 
                     <div id="contenedor-items" class="space-y-4 flex-1">
                         <div class="text-center text-gray-300 py-10" id="empty-state">
-                            <i class="fas fa-calculator text-4xl mb-2"></i>
+                            <i class="fas fa-calculator text-4xl mb-2" aria-hidden="true"></i>
                             <p>Agregue servicios para calcular.</p>
                         </div>
                     </div>
@@ -125,7 +125,7 @@
                                 <span class="text-xs font-bold text-[#A855F7] uppercase">Descuento (%):</span>
                                 <div class="relative w-24">
                                     <input type="number" name="porcentaje_descuento" id="input-porcentaje" value="0" step="0.1" min="0" max="100" 
-                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#A855F7] rounded-lg text-sm font-black text-[#A855F7] outline-none">
+                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#A855F7] rounded-lg text-sm font-black text-[#A855F7] outline-none transition-colors">
                                     <span class="absolute right-2 top-1.5 text-[#A855F7] font-bold">%</span>
                                 </div>
                             </div>
@@ -174,12 +174,14 @@
             </div>
         </div>
 
-        <div class="fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-40 flex justify-end gap-4 md:px-10 animate__animated animate__slideInUp">
-            <a href="{% url 'lista_cotizaciones' %}" class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-colors">
+        <div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.1)] z-40 flex justify-end gap-4 md:px-10 animate__animated animate__slideInUp">
+            <a href="{% url 'lista_cotizaciones' %}" class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-colors focus:outline-none">
                 Cancelar
             </a>
-            <button type="submit" class="px-10 py-3 bg-[#A855F7] text-white rounded-xl font-bold hover:bg-[#9333EA] shadow-lg transition-transform hover:scale-105 flex items-center gap-2">
-                <i class="fas fa-save"></i> GUARDAR COTIZACIÓN
+            <button type="submit" id="btn-submit" class="px-10 py-3 bg-[#A855F7] text-white rounded-xl font-bold hover:bg-[#9333EA] shadow-lg transition-all hover:scale-105 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-75 disabled:transform-none disabled:cursor-not-allowed">
+                <i class="fas fa-save icon-normal" aria-hidden="true"></i> 
+                <i class="fas fa-circle-notch fa-spin hidden icon-loading" aria-hidden="true"></i>
+                <span class="btn-text">GUARDAR COTIZACIÓN</span>
             </button>
         </div>
         <div class="h-20"></div>
@@ -189,36 +191,43 @@
 
 <template id="template-item">
     <div class="item-fila bg-white p-5 rounded-2xl border border-gray-100 shadow-sm relative animate__animated animate__fadeInUp transition-all hover:shadow-md">
-        <button type="button" aria-label="Eliminar servicio" title="Eliminar servicio" class="btn-eliminar-item absolute -top-2 -right-2 w-8 h-8 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center">
-            <i class="fas fa-times"></i>
+        <button type="button" aria-label="Eliminar servicio" title="Eliminar servicio" class="btn-eliminar-item absolute -top-2 -right-2 w-8 h-8 bg-red-50 text-red-500 rounded-full hover:bg-red-500 hover:text-white transition-all shadow-sm flex items-center justify-center focus:outline-none">
+            <i class="fas fa-times" aria-hidden="true"></i>
         </button>
 
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="md:col-span-6">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio">
+                <select name="servicios_seleccionados[]" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio cursor-pointer focus:border-[#A855F7] transition-colors">
                     <option value="">-- Seleccionar --</option>
                     {% for s in servicios %}
-                    <option value="{{ s.id }}" data-precio="{{ s.precio_base }}" data-desc="{{ s.descripcion }}">{{ s.nombre }}</option>
+                    <option value="{{ s.id }}" data-precio="{{ s.precio_base|default:0 }}" data-desc="{{ s.descripcion|escapejs }}">{{ s.nombre }}</option>
                     {% endfor %}
                 </select>
-                <textarea name="descripciones_personalizadas" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border-none text-xs text-gray-500 txt-desc resize-none" placeholder="Descripción..."></textarea>
+                <textarea name="descripciones_personalizadas[]" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-xs text-gray-500 txt-desc resize-none outline-none transition-colors" placeholder="Descripción..."></textarea>
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cant. *</label>
-                <input type="number" name="cantidades" value="1" min="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-center input-cant">
+                <input type="number" name="cantidades[]" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-center input-cant outline-none transition-colors">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Precio Unit. *</label>
-                <input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border-none text-sm font-black text-right input-precio">
+                <input type="number" name="precios_personalizados[]" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-right input-precio outline-none transition-colors">
             </div>
             <div class="md:col-span-2 text-right pt-6">
                 <span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span>
-                <span class="text-sm font-black text-[#2D1B4B] lbl-subtotal-fila">$0.00</span>
+                <span class="text-sm font-black text-[#2D1B4B] lbl-subtotal-fila truncate block" title="$0.00">$0.00</span>
             </div>
         </div>
     </div>
 </template>
+
+<style>
+    /* Scrollbar minimalista para los resultados de búsqueda */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 20px; }
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
@@ -239,12 +248,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const listaSugerencias = document.getElementById('lista-sugerencias');
     const spinnerBusqueda = document.getElementById('spinner-busqueda');
 
-    // === SISTEMA DE NOTIFICACIONES TOAST (UX) ===
+    // === SISTEMA DE NOTIFICACIONES TOAST (UX / A11Y Mejorado) ===
     function mostrarNotificacion(mensaje, tipo = 'error') {
         const toast = document.createElement('div');
         const colorBg = tipo === 'error' ? 'bg-red-500' : 'bg-green-500';
+        toast.setAttribute('role', 'alert');
+        toast.setAttribute('aria-live', 'assertive');
         toast.className = `fixed top-4 right-4 p-4 rounded-xl shadow-lg text-white font-bold z-50 flex items-center gap-2 animate__animated animate__fadeInRight ${colorBg}`;
-        toast.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}"></i> ${mensaje}`;
+        toast.innerHTML = `<i class="fas ${tipo === 'error' ? 'fa-exclamation-circle' : 'fa-check-circle'}" aria-hidden="true"></i> ${mensaje}`;
         
         document.body.appendChild(toast);
         
@@ -260,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('beforeunload', (e) => {
         if (!formularioEnviado && document.querySelectorAll('.item-fila').length > 0) {
             e.preventDefault();
-            e.returnValue = ''; 
+            e.returnValue = ''; // Requerido por navegadores modernos
         }
     });
 
@@ -269,11 +280,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.closest('.btn-eliminar-item')) {
             const fila = e.target.closest('.item-fila');
             if (fila) {
-                fila.remove();
-                if (contenedorItems.querySelectorAll('.item-fila').length === 0) {
-                    emptyState.classList.remove('hidden');
-                }
-                calcularTotales();
+                // Pequeña animación antes de eliminar
+                fila.classList.add('animate__fadeOutDown', 'opacity-0');
+                setTimeout(() => {
+                    fila.remove();
+                    if (contenedorItems.querySelectorAll('.item-fila').length === 0) {
+                        emptyState.classList.remove('hidden');
+                    }
+                    calcularTotales();
+                }, 300); // Sincronizado con animate.css
             }
         }
     });
@@ -318,7 +333,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const cant = parseFloat(fila.querySelector('.input-cant').value) || 0;
         const precio = parseFloat(fila.querySelector('.input-precio').value) || 0;
         const total = cant * precio;
-        fila.querySelector('.lbl-subtotal-fila').textContent = '$' + total.toLocaleString('es-MX', {minimumFractionDigits: 2});
+        const totalStr = '$' + total.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        
+        const labelFila = fila.querySelector('.lbl-subtotal-fila');
+        labelFila.textContent = totalStr;
+        labelFila.title = totalStr; // Por si el número es muy largo y se trunca
+        
         calcularTotales();
     }
 
@@ -352,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const rowDescuentoMonto = document.getElementById('row-descuento-monto');
         if (montoDescuento > 0) {
             rowDescuentoMonto.classList.remove('hidden');
-            document.getElementById('lbl-subtotal-descuento').textContent = '$' + baseImponible.toLocaleString('es-MX', {minimumFractionDigits: 2});
+            document.getElementById('lbl-subtotal-descuento').textContent = '$' + baseImponible.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         } else {
             rowDescuentoMonto.classList.add('hidden');
         }
@@ -371,9 +391,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let totalFinal = baseImponible + montoIva;
 
-        document.getElementById('lbl-subtotal').textContent = '$' + subtotalGeneral.toLocaleString('es-MX', {minimumFractionDigits: 2});
-        document.getElementById('lbl-iva').textContent = '$' + montoIva.toLocaleString('es-MX', {minimumFractionDigits: 2});
-        document.getElementById('lbl-total').textContent = '$' + totalFinal.toLocaleString('es-MX', {minimumFractionDigits: 2});
+        document.getElementById('lbl-subtotal').textContent = '$' + subtotalGeneral.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('lbl-iva').textContent = '$' + montoIva.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+        document.getElementById('lbl-total').textContent = '$' + totalFinal.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
     }
 
     // === VALIDACIÓN AL ENVIAR ===
@@ -396,6 +416,17 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
         
+        // Bloquear botón para evitar dobles envíos
+        const btnSubmit = document.getElementById('btn-submit');
+        if (btnSubmit.disabled) {
+            e.preventDefault();
+            return false;
+        }
+        btnSubmit.disabled = true;
+        btnSubmit.querySelector('.icon-normal').classList.add('hidden');
+        btnSubmit.querySelector('.icon-loading').classList.remove('hidden');
+        btnSubmit.querySelector('.btn-text').textContent = 'GUARDANDO...';
+
         formularioEnviado = true; // Permite salir sin disparar beforeunload
     });
 
@@ -426,6 +457,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (i === indexSeleccionado) {
                 item.classList.add('bg-purple-100'); 
                 item.classList.remove('hover:bg-purple-50');
+                // Scroll automático si usamos teclado
+                item.scrollIntoView({ block: 'nearest' });
             } else {
                 item.classList.remove('bg-purple-100');
                 item.classList.add('hover:bg-purple-50');
@@ -435,7 +468,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     inputEmpresa.addEventListener('input', function() {
         clearTimeout(debounceTimer);
-        const query = this.value;
+        const query = this.value.trim();
         indexSeleccionado = -1; 
 
         if (query.length < 2) { 
@@ -449,6 +482,8 @@ document.addEventListener('DOMContentLoaded', () => {
         debounceTimer = setTimeout(async () => {
             try {
                 const response = await fetch(`/api/buscar-cliente/?q=${encodeURIComponent(query)}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
                 const datos = await response.json();
                 listaSugerencias.innerHTML = '';
                 
@@ -456,20 +491,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     listaSugerencias.classList.remove('hidden');
                     datos.forEach(cliente => {
                         const li = document.createElement('li');
-                        li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3";
+                        li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 transition-colors";
+                        li.setAttribute('role', 'option');
                         
-                        // Prevención XSS
+                        // Creación segura de elementos
                         const iconDiv = document.createElement('div');
-                        iconDiv.className = "bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs";
-                        iconDiv.innerHTML = '<i class="fas fa-history"></i>'; 
+                        iconDiv.className = "bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0";
+                        iconDiv.innerHTML = '<i class="fas fa-history" aria-hidden="true"></i>'; 
                         
                         const textDiv = document.createElement('div');
+                        textDiv.className = "flex-1 min-w-0";
+
                         const pEmpresa = document.createElement('p');
-                        pEmpresa.className = "text-sm font-bold";
+                        pEmpresa.className = "text-sm font-bold text-[#2D1B4B] truncate";
                         pEmpresa.textContent = cliente.prospecto_empresa;
                         
                         const pNombre = document.createElement('p');
-                        pNombre.className = "text-xs text-gray-400";
+                        pNombre.className = "text-xs text-gray-400 truncate";
                         pNombre.textContent = cliente.prospecto_nombre; 
                         
                         textDiv.appendChild(pEmpresa);
@@ -495,11 +533,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } catch (e) {
                 console.error("Error en buscador:", e);
-                mostrarNotificacion('Error al buscar clientes.');
+                // Opcional: mostrarNotificacion('Error de conexión al buscar clientes.');
             } finally {
                 spinnerBusqueda.classList.add('hidden');
             }
-        }, 300);
+        }, 400); // Aumentado ligeramente a 400ms para no saturar el servidor
     });
     
     // Cerrar sugerencias al hacer clic fuera

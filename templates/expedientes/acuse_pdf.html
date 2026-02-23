@@ -6,10 +6,10 @@
     {% load static %}
     {% load humanize %}
     <style>
-        /* --- CONFIGURACIÓN DE LA HOJA --- */
+        /* --- CONFIGURACIÓN DE LA HOJA (MÁS COMPACTA) --- */
         @page {
             size: Letter;
-            margin: 2cm 1.8cm;
+            margin: 1.2cm 1.5cm; /* Márgenes reducidos para ganar espacio */
             @bottom-right {
                 content: "Página " counter(page);
                 font-family: 'Helvetica', sans-serif;
@@ -21,8 +21,8 @@
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
             color: #2D1B4B; 
-            font-size: 10pt;
-            line-height: 1.5;
+            font-size: 9.5pt; /* Ligeramente más pequeño */
+            line-height: 1.4;
             background-color: #ffffff;
             margin: 0;
             padding: 0;
@@ -31,35 +31,35 @@
         /* --- ENCABEZADO --- */
         .header {
             border-bottom: 3px solid #2D1B4B;
-            padding-bottom: 15px;
-            margin-bottom: 30px;
+            padding-bottom: 10px; /* Reducido */
+            margin-bottom: 15px; /* Reducido */
             overflow: hidden;
         }
         .header-left { float: left; width: 60%; }
         .header-right { float: right; width: 40%; text-align: right; padding-top: 5px; }
 
-        .logo-img { height: 55px; width: auto; vertical-align: middle; margin-right: 12px; }
+        .logo-img { height: 45px; width: auto; vertical-align: middle; margin-right: 12px; }
         .brand-name { 
-            font-size: 24pt; font-weight: 800; color: #2D1B4B; 
+            font-size: 20pt; font-weight: 800; color: #2D1B4B; 
             display: inline-block; vertical-align: middle; letter-spacing: -1px;
         }
 
         .folio-badge {
-            background-color: #2D1B4B; color: white; padding: 6px 14px;
+            background-color: #2D1B4B; color: white; padding: 4px 12px;
             border-radius: 20px; font-size: 8pt; font-weight: 700;
             text-transform: uppercase; display: inline-block; margin-bottom: 6px;
         }
-        .location-date { font-size: 9pt; color: #4B5563; font-weight: 500; }
+        .location-date { font-size: 8.5pt; color: #4B5563; font-weight: 500; }
 
         /* --- TARJETAS DE INFORMACIÓN --- */
-        .info-container { overflow: hidden; margin-bottom: 30px; }
+        .info-container { overflow: hidden; margin-bottom: 15px; }
         
         .info-box {
             float: left; width: 48%;
             background-color: #F8F9FA;
             border: 1px solid #E9ECEF;
             border-radius: 8px;
-            padding: 18px;
+            padding: 12px 15px; /* Padding reducido */
             box-sizing: border-box;
         }
 
@@ -72,91 +72,96 @@
         .card-label {
             font-size: 7pt; font-weight: 800; color: #A855F7; 
             text-transform: uppercase; letter-spacing: 1.2px; 
-            margin-bottom: 10px; display: block;
+            margin-bottom: 6px; display: block;
         }
 
-        .client-name { font-weight: 700; font-size: 11pt; color: #2D1B4B; margin-bottom: 4px; text-transform: uppercase; }
-        .client-detail { font-size: 9pt; color: #4B5563; margin-bottom: 3px; }
+        .client-name { font-weight: 700; font-size: 10.5pt; color: #2D1B4B; margin-bottom: 3px; text-transform: uppercase; }
+        .client-detail { font-size: 8.5pt; color: #4B5563; margin-bottom: 3px; }
         
         .presente {
-            display: block; margin: 12px 0; font-size: 8pt; 
+            display: block; margin: 8px 0; font-size: 8pt; 
             font-weight: 800; color: #2D1B4B; letter-spacing: 3px;
         }
 
         .attn-line {
-            margin-top: 10px; padding-top: 10px; border-top: 1px dotted #D1D5DB;
+            margin-top: 8px; padding-top: 8px; border-top: 1px dotted #D1D5DB;
         }
 
-        .subject-text { font-size: 9pt; color: #4B5563; line-height: 1.6; text-align: justify; }
+        .subject-text { font-size: 8.5pt; color: #4B5563; line-height: 1.5; text-align: justify; margin: 0; }
 
         /* --- TABLA --- */
         .section-title {
-            font-size: 10pt; font-weight: 700; color: #2D1B4B; margin-bottom: 10px;
-            padding-bottom: 6px; border-bottom: 2px solid #E5E7EB; text-transform: uppercase;
+            font-size: 9.5pt; font-weight: 700; color: #2D1B4B; margin-bottom: 8px;
+            padding-bottom: 4px; border-bottom: 2px solid #E5E7EB; text-transform: uppercase;
         }
 
         .data-table { 
-            width: 100%; border-collapse: collapse; margin-bottom: 20px; 
+            width: 100%; border-collapse: collapse; margin-bottom: 15px; 
             table-layout: fixed;
         }
         .data-table thead { display: table-header-group; }
         .data-table tr { page-break-inside: avoid; }
 
         .data-table th {
-            background-color: #2D1B4B; color: #ffffff; padding: 10px 12px;
-            text-align: left; font-size: 8pt; font-weight: 700; text-transform: uppercase;
+            background-color: #2D1B4B; color: #ffffff; padding: 8px 10px; /* Reducido */
+            text-align: left; font-size: 7.5pt; font-weight: 700; text-transform: uppercase;
         }
         .data-table td { 
-            padding: 12px; border-bottom: 1px solid #E5E7EB; vertical-align: top; 
+            padding: 10px; border-bottom: 1px solid #E5E7EB; vertical-align: top; /* Reducido */
             word-wrap: break-word;
         }
         .data-table tr:nth-child(even) { background-color: #F9FAFB; }
 
-        .doc-name { font-weight: 600; color: #2D1B4B; font-size: 9.5pt; display: block; margin-bottom: 4px; }
+        .doc-name { font-weight: 600; color: #2D1B4B; font-size: 9pt; display: block; margin-bottom: 4px; }
         .doc-vence { 
-            font-size: 7.5pt; font-weight: 700; color: #DC2626; 
+            font-size: 7pt; font-weight: 700; color: #DC2626; 
             background-color: #FEF2F2; padding: 2px 6px; border-radius: 4px; 
             display: inline-block; border: 1px solid #FECACA;
         }
 
         /* --- CHECKLIST --- */
         ul.checklist { margin: 0; padding-left: 15px; list-style: none; }
-        ul.checklist li { margin-bottom: 4px; position: relative; font-size: 9pt; color: #4B5563; }
+        ul.checklist li { margin-bottom: 3px; position: relative; font-size: 8.5pt; color: #4B5563; }
         ul.checklist li:before { 
             content: "✓"; position: absolute; left: -15px; 
-            color: #10B981; 
-            font-weight: bold; 
+            color: #10B981; font-weight: bold; 
         }
-        .empty-state { font-size: 9pt; color: #9CA3AF; font-style: italic; }
+        .empty-state { font-size: 8.5pt; color: #9CA3AF; font-style: italic; }
+
+        /* --- MAGIA ANTI-HUÉRFANAS --- */
+        .bloque-seguro {
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
 
         /* --- DISCLAIMER --- */
         .disclaimer {
             background-color: #FFFBEB; border-left: 4px solid #F59E0B;
-            padding: 10px 15px; margin: 20px 0; font-size: 8pt; color: #92400E;
+            padding: 8px 12px; margin: 15px 0; font-size: 8pt; color: #92400E;
             text-align: center; border-radius: 0 4px 4px 0;
         }
 
         /* --- OBSERVACIONES --- */
         .obs-container {
             background-color: #F8FAFC; border: 1px solid #E2E8F0;
-            border-left: 4px solid #2D1B4B; padding: 15px; margin-top: 20px;
-            page-break-inside: avoid; border-radius: 4px;
+            border-left: 4px solid #2D1B4B; padding: 12px; margin-top: 15px;
+            border-radius: 4px;
         }
         .obs-title {
-            color: #2D1B4B; font-weight: 700; font-size: 8pt; text-transform: uppercase; margin-bottom: 6px;
+            color: #2D1B4B; font-weight: 700; font-size: 8pt; text-transform: uppercase; margin-bottom: 4px;
         }
-        .obs-content { font-size: 9pt; color: #475569; white-space: pre-line; text-align: justify; }
+        .obs-content { font-size: 8.5pt; color: #475569; white-space: pre-line; text-align: justify; }
 
         /* --- FIRMA --- */
-        .footer-section { margin-top: 40px; text-align: center; page-break-inside: avoid; }
-        .signature-img { width: 150px; height: auto; display: block; margin: 0 auto 5px auto; }
-        .signature-line { border-top: 1px solid #2D1B4B; width: 240px; margin: 0 auto 8px auto; }
-        .signer-name { font-weight: 700; font-size: 10pt; color: #2D1B4B; text-transform: uppercase; }
-        .signer-title { font-size: 8pt; font-weight: 600; color: #A855F7; text-transform: uppercase; }
+        .footer-section { margin-top: 25px; text-align: center; }
+        .signature-img { height: 75px; width: auto; display: block; margin: 0 auto 5px auto; } /* Altura reducida */
+        .signature-line { border-top: 1px solid #2D1B4B; width: 220px; margin: 0 auto 5px auto; }
+        .signer-name { font-weight: 700; font-size: 9.5pt; color: #2D1B4B; text-transform: uppercase; }
+        .signer-title { font-size: 7.5pt; font-weight: 600; color: #A855F7; text-transform: uppercase; }
         
-        .contact-text { font-size: 8pt; color: #64748B; margin-top: 15px; font-weight: 500; }
+        .contact-text { font-size: 7.5pt; color: #64748B; margin-top: 10px; font-weight: 500; }
         .doc-code {
-            margin-top: 10px; font-size: 7pt; color: #94A3B8; font-family: monospace;
+            margin-top: 8px; font-size: 7pt; color: #94A3B8; font-family: monospace;
             background: #F1F5F9; padding: 3px 8px; border-radius: 4px; display: inline-block;
         }
 
@@ -173,7 +178,7 @@
         <div class="header-right">
             <div class="folio-badge">Acuse de Entrega</div>
             <div class="location-date">
-                {{ municipio }}, {{ estado }}<br>
+                {{ municipio|default:"Cuautitlán" }}, {{ estado|default:"Edo. Méx." }}<br>
                 {% now "d \d\e F \d\e Y" %}
             </div>
         </div>
@@ -183,8 +188,8 @@
     <div class="info-container">
         <div class="info-box">
             <span class="card-label">Entregado a</span>
-            <div class="client-name">{{ cliente.nombre_empresa }}</div>
-            <div class="client-detail">{{ cliente.direccion_completa }}</div>
+            <div class="client-name">{{ cliente.nombre_empresa|default:"Cliente" }}</div>
+            <div class="client-detail">{{ cliente.direccion_completa|default:"Domicilio no especificado" }}</div>
             
             <span class="presente">P R E S E N T E</span>
             
@@ -194,7 +199,7 @@
                     <strong style="color: #2D1B4B;">AT'N:</strong> {{ atencion|default:cliente.nombre_contacto }}
                 </div>
                 {% if cargo %}
-                <div class="client-detail" style="font-size: 8pt; font-weight: 700; color: #6B7280;">{{ cargo|upper }}</div>
+                <div class="client-detail" style="font-size: 7.5pt; font-weight: 700; color: #6B7280;">{{ cargo|upper }}</div>
                 {% endif %}
             </div>
             {% endif %}
@@ -243,34 +248,35 @@
         </tbody>
     </table>
 
-    <div class="disclaimer">
-        * La documentación original es responsabilidad única del cliente a partir de este momento.
-    </div>
-
-    {% if observaciones %}
-    <div class="obs-container">
-        <div class="obs-title">Observaciones para Cumplimiento Normativo</div>
-        <div class="obs-content">{{ observaciones }}</div>
-    </div>
-    {% endif %}
-
-    <div class="footer-section">
-        <img src="data:image/png;base64,{{ firma_b64 }}" class="signature-img" alt="Firma">
-
-        <div class="signature-line"></div>
-        <div class="signer-name">Lic. Maribel Aldana Santos</div>
-        <div class="signer-title">Directora General | Gestiones Corpad</div>
-        
-        <div class="contact-text">
-            55 9270 0722 &nbsp;|&nbsp; 
-            ges.corpad@outlook.com &nbsp;|&nbsp; 
-            {{ municipio }}, {{ estado }}
+    <div class="bloque-seguro">
+        <div class="disclaimer">
+            * La documentación original es responsabilidad única del cliente a partir de este momento.
         </div>
-        
-        <div class="doc-code">
-            ACUSE-{{ cliente.nombre_empresa|slice:":3"|upper }}-{% now "Ymd" %}
+
+        {% if observaciones %}
+        <div class="obs-container">
+            <div class="obs-title">Observaciones para Cumplimiento Normativo</div>
+            <div class="obs-content">{{ observaciones }}</div>
+        </div>
+        {% endif %}
+
+        <div class="footer-section">
+            <img src="data:image/png;base64,{{ firma_b64 }}" class="signature-img" alt="Firma">
+
+            <div class="signature-line"></div>
+            <div class="signer-name">Lic. Maribel Aldana Santos</div>
+            <div class="signer-title">Directora General | Gestiones Corpad</div>
+            
+            <div class="contact-text">
+                55 9270 0722 &nbsp;|&nbsp; 
+                ges.corpad@outlook.com &nbsp;|&nbsp; 
+                {{ municipio|default:"Cuautitlán" }}, {{ estado|default:"Edo. Méx." }}
+            </div>
+            
+            <div class="doc-code">
+                ACUSE-{{ cliente.nombre_empresa|slice:":3"|upper|default:"GEN" }}-{% now "Ymd" %}
+            </div>
         </div>
     </div>
-
-</body>
+    </body>
 </html>
