@@ -2467,13 +2467,16 @@ def modulo_gastos(request):
     if mes and mes != '':
         gastos = gastos.filter(fecha_emision__month=mes)
 
+    # AQUÍ ESTÁ LA CORRECCIÓN: Agregamos la suma del subtotal
     totales_db = gastos.aggregate(
         suma_total=Sum('total'), 
-        suma_iva=Sum('total_impuestos')
+        suma_iva=Sum('total_impuestos'),
+        suma_subtotal=Sum('subtotal')  # <--- Suma del Gasto Neto (Base)
     )
     
     total_filtrado = totales_db['suma_total'] or 0
     iva_filtrado = totales_db['suma_iva'] or 0
+    subtotal_filtrado = totales_db['suma_subtotal'] or 0  # <--- Valor extraído de forma segura
 
     resumen_mes = gastos.annotate(mes_trunc=TruncMonth('fecha_emision')).values('mes_trunc').annotate(
         total_mes=Sum('total'),
@@ -2485,11 +2488,11 @@ def modulo_gastos(request):
         'resumen_mes': resumen_mes,
         'total_anual': total_filtrado,
         'iva_anual': iva_filtrado,
+        'subtotal_anual': subtotal_filtrado,  # <--- Enviado al HTML
         'anio_actual': int(anio),
         'mes_actual': mes,
         'ultimos_gastos': gastos.order_by('-fecha_emision')
     })
-
 @login_required
 def exportar_gastos_excel(request):
     if request.user.rol != 'admin': return redirect('dashboard')
