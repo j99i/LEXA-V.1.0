@@ -19,8 +19,8 @@ class Usuario(AbstractUser):
 
     CHOICES_ROL = (
         ('admin', 'Administrador Master'),
-        ('analista_sr', 'Abogado Senior'),
-        ('analista_jr', 'Abogado Junior')
+        ('analista_sr', 'Abogado'),
+        ('analista_jr', 'Analista')
     )
     rol = models.CharField(max_length=20, choices=CHOICES_ROL, default='analista_jr', db_index=True)
     
