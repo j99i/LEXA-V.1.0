@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load l10n %}
 {% load static %}
 
 {% block content %}
@@ -59,7 +60,7 @@
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
             <div class="relative z-10">
                 <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Gasto Neto (Base)</p>
-                <h3 class="text-3xl font-black text-gray-700">$ {{ subtotal_anual|floatformat:2|intcomma }}</h3>
+                <h3 class="text-3xl font-black text-gray-700">$ {{ subtotal_anual|default:0|floatformat:2|intcomma }}</h3>
                 <p class="text-[10px] text-gray-400 mt-2 font-bold">Monto real del gasto sin impuestos</p>
             </div>
             <div class="absolute right-[-20px] bottom-[-20px] text-gray-50 opacity-50 group-hover:scale-110 transition-transform duration-500">
@@ -70,7 +71,7 @@
         <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex flex-col justify-between relative overflow-hidden group hover:shadow-md transition-shadow">
             <div class="relative z-10">
                 <p class="text-[10px] font-black text-[#A855F7] uppercase tracking-widest mb-1">IVA Acreditable</p>
-                <h3 class="text-3xl font-black text-[#A855F7]">$ {{ iva_anual|floatformat:2|intcomma }}</h3>
+                <h3 class="text-3xl font-black text-[#A855F7]">$ {{ iva_anual|default:0|floatformat:2|intcomma }}</h3>
                 <p class="text-[10px] text-gray-400 mt-2 font-bold">Impuesto recuperable / deducible</p>
             </div>
             <div class="absolute right-[-20px] bottom-[-20px] text-purple-50 opacity-50 group-hover:scale-110 transition-transform duration-500">
@@ -81,7 +82,7 @@
         <div class="bg-gradient-to-br from-[#2D1B4B] to-[#1a0f2e] p-6 rounded-[2rem] shadow-xl text-white flex flex-col justify-between relative overflow-hidden group hover:shadow-2xl transition-shadow">
             <div class="relative z-10">
                 <p class="text-[10px] font-black text-gray-300 uppercase tracking-widest mb-1">Total Pagado</p>
-                <h3 class="text-3xl font-black text-white">$ {{ total_anual|floatformat:2|intcomma }}</h3>
+                <h3 class="text-3xl font-black text-white">$ {{ total_anual|default:0|floatformat:2|intcomma }}</h3>
                 <p class="text-[10px] text-gray-400 mt-2 font-bold">Salida total de flujo de efectivo</p>
             </div>
             <div class="absolute right-[-20px] bottom-[-20px] text-white opacity-5 group-hover:scale-110 transition-transform duration-500">
@@ -131,7 +132,7 @@
         <div class="p-6 border-b border-gray-50 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/30">
             <div class="flex items-center gap-3">
                 <h3 class="font-black text-lg text-[#2D1B4B] font-serif">Movimientos</h3>
-                <span class="bg-purple-100 text-[#A855F7] text-[10px] font-black px-2.5 py-1 rounded-full">{{ ultimos_gastos.count }}</span>
+                <span class="bg-purple-100 text-[#A855F7] text-[10px] font-black px-2.5 py-1 rounded-full">{{ ultimos_gastos.count|default:0 }}</span>
             </div>
             
             <div class="relative w-full md:w-80 group">
@@ -168,10 +169,10 @@
                         <td class="p-4">
                             <span class="text-[11px] font-bold text-gray-500 bg-gray-50 px-2 py-1 rounded-md border border-gray-100">Gasto General</span>
                         </td>
-                        <td class="p-4 text-right text-gray-500 font-medium">$ {{ gasto.subtotal|floatformat:2|intcomma }}</td>
-                        <td class="p-4 text-right text-purple-500 font-medium text-xs">+ $ {{ gasto.total_impuestos|floatformat:2|intcomma }}</td>
+                        <td class="p-4 text-right text-gray-500 font-medium">$ {{ gasto.subtotal|default:0|floatformat:2|intcomma }}</td>
+                        <td class="p-4 text-right text-purple-500 font-medium text-xs">+ $ {{ gasto.total_impuestos|default:0|floatformat:2|intcomma }}</td>
                         <td class="p-4 pr-6 text-right font-black text-[#2D1B4B] text-base monto-total">
-                            $ {{ gasto.total|floatformat:2|intcomma }}
+                            $ {{ gasto.total|default:0|floatformat:2|intcomma }}
                         </td>
                         <td class="p-4 text-center">
                             {% if gasto.archivo_xml %}
@@ -221,21 +222,22 @@
         if(xmlInput && formCarga && btnSubirXml) {
             xmlInput.addEventListener('change', function() {
                 if(this.files.length > 0) {
-                    // Feedback visual inmediato
                     btnSubirXml.innerHTML = '<i class="fas fa-spinner fa-spin text-sm"></i> <span>PROCESANDO...</span>';
                     btnSubirXml.classList.add('opacity-70', 'cursor-not-allowed');
                     btnSubirXml.disabled = true;
-                    // Enviar formulario
                     formCarga.submit();
                 }
             });
         }
 
-        // 2. BUSCADOR DE TABLA (Optimizado)
+        // 2. BUSCADOR DE TABLA (Optimizado para números con formato)
         const buscador = document.getElementById('buscadorTabla');
         if(buscador) {
             buscador.addEventListener('input', function(e) {
-                const term = e.target.value.toLowerCase().trim();
+                // Removemos comas y signos de dólar del término de búsqueda para que sea más fácil buscar montos
+                const termStr = e.target.value.toLowerCase().trim();
+                const termNum = termStr.replace(/[$,]/g, '');
+                
                 const filas = document.querySelectorAll('.fila-gasto');
                 const filaSinResultados = document.getElementById('fila-sin-resultados');
                 let visibles = 0;
@@ -243,9 +245,11 @@
                 filas.forEach(fila => {
                     const proveedor = fila.querySelector('.proveedor-nombre')?.innerText.toLowerCase() || "";
                     const rfc = fila.querySelector('.rfc-texto')?.innerText.toLowerCase() || "";
-                    const monto = fila.querySelector('.monto-total')?.innerText.toLowerCase() || "";
+                    // Limpiamos el texto del monto en la tabla para compararlo
+                    const montoTxt = fila.querySelector('.monto-total')?.innerText.toLowerCase() || "";
+                    const montoLimpio = montoTxt.replace(/[$, ]/g, '');
                     
-                    if (proveedor.includes(term) || rfc.includes(term) || monto.includes(term)) {
+                    if (proveedor.includes(termStr) || rfc.includes(termStr) || montoTxt.includes(termStr) || montoLimpio.includes(termNum)) {
                         fila.classList.remove('hidden');
                         visibles++;
                     } else {
@@ -253,8 +257,7 @@
                     }
                 });
 
-                // Mostrar/Ocultar mensaje de "No hay resultados"
-                if(visibles === 0 && term !== "") {
+                if(visibles === 0 && termStr !== "") {
                     filaSinResultados.classList.remove('hidden');
                 } else {
                     filaSinResultados.classList.add('hidden');
@@ -263,7 +266,6 @@
         }
 
         // 3. INICIALIZACIÓN DE GRÁFICAS (Esperamos a que Chart.js cargue)
-        // Usamos un pequeño intervalo por si el defer retrasa un milisegundo la librería
         const checkChartJS = setInterval(() => {
             if (typeof Chart !== 'undefined') {
                 clearInterval(checkChartJS);
@@ -272,14 +274,14 @@
         }, 50);
 
         function inicializarGraficas() {
-            // Datos inyectados desde Django
+            // Se usa unlocalize para evitar que las comas de formato rompan el array en JS
             const datosGastos = [
                 {% for g in ultimos_gastos %}
                 {
                     fecha: "{{ g.fecha_emision|date:'Y-m-d' }}",
                     proveedor: "{{ g.nombre_emisor|escapejs }}", 
-                    total: {{ g.total|stringformat:".2f" }} 
-                },
+                    total: parseFloat("{{ g.total|unlocalize|default:'0' }}")
+                }{% if not forloop.last %},{% endif %}
                 {% endfor %}
             ];
 
@@ -288,7 +290,6 @@
             
             if(datosGastos.length === 0 || !ctxProv || !ctxTend) return;
 
-            // Procesamiento de datos
             const proveedoresMap = {};
             const fechasMap = {};
 
@@ -322,7 +323,7 @@
                         legend: { position: 'bottom', labels: { usePointStyle: true, padding: 15, font: { family: 'Lato', size: 10 } } },
                         tooltip: { callbacks: { label: function(context) { return ' $' + context.raw.toLocaleString('en-US', {minimumFractionDigits: 2}); } } }
                     },
-                    cutout: '65%' // Hace la dona más delgada y elegante
+                    cutout: '65%' 
                 }
             });
 

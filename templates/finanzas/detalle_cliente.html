@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load humanize %}
+{% load l10n %}
 {% block titulo_pagina %}Finanzas: {{ cliente.nombre_empresa }}{% endblock %}
 
 {% block content %}
@@ -102,7 +103,7 @@
                                 </button>
 
                                 {% if cx.estado != 'pagado' %}
-                                <button type="button" onclick="abrirPago('{{ cx.id }}', '{{ cx.concepto|escapejs }}', '{{ cx.saldo_pendiente }}')" class="w-8 h-8 rounded-lg bg-[#2D1B4B] text-white hover:bg-[#A855F7] flex items-center justify-center transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50" title="Registrar Pago">
+                                <button type="button" onclick="abrirPago('{{ cx.id }}', '{{ cx.concepto|escapejs }}', '{{ cx.saldo_pendiente|unlocalize }}', '{{ cx.saldo_pendiente|floatformat:2|intcomma }}')" class="w-8 h-8 rounded-lg bg-[#2D1B4B] text-white hover:bg-[#A855F7] flex items-center justify-center transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50" title="Registrar Pago">
                                     <i class="fas fa-dollar-sign text-[10px]"></i>
                                 </button>
                                 {% else %}
@@ -114,7 +115,7 @@
                                 {% endif %}
 
                                 {% if request.user.rol == 'admin' %}
-                                <form method="POST" action="{% url 'eliminar_finanza' cx.id %}" class="inline-block">
+                                <form method="POST" action="{% url 'eliminar_finanza' cx.id %}" class="inline-block form-prevencion">
                                     {% csrf_token %}
                                     <button type="submit" onclick="return confirm('⚠️ ¿Borrar este cobro permanentemente?')" class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" title="Eliminar Registro">
                                         <i class="fas fa-trash text-[10px]"></i>
@@ -141,7 +142,7 @@
 
 </div>
 
-<div id="modal-orden-cobro" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4">
+<div id="modal-orden-cobro" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-orden-cobro')">
     <div class="bg-white p-8 rounded-[2rem] w-full max-w-lg shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
         <button type="button" onclick="closeModal('modal-orden-cobro')" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none">
             <i class="fas fa-times"></i>
@@ -186,7 +187,7 @@
     </div>
 </div>
 
-<div id="modal-pago" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4">
+<div id="modal-pago" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-pago')">
     <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
         <button type="button" onclick="closeModal('modal-pago')" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none">
             <i class="fas fa-times"></i>
@@ -201,7 +202,7 @@
             <p id="pago-concepto" class="font-bold text-[#A855F7] bg-purple-50 p-2 rounded-lg mt-2 text-sm line-clamp-2"></p>
         </div>
         
-        <form action="{% url 'registrar_pago' %}" method="POST" class="space-y-5">
+        <form action="{% url 'registrar_pago' %}" method="POST" class="space-y-5 form-prevencion">
             {% csrf_token %}
             <input type="hidden" name="cuenta_id" id="input-cuenta-id">
             
@@ -234,7 +235,7 @@
             
             <div class="pt-4 border-t border-gray-100">
                 <button type="submit" class="w-full bg-[#1A2238] text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-[#2C3E50] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group">
-                    <i class="fas fa-check-circle text-green-400"></i> CONFIRMAR PAGO
+                    <i class="fas fa-check-circle text-green-400"></i> <span class="btn-text">CONFIRMAR PAGO</span>
                 </button>
             </div>
         </form>
@@ -242,12 +243,64 @@
 </div>
 
 <script>
-    // PREPARADORES DE MODALES (Llaman al motor openModal de base.html)
+    // ==========================================
+    // 1. MOTOR GLOBAL DE MODALES (Autosuficiente)
+    // ==========================================
+    let activeModalId = null;
 
+    function openModal(modalId) {
+        const modal = document.getElementById(modalId);
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        document.body.style.overflow = 'hidden'; 
+        activeModalId = modalId;
+    }
+
+    function closeModal(modalId = null) {
+        const idToClose = modalId || activeModalId;
+        if (!idToClose) return;
+        const modal = document.getElementById(idToClose);
+        if (!modal) return;
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        document.body.style.overflow = ''; 
+        activeModalId = null;
+    }
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && activeModalId) {
+            closeModal();
+        }
+    });
+
+    // ==========================================
+    // 2. PREVENCIÓN DE DOBLE CLIC EN FORMS
+    // ==========================================
+    document.querySelectorAll('.form-prevencion').forEach(form => {
+        form.addEventListener('submit', function() {
+            const btn = this.querySelector('button[type="submit"]');
+            if(btn) {
+                btn.disabled = true;
+                const textSpan = btn.querySelector('.btn-text');
+                if (textSpan) textSpan.innerText = 'PROCESANDO...';
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.classList.remove('fa-check-circle', 'fa-trash');
+                    icon.classList.add('fa-spinner', 'fa-spin');
+                }
+                btn.classList.add('opacity-70', 'cursor-not-allowed');
+            }
+        });
+    });
+
+    // ==========================================
+    // 3. LÓGICA DE NEGOCIO (COBROS Y PAGOS)
+    // ==========================================
     function abrirModalCobro(id, tipo) {
         document.getElementById('cobro-cuenta-id').value = id;
         document.getElementById('cobro-tipo').value = tipo;
-        openModal('modal-orden-cobro'); // <-- Uso de motor global
+        openModal('modal-orden-cobro'); 
     }
 
     function descargarPDFCobro() {
@@ -258,7 +311,6 @@
         const cuenta = document.getElementById('cobro-cuenta').value;
         const clabe = document.getElementById('cobro-clabe').value;
         
-        // Validación básica
         if(!banco || !cuenta || !clabe) {
             alert("Por favor completa los datos bancarios para el PDF.");
             return;
@@ -269,19 +321,21 @@
         closeModal('modal-orden-cobro');
     }
 
-    function abrirPago(id, concepto, saldo) {
-        // Sanear el saldo por si viene con comas de formato (ej: 1,500.00 -> 1500.00)
-        let saldoLimpio = saldo.toString().replace(/,/g, '');
-        
+    // Recibe el saldo crudo para el input.value y el saldo formateado para el texto en pantalla
+    function abrirPago(id, concepto, saldoCrudo, saldoFormateado) {
         document.getElementById('input-cuenta-id').value = id;
         document.getElementById('pago-concepto').innerText = concepto;
-        document.getElementById('max-saldo').innerText = saldo; // Muestra el formateado al usuario
+        document.getElementById('max-saldo').innerText = saldoFormateado; 
         
         const inputMonto = document.getElementById('input-monto');
+        // Usamos el saldo crudo para evitar bugs de calculo con comas de miles
+        let saldoLimpio = parseFloat(saldoCrudo.replace(/,/g, ''));
+        if (isNaN(saldoLimpio)) saldoLimpio = parseFloat(saldoCrudo);
+
         inputMonto.value = saldoLimpio;
-        inputMonto.max = saldoLimpio; // Validación HTML5 para no cobrar de más
+        inputMonto.max = saldoLimpio; 
         
-        openModal('modal-pago'); // <-- Uso de motor global
+        openModal('modal-pago'); 
     }
 </script>
 {% endblock %}
