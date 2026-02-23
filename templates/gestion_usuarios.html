@@ -129,7 +129,7 @@
                             <div class="flex justify-end items-center gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
                                 
                                 {% if not u.is_active %}
-                                    <a href="{% url 'autorizar_usuario' u.id %}" class="flex items-center gap-2 bg-[#2D1B4B] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-500 transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-green-400" title="Aprobar Acceso">
+                                    <a href="{% url 'autorizar_usuario' u.id %}" class="flex items-center gap-2 bg-[#2D1B4B] text-white px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-green-500 transition-all shadow-md active:scale-95" title="Aprobar Acceso">
                                         <i class="fas fa-check-shield" aria-hidden="true"></i> Autorizar
                                     </a>
                                 {% endif %}
@@ -290,8 +290,8 @@
     const modalContent = modalEliminar ? modalEliminar.querySelector('.modal-content') : null;
 
     function abrirModalEliminar(idUsuario, username) {
-        // Generar URL Segura sin romper Django
-        const urlBase = "{% url 'eliminar_usuario' 999999 %}".replace('999999', idUsuario);
+        // Generar URL Segura sin romper Django usando un UUID de relleno
+        const urlBase = "{% url 'eliminar_usuario' '00000000-0000-0000-0000-000000000000' %}".replace('00000000-0000-0000-0000-000000000000', idUsuario);
         formEliminar.action = urlBase;
         
         labelUsername.textContent = username;
