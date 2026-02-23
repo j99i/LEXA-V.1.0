@@ -1,156 +1,180 @@
 {% extends 'base.html' %}
 {% load humanize %}
 {% load l10n %}
-{% block titulo_pagina %}Finanzas: {{ cliente.nombre_empresa }}{% endblock %}
+{% block titulo_pagina %}Finanzas: {{ cliente.nombre_empresa|default:"Cliente" }}{% endblock %}
 
 {% block content %}
-<div class="max-w-5xl mx-auto animate__animated animate__fadeIn space-y-8">
+<div class="max-w-6xl mx-auto animate__animated animate__fadeIn space-y-8">
 
-    <div class="flex items-center gap-4 mb-6">
-        <a href="{% url 'panel_finanzas' %}" class="w-10 h-10 rounded-xl bg-white text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-[#2D1B4B] transition-colors shadow-sm focus:ring-2 focus:ring-[#A855F7]/30">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div>
-            <h1 class="text-2xl font-black text-[#2D1B4B] font-serif">{{ cliente.nombre_empresa }}</h1>
-            <p class="text-sm text-gray-500 font-bold">Historial de proyectos y cobranza</p>
-        </div>
-    </div>
-
-    {% for cotizacion, info in proyectos.items %}
-    <div class="bg-white rounded-[2.5rem] shadow-sm border border-gray-100 overflow-hidden mb-8">
-        
-        <div class="p-6 md:p-8 border-b border-gray-50 bg-gray-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'panel_finanzas' %}" class="w-10 h-10 rounded-xl bg-white text-gray-400 flex items-center justify-center hover:bg-gray-100 hover:text-[#2D1B4B] transition-colors shadow-sm focus:ring-2 focus:ring-[#A855F7]/30">
+                <i class="fas fa-arrow-left" aria-hidden="true"></i>
+            </a>
             <div>
-                <div class="flex items-center gap-3 mb-1">
-                    <span class="w-8 h-8 rounded-full bg-[#A855F7] text-white flex items-center justify-center text-xs font-bold shadow-sm">
-                        <i class="fas fa-folder"></i>
-                    </span>
-                    <h3 class="text-lg font-black text-[#2D1B4B] leading-tight">{{ info.titulo }}</h3>
-                </div>
-                <p class="text-xs text-gray-400 font-bold ml-11">
-                    {% if info.folio %}Ref: Cotización #{{ info.folio }}{% else %}Cargos Varios{% endif %}
-                </p>
-            </div>
-
-            <div class="flex gap-6 bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 w-full md:w-auto">
-                <div>
-                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Total Proyecto</p>
-                    <p class="text-sm font-black text-[#2D1B4B]">${{ info.total_proyecto|floatformat:2|intcomma }}</p>
-                </div>
-                <div class="border-l border-gray-100 pl-6">
-                    <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Pendiente</p>
-                    <p class="text-lg font-black {% if info.pendiente_proyecto > 0 %}text-red-500{% else %}text-green-500{% endif %}">
-                        ${{ info.pendiente_proyecto|floatformat:2|intcomma }}
-                    </p>
-                </div>
+                <h1 class="text-2xl font-black text-[#2D1B4B] font-serif">{{ cliente.nombre_empresa|default:"Cliente Sin Nombre" }}</h1>
+                <p class="text-sm text-gray-500 font-bold">Historial de proyectos y cobranza</p>
             </div>
         </div>
 
-        <div class="p-4 overflow-x-auto custom-scrollbar">
-            <table class="w-full text-left border-collapse min-w-[600px]">
-                <thead class="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100">
-                    <tr>
-                        <th class="p-4 pl-6 font-bold">Concepto de Cobro</th>
-                        <th class="p-4 text-center font-bold">Vencimiento</th>
-                        <th class="p-4 text-center font-bold">Estado</th>
-                        <th class="p-4 text-right font-bold">Monto</th>
-                        <th class="p-4 text-right pr-6 font-bold">Acciones</th>
-                    </tr>
-                </thead>
-                <tbody class="text-sm">
-                    {% for cx in info.pagos %}
-                    <tr class="border-b border-gray-50 last:border-0 hover:bg-purple-50/20 transition-colors group">
-                        
-                        <td class="p-4 pl-6 w-1/3">
-                            <p class="font-bold text-[#2D1B4B] truncate" title="{{ cx.concepto }}">{{ cx.concepto }}</p>
-                            
-                            <div class="w-full max-w-[150px] h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden flex">
-                                {% if cx.estado == 'pagado' %}
-                                    <div class="h-full bg-green-400 w-full rounded-full"></div>
-                                {% elif cx.estado == 'vencido' %}
-                                    <div class="h-full bg-red-400 w-full animate-pulse opacity-50 rounded-full"></div>
-                                {% else %}
-                                    <div class="h-full bg-yellow-400 rounded-full" style="width: 15%"></div>
-                                {% endif %}
-                            </div>
-                        </td>
+        <div class="relative w-full md:w-72 group">
+            <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+            <input type="text" id="buscador-finanzas" placeholder="Buscar concepto o folio..." 
+                   class="w-full pl-11 pr-4 py-3 bg-white border border-gray-100 rounded-xl text-sm font-bold text-[#2D1B4B] focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 outline-none transition-all shadow-sm">
+        </div>
+    </div>
 
-                        <td class="p-4 text-center text-xs font-bold text-gray-500">
-                            {{ cx.fecha_vencimiento|date:"d M, Y" }}
-                        </td>
+    <div id="contenedor-proyectos" class="space-y-6">
+        {% for cotizacion, info in proyectos.items %}
+        <div class="proyecto-card bg-white rounded-[2rem] shadow-sm border border-gray-100 overflow-hidden transition-all hover:shadow-md" data-search="{{ info.titulo|lower }} {{ info.folio|lower }}">
+            
+            <div class="p-6 md:p-8 bg-gray-50/50 cursor-pointer flex flex-col md:flex-row justify-between items-start md:items-center gap-4 group/header" onclick="toggleAcordeon('tabla-{{ forloop.counter }}', this)">
+                
+                <div class="flex items-center gap-4 w-full md:w-auto">
+                    <div class="w-8 h-8 rounded-full bg-white border border-gray-200 text-gray-400 flex items-center justify-center transition-transform duration-300 transform icon-chevron group-hover/header:text-[#A855F7] group-hover/header:border-[#A855F7]">
+                        <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                    </div>
 
-                        <td class="p-4 text-center">
-                            <span class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border
-                                {% if cx.estado == 'pagado' %}bg-green-50 text-green-600 border-green-100
-                                {% elif cx.estado == 'vencido' %}bg-red-50 text-red-500 border-red-100
-                                {% else %}bg-yellow-50 text-yellow-600 border-yellow-100{% endif %}">
-                                {{ cx.get_estado_display }}
-                            </span>
-                        </td>
+                    <div>
+                        <div class="flex items-center gap-3 mb-1">
+                            <h3 class="text-lg font-black text-[#2D1B4B] leading-tight group-hover/header:text-[#A855F7] transition-colors">{{ info.titulo|default:"Proyecto sin título" }}</h3>
+                        </div>
+                        <p class="text-xs text-gray-500 font-bold">
+                            {% if info.folio %}Ref: Cotización #{{ info.folio }}{% else %}Cargos Varios{% endif %}
+                        </p>
+                    </div>
+                </div>
 
-                        <td class="p-4 text-right">
-                            <p class="font-bold text-gray-600">${{ cx.monto_total|floatformat:2|intcomma }}</p>
-                            {% if cx.saldo_pendiente > 0 %}
-                            <p class="text-[10px] text-red-400 font-bold bg-red-50 inline-block px-1 rounded mt-0.5">Restan: ${{ cx.saldo_pendiente|floatformat:2|intcomma }}</p>
-                            {% endif %}
-                        </td>
+                <div class="flex gap-6 bg-white px-6 py-3 rounded-2xl shadow-sm border border-gray-100 w-full md:w-auto">
+                    <div>
+                        <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Total Proyecto</p>
+                        <p class="text-sm font-black text-[#2D1B4B]">${{ info.total_proyecto|floatformat:2|intcomma }}</p>
+                    </div>
+                    <div class="border-l border-gray-100 pl-6">
+                        <p class="text-[9px] text-gray-400 uppercase font-bold tracking-widest">Pendiente</p>
+                        <p class="text-lg font-black {% if info.pendiente_proyecto > 0 %}text-red-500{% else %}text-green-500{% endif %}">
+                            ${{ info.pendiente_proyecto|floatformat:2|intcomma }}
+                        </p>
+                    </div>
+                </div>
+            </div>
 
-                        <td class="p-4 text-right pr-6">
-                            <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+            <div id="tabla-{{ forloop.counter }}" class="tabla-cobros transition-all duration-500 origin-top {% if not forloop.first %}hidden opacity-0 h-0{% endif %}">
+                <div class="p-4 overflow-x-auto custom-scrollbar border-t border-gray-50">
+                    <table class="w-full text-left border-collapse min-w-[600px]">
+                        <thead class="text-[10px] text-gray-400 uppercase tracking-widest border-b border-gray-100">
+                            <tr>
+                                <th class="p-4 pl-6 font-bold">Concepto de Cobro</th>
+                                <th class="p-4 text-center font-bold">Vencimiento</th>
+                                <th class="p-4 text-center font-bold">Estado</th>
+                                <th class="p-4 text-right font-bold">Monto</th>
+                                <th class="p-4 text-right pr-6 font-bold">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-sm">
+                            {% for cx in info.pagos %}
+                            <tr class="cobro-row border-b border-gray-50 last:border-0 hover:bg-purple-50/20 transition-colors group" data-search="{{ cx.concepto|lower }}">
                                 
-                                <button type="button" onclick="abrirModalCobro('{{ cx.id }}', 'anticipo')" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-400 hover:text-[#2D1B4B] hover:border-[#2D1B4B] hover:bg-gray-50 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-gray-200" title="Generar Orden de Pago">
-                                    <i class="fas fa-file-invoice-dollar text-[10px]"></i>
-                                </button>
+                                <td class="p-4 pl-6 w-1/3">
+                                    <p class="font-bold text-[#2D1B4B] truncate" title="{{ cx.concepto }}">{{ cx.concepto }}</p>
+                                    
+                                    <div class="w-full max-w-[150px] h-1.5 bg-gray-100 rounded-full mt-2 overflow-hidden flex" title="Progreso de pago">
+                                        {% if cx.estado == 'pagado' %}
+                                            <div class="h-full bg-green-400 w-full rounded-full"></div>
+                                        {% elif cx.estado == 'vencido' %}
+                                            <div class="h-full bg-red-400 w-full animate-pulse opacity-50 rounded-full"></div>
+                                        {% else %}
+                                            <div class="h-full bg-yellow-400 rounded-full w-1/2"></div>
+                                        {% endif %}
+                                    </div>
+                                </td>
 
-                                {% if cx.estado != 'pagado' %}
-                                <button type="button" onclick="abrirPago('{{ cx.id }}', '{{ cx.concepto|escapejs }}', '{{ cx.saldo_pendiente|unlocalize }}', '{{ cx.saldo_pendiente|floatformat:2|intcomma }}')" class="w-8 h-8 rounded-lg bg-[#2D1B4B] text-white hover:bg-[#A855F7] flex items-center justify-center transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50" title="Registrar Pago">
-                                    <i class="fas fa-dollar-sign text-[10px]"></i>
-                                </button>
-                                {% else %}
-                                    {% if cx.pagos.last %}
-                                    <a href="{% url 'recibo_pago_pdf' cx.pagos.last.id %}" target="_blank" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all" title="Descargar Recibo">
-                                        <i class="fas fa-receipt text-[10px]"></i>
-                                    </a>
+                                <td class="p-4 text-center text-xs font-bold text-gray-500">
+                                    {{ cx.fecha_vencimiento|date:"d M, Y"|default:"-" }}
+                                </td>
+
+                                <td class="p-4 text-center">
+                                    <span class="px-3 py-1.5 rounded-md text-[10px] font-black uppercase tracking-widest border
+                                        {% if cx.estado == 'pagado' %}bg-green-50 text-green-600 border-green-100
+                                        {% elif cx.estado == 'vencido' %}bg-red-50 text-red-500 border-red-100
+                                        {% else %}bg-yellow-50 text-yellow-600 border-yellow-100{% endif %}">
+                                        {{ cx.get_estado_display }}
+                                    </span>
+                                </td>
+
+                                <td class="p-4 text-right">
+                                    <p class="font-bold text-gray-600">${{ cx.monto_total|floatformat:2|intcomma }}</p>
+                                    {% if cx.saldo_pendiente > 0 %}
+                                    <p class="text-[10px] text-red-400 font-bold bg-red-50 inline-block px-1 rounded mt-0.5">Restan: ${{ cx.saldo_pendiente|floatformat:2|intcomma }}</p>
                                     {% endif %}
-                                {% endif %}
+                                </td>
 
-                                {% if request.user.rol == 'admin' %}
-                                <form method="POST" action="{% url 'eliminar_finanza' cx.id %}" class="inline-block form-prevencion">
-                                    {% csrf_token %}
-                                    <button type="submit" onclick="return confirm('⚠️ ¿Borrar este cobro permanentemente?')" class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" title="Eliminar Registro">
-                                        <i class="fas fa-trash text-[10px]"></i>
-                                    </button>
-                                </form>
-                                {% endif %}
-                            </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                                <td class="p-4 text-right pr-6">
+                                    <div class="flex justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300">
+                                        
+                                        <button type="button" onclick="abrirModalCobro('{{ cx.id }}', 'anticipo')" class="w-8 h-8 rounded-lg border border-gray-200 text-gray-400 hover:text-[#2D1B4B] hover:border-[#2D1B4B] hover:bg-gray-50 flex items-center justify-center transition-all focus:outline-none focus:ring-2 focus:ring-gray-200" title="Generar Orden de Pago">
+                                            <i class="fas fa-file-invoice-dollar text-[10px]" aria-hidden="true"></i>
+                                        </button>
+
+                                        {% if cx.estado != 'pagado' %}
+                                        <button type="button" onclick="abrirPago('{{ cx.id }}', '{{ cx.concepto|escapejs }}', '{{ cx.saldo_pendiente|unlocalize }}', '{{ cx.saldo_pendiente|floatformat:2|intcomma }}')" class="w-8 h-8 rounded-lg bg-[#2D1B4B] text-white hover:bg-[#A855F7] flex items-center justify-center transition-all shadow-md focus:outline-none focus:ring-2 focus:ring-[#A855F7]/50" title="Registrar Pago">
+                                            <i class="fas fa-dollar-sign text-[10px]" aria-hidden="true"></i>
+                                        </button>
+                                        {% else %}
+                                            {% if cx.pagos.last %}
+                                            <a href="{% url 'recibo_pago_pdf' cx.pagos.last.id %}" target="_blank" class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-100 text-blue-500 hover:bg-blue-500 hover:text-white flex items-center justify-center transition-all" title="Descargar Recibo">
+                                                <i class="fas fa-receipt text-[10px]" aria-hidden="true"></i>
+                                            </a>
+                                            {% endif %}
+                                        {% endif %}
+
+                                        {% if request.user.rol == 'admin' %}
+                                        <form method="POST" action="{% url 'eliminar_finanza' cx.id %}" class="inline-block form-prevencion">
+                                            {% csrf_token %}
+                                            <button type="submit" onclick="return confirm('⚠️ ¿Borrar este cobro permanentemente? Esta acción afectará el historial financiero.')" class="w-8 h-8 rounded-lg bg-red-50 border border-red-100 text-red-500 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all" title="Eliminar Registro">
+                                                <i class="fas fa-trash text-[10px]" aria-hidden="true"></i>
+                                                <span class="btn-text hidden"></span> </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-span-full py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-200 shadow-sm flex flex-col items-center justify-center">
+            <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
+                <i class="fas fa-wallet text-3xl text-gray-300" aria-hidden="true"></i>
+            </div>
+            <p class="font-black text-xl text-[#2D1B4B] font-serif">Sin Movimientos</p>
+            <p class="text-gray-400 text-sm mt-2 max-w-sm text-center">Este cliente aún no tiene proyectos con actividad financiera registrada.</p>
+        </div>
+        {% endfor %}
+        
+        <div id="empty-state-js" class="hidden py-20 text-center bg-white rounded-[3rem] border border-gray-100 shadow-sm">
+            <div class="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <i class="fas fa-search text-2xl text-gray-300" aria-hidden="true"></i>
+            </div>
+            <p class="font-black text-[#2D1B4B] font-serif">No se encontraron cobros</p>
         </div>
     </div>
-    {% empty %}
-    <div class="col-span-full py-24 text-center bg-white rounded-[3rem] border-2 border-dashed border-gray-100 shadow-sm">
-        <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-wallet text-3xl text-gray-300"></i>
-        </div>
-        <p class="font-black text-xl text-[#2D1B4B] font-serif">Sin Movimientos</p>
-        <p class="text-gray-400 text-sm mt-2">Este cliente aún no tiene proyectos con actividad financiera registrada.</p>
-    </div>
-    {% endfor %}
 
 </div>
 
-<div id="modal-orden-cobro" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-orden-cobro')">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-lg shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
+<div id="modal-orden-cobro" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-lg shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        
         <button type="button" onclick="closeModal('modal-orden-cobro')" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times" aria-hidden="true"></i>
         </button>
         
         <div class="text-center mb-6">
             <div class="w-12 h-12 bg-blue-50 text-blue-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                <i class="fas fa-university text-xl"></i>
+                <i class="fas fa-university text-xl" aria-hidden="true"></i>
             </div>
             <h3 class="text-xl font-black text-[#2D1B4B] font-serif">Generar Orden de Pago</h3>
             <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold mt-1">Datos Bancarios para el PDF</p>
@@ -158,21 +182,21 @@
         
         <div class="space-y-4 bg-gray-50 p-6 rounded-2xl border border-gray-100">
             <div>
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Banco Emisor</label>
-                <input type="text" id="cobro-banco" value="BBVA" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="cobro-banco">Banco Emisor</label>
+                <input type="text" id="cobro-banco" placeholder="Ej. BBVA, Santander..." class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
             </div>
             <div>
-                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Titular de la cuenta</label>
-                <input type="text" id="cobro-titular" value="Jovani Ortega Soriano" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="cobro-titular">Titular de la cuenta</label>
+                <input type="text" id="cobro-titular" placeholder="Nombre completo" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
             </div>
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Número de Cuenta</label>
-                    <input type="text" id="cobro-cuenta" value="1234567890" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="cobro-cuenta">Número de Cuenta</label>
+                    <input type="text" id="cobro-cuenta" placeholder="Cuenta" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">CLABE Interbancaria</label>
-                    <input type="text" id="cobro-clabe" value="012345678901234567" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="cobro-clabe">CLABE Interbancaria</label>
+                    <input type="text" id="cobro-clabe" placeholder="18 dígitos" class="w-full p-3 bg-white rounded-xl border border-gray-200 font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors shadow-sm">
                 </div>
             </div>
             <input type="hidden" id="cobro-cuenta-id">
@@ -180,102 +204,203 @@
         </div>
         
         <div class="mt-6 pt-4 border-t border-gray-100">
-            <button type="button" onclick="descargarPDFCobro()" class="w-full bg-[#A855F7] text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-lg hover:bg-[#9333EA] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group">
-                <i class="fas fa-file-pdf text-lg group-hover:scale-110 transition-transform"></i> GENERAR DOCUMENTO
+            <button type="button" onclick="descargarPDFCobro()" class="w-full bg-[#A855F7] text-white font-black text-xs uppercase tracking-widest py-4 rounded-xl shadow-lg hover:bg-[#9333EA] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group focus:outline-none focus:ring-4 focus:ring-purple-300">
+                <i class="fas fa-file-pdf text-lg group-hover:scale-110 transition-transform" aria-hidden="true"></i> GENERAR DOCUMENTO
             </button>
         </div>
     </div>
 </div>
 
-<div id="modal-pago" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity" onclick="closeModal('modal-pago')">
-    <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl relative animate__animated animate__zoomIn" onclick="event.stopPropagation()">
+<div id="modal-pago" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 p-4 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2.5rem] w-full max-w-md shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        
         <button type="button" onclick="closeModal('modal-pago')" class="absolute top-6 right-6 w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors focus:outline-none">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times" aria-hidden="true"></i>
         </button>
         
         <div class="mb-8">
-            <div class="w-12 h-12 bg-green-50 text-green-500 rounded-xl flex items-center justify-center mb-3">
-                <i class="fas fa-hand-holding-usd text-xl"></i>
+            <div class="w-12 h-12 bg-green-50 text-green-500 rounded-xl flex items-center justify-center mb-3 border border-green-100">
+                <i class="fas fa-hand-holding-usd text-xl" aria-hidden="true"></i>
             </div>
             <h3 class="text-xl font-black text-[#2D1B4B] font-serif">Registrar Pago</h3>
             <p class="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Abonar al concepto:</p>
-            <p id="pago-concepto" class="font-bold text-[#A855F7] bg-purple-50 p-2 rounded-lg mt-2 text-sm line-clamp-2"></p>
+            <p id="pago-concepto" class="font-bold text-[#A855F7] bg-purple-50 p-3 rounded-lg mt-2 text-sm line-clamp-2 border border-purple-100 shadow-inner"></p>
         </div>
         
         <form action="{% url 'registrar_pago' %}" method="POST" class="space-y-5 form-prevencion">
             {% csrf_token %}
             <input type="hidden" name="cuenta_id" id="input-cuenta-id">
             
-            <div class="bg-gray-50 p-4 rounded-2xl border border-gray-100">
-                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1">Monto a registrar (MXN)</label>
-                <div class="relative flex items-center">
-                    <span class="absolute left-4 font-black text-gray-400 text-lg">$</span>
-                    <input type="number" name="monto" id="input-monto" step="0.01" class="w-full pl-8 p-3 bg-white rounded-xl font-black text-[#2D1B4B] text-xl border-2 border-transparent focus:border-[#A855F7] outline-none transition-colors shadow-sm" required autofocus>
+            <div class="bg-gray-50 p-5 rounded-2xl border border-gray-200 shadow-inner">
+                <label class="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-2 ml-1" for="input-monto">Monto a registrar (MXN)</label>
+                <div class="relative flex items-center group">
+                    <span class="absolute left-4 font-black text-gray-400 text-lg group-focus-within:text-[#A855F7] transition-colors">$</span>
+                    <input type="number" name="monto" id="input-monto" step="0.01" class="w-full pl-8 p-3 bg-white rounded-xl font-black text-[#2D1B4B] text-xl border-2 border-transparent focus:border-[#A855F7] outline-none transition-all shadow-sm" required autofocus>
                 </div>
-                <div class="flex justify-between items-center mt-2 px-1">
+                <div class="flex justify-between items-center mt-3 px-1">
                     <span class="text-[9px] text-gray-400 font-bold uppercase">Saldo pendiente</span>
-                    <span class="text-xs font-black text-red-500">$<span id="max-saldo"></span></span>
+                    <span class="text-xs font-black text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-100">$<span id="max-saldo"></span></span>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Método</label>
-                    <select name="metodo" class="w-full p-3.5 bg-gray-50 rounded-xl font-bold text-gray-600 border border-transparent focus:border-[#A855F7] outline-none cursor-pointer">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="metodo">Método</label>
+                    <select name="metodo" id="metodo" class="w-full p-3.5 bg-gray-50 rounded-xl font-bold text-gray-600 border border-transparent focus:bg-white focus:border-[#A855F7] outline-none cursor-pointer transition-colors shadow-sm">
                         <option value="transferencia">Transferencia</option>
                         <option value="efectivo">Efectivo</option>
                         <option value="cheque">Cheque</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1">Referencia</label>
-                    <input type="text" name="referencia" placeholder="Ref/Folio..." class="w-full p-3 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border border-transparent focus:border-[#A855F7] outline-none">
+                    <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1 ml-1" for="referencia">Referencia</label>
+                    <input type="text" name="referencia" id="referencia" placeholder="Ref/Folio..." class="w-full p-3.5 bg-gray-50 rounded-xl font-bold text-[#2D1B4B] border border-transparent focus:bg-white focus:border-[#A855F7] outline-none transition-colors shadow-sm">
                 </div>
             </div>
             
             <div class="pt-4 border-t border-gray-100">
-                <button type="submit" class="w-full bg-[#1A2238] text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-[#2C3E50] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group">
-                    <i class="fas fa-check-circle text-green-400"></i> <span class="btn-text">CONFIRMAR PAGO</span>
+                <button type="submit" class="w-full bg-[#1A2238] text-white py-4 rounded-xl font-black uppercase text-xs tracking-widest shadow-lg hover:bg-[#2C3E50] hover:-translate-y-1 transition-all flex items-center justify-center gap-2 group focus:outline-none focus:ring-4 focus:ring-gray-300 disabled:opacity-75 disabled:transform-none">
+                    <i class="fas fa-check-circle text-green-400" aria-hidden="true"></i> <span class="btn-text">CONFIRMAR PAGO</span>
                 </button>
             </div>
         </form>
     </div>
 </div>
 
+<style>
+    .custom-scrollbar::-webkit-scrollbar { height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 20px; }
+</style>
+
 <script>
     // ==========================================
-    // 1. MOTOR GLOBAL DE MODALES (Autosuficiente)
+    // 1. ACORDEONES Y BUSCADOR (UX)
+    // ==========================================
+    function toggleAcordeon(id, headerElement) {
+        const content = document.getElementById(id);
+        const icon = headerElement.querySelector('.icon-chevron');
+        
+        if (content.classList.contains('hidden')) {
+            // Abrir
+            content.classList.remove('hidden');
+            setTimeout(() => {
+                content.classList.remove('opacity-0', 'h-0');
+            }, 10);
+            icon.classList.add('rotate-180', 'bg-purple-50', 'text-[#A855F7]', 'border-[#A855F7]');
+        } else {
+            // Cerrar
+            content.classList.add('opacity-0', 'h-0');
+            icon.classList.remove('rotate-180', 'bg-purple-50', 'text-[#A855F7]', 'border-[#A855F7]');
+            setTimeout(() => {
+                content.classList.add('hidden');
+            }, 500); // Mismo tiempo que transition-duration
+        }
+    }
+
+    // Buscador en Tiempo Real
+    const searchInput = document.getElementById('buscador-finanzas');
+    if (searchInput) {
+        searchInput.addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            const proyectos = document.querySelectorAll('.proyecto-card');
+            const emptyState = document.getElementById('empty-state-js');
+            let visibles = 0;
+
+            proyectos.forEach(card => {
+                const searchProject = card.getAttribute('data-search');
+                const cobros = card.querySelectorAll('.cobro-row');
+                let matchesCobro = false;
+
+                cobros.forEach(row => {
+                    const searchCobro = row.getAttribute('data-search');
+                    if (searchCobro.includes(term) || searchProject.includes(term)) {
+                        row.classList.remove('hidden');
+                        matchesCobro = true;
+                    } else {
+                        row.classList.add('hidden');
+                    }
+                });
+
+                if (matchesCobro || searchProject.includes(term)) {
+                    card.classList.remove('hidden');
+                    visibles++;
+                    
+                    // Si se está buscando algo específico, abrimos el acordeón automáticamente
+                    if (term !== '') {
+                        const content = card.querySelector('.tabla-cobros');
+                        const icon = card.querySelector('.icon-chevron');
+                        content.classList.remove('hidden', 'opacity-0', 'h-0');
+                        icon.classList.add('rotate-180', 'bg-purple-50', 'text-[#A855F7]', 'border-[#A855F7]');
+                    }
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+
+            if (visibles === 0 && term !== '') {
+                emptyState.classList.remove('hidden');
+            } else {
+                emptyState.classList.add('hidden');
+            }
+        });
+    }
+
+    // ==========================================
+    // 2. MOTOR DE MODALES (Con animaciones Tailwind)
     // ==========================================
     let activeModalId = null;
 
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
+        const content = modal.querySelector('.modal-content');
         if (!modal) return;
+        
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         document.body.style.overflow = 'hidden'; 
         activeModalId = modalId;
+
+        // Efecto Fade-in & Scale
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
     }
 
     function closeModal(modalId = null) {
         const idToClose = modalId || activeModalId;
         if (!idToClose) return;
+        
         const modal = document.getElementById(idToClose);
+        const content = modal.querySelector('.modal-content');
         if (!modal) return;
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        document.body.style.overflow = ''; 
-        activeModalId = null;
+        
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        
+        setTimeout(() => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            document.body.style.overflow = ''; 
+            activeModalId = null;
+        }, 300);
     }
 
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && activeModalId) {
-            closeModal();
-        }
+        if (e.key === 'Escape' && activeModalId) closeModal();
+    });
+
+    document.querySelectorAll('.fixed.inset-0').forEach(modal => {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
     });
 
     // ==========================================
-    // 2. PREVENCIÓN DE DOBLE CLIC EN FORMS
+    // 3. PREVENCIÓN DE DOBLE CLIC EN FORMS
     // ==========================================
     document.querySelectorAll('.form-prevencion').forEach(form => {
         form.addEventListener('submit', function() {
@@ -286,8 +411,7 @@
                 if (textSpan) textSpan.innerText = 'PROCESANDO...';
                 const icon = btn.querySelector('i');
                 if (icon) {
-                    icon.classList.remove('fa-check-circle', 'fa-trash');
-                    icon.classList.add('fa-spinner', 'fa-spin');
+                    icon.className = 'fas fa-circle-notch fa-spin'; // Remplaza clase
                 }
                 btn.classList.add('opacity-70', 'cursor-not-allowed');
             }
@@ -295,7 +419,7 @@
     });
 
     // ==========================================
-    // 3. LÓGICA DE NEGOCIO (COBROS Y PAGOS)
+    // 4. LÓGICA DE NEGOCIO (COBROS Y PAGOS)
     // ==========================================
     function abrirModalCobro(id, tipo) {
         document.getElementById('cobro-cuenta-id').value = id;
@@ -306,29 +430,32 @@
     function descargarPDFCobro() {
         const id = document.getElementById('cobro-cuenta-id').value;
         const tipo = document.getElementById('cobro-tipo').value;
-        const banco = document.getElementById('cobro-banco').value;
-        const titular = document.getElementById('cobro-titular').value;
-        const cuenta = document.getElementById('cobro-cuenta').value;
-        const clabe = document.getElementById('cobro-clabe').value;
+        const banco = document.getElementById('cobro-banco').value.trim();
+        const titular = document.getElementById('cobro-titular').value.trim();
+        const cuenta = document.getElementById('cobro-cuenta').value.trim();
+        const clabe = document.getElementById('cobro-clabe').value.trim();
         
         if(!banco || !cuenta || !clabe) {
-            alert("Por favor completa los datos bancarios para el PDF.");
+            alert("⚠️ Por favor completa los datos bancarios para generar el PDF.");
             return;
         }
 
-        const url = `/finanzas/cobro/${id}/${tipo}/?banco=${encodeURIComponent(banco)}&titular=${encodeURIComponent(titular)}&cuenta_num=${encodeURIComponent(cuenta)}&clabe=${encodeURIComponent(clabe)}`;
-        window.open(url, '_blank');
+        // La "Django Way" para evitar urls quemadas y error 404:
+        const urlBase = "{% url 'generar_orden_cobro' 12345 'TIPO_DUMMY' %}";
+        const finalUrl = urlBase.replace('12345', id).replace('TIPO_DUMMY', tipo);
+
+        const params = `?banco=${encodeURIComponent(banco)}&titular=${encodeURIComponent(titular)}&cuenta_num=${encodeURIComponent(cuenta)}&clabe=${encodeURIComponent(clabe)}`;
+        
+        window.open(finalUrl + params, '_blank');
         closeModal('modal-orden-cobro');
     }
 
-    // Recibe el saldo crudo para el input.value y el saldo formateado para el texto en pantalla
     function abrirPago(id, concepto, saldoCrudo, saldoFormateado) {
         document.getElementById('input-cuenta-id').value = id;
         document.getElementById('pago-concepto').innerText = concepto;
         document.getElementById('max-saldo').innerText = saldoFormateado; 
         
         const inputMonto = document.getElementById('input-monto');
-        // Usamos el saldo crudo para evitar bugs de calculo con comas de miles
         let saldoLimpio = parseFloat(saldoCrudo.replace(/,/g, ''));
         if (isNaN(saldoLimpio)) saldoLimpio = parseFloat(saldoCrudo);
 
