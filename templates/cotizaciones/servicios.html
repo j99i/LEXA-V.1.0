@@ -12,7 +12,7 @@
             <p class="text-gray-500 text-sm">Define tus servicios y sus especificaciones técnicas fijas.</p>
         </div>
         <button type="button" onclick="abrirModalServicio()" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
-            <i class="fas fa-plus"></i> NUEVO SERVICIO
+            <i class="fas fa-plus" aria-hidden="true"></i> NUEVO SERVICIO
         </button>
     </div>
 
@@ -23,28 +23,30 @@
             
             <div class="flex justify-between items-start mb-4">
                 <div class="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center text-[#2D1B4B] shrink-0">
-                    <i class="fas fa-balance-scale text-xl"></i>
+                    <i class="fas fa-balance-scale text-xl" aria-hidden="true"></i>
                 </div>
                 
                 <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <button type="button" 
                             class="btn-editar text-gray-400 hover:text-[#2D1B4B] p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
                             data-id="{{ s.id }}" 
-                            data-nombre="{{ s.nombre }}" 
-                            data-precio="{{ s.precio_base }}" 
-                            data-descripcion="{{ s.descripcion }}">
-                        <i class="fas fa-pen"></i>
+                            data-nombre="{{ s.nombre|default:'' }}" 
+                            data-precio="{{ s.precio_base|default:'0' }}" 
+                            data-descripcion="{{ s.descripcion|default:'' }}"
+                            title="Editar Servicio">
+                        <i class="fas fa-pen" aria-hidden="true"></i>
                     </button>
                     
                     <button type="button" 
                             onclick="abrirModalEliminar({{ s.id }}, '{{ s.nombre|escapejs }}')" 
-                            class="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors focus:outline-none">
-                        <i class="fas fa-trash"></i>
+                            class="text-gray-400 hover:text-red-500 p-2 hover:bg-red-50 rounded-lg transition-colors focus:outline-none"
+                            title="Eliminar Servicio">
+                        <i class="fas fa-trash" aria-hidden="true"></i>
                     </button>
                 </div>
             </div>
             
-            <h3 class="font-black text-lg text-[#2D1B4B] mb-2 flex-1">{{ s.nombre }}</h3>
+            <h3 class="font-black text-lg text-[#2D1B4B] mb-2 flex-1">{{ s.nombre|default:"Servicio Sin Nombre" }}</h3>
             
             {{ s.campos_dinamicos|json_script:s.id }}
             
@@ -56,12 +58,13 @@
                         Sin especificaciones
                     {% endif %}
                 </span>
-                <span class="text-xl font-black text-[#A855F7]">${{ s.precio_base|floatformat:2 }}</span>
+                <span class="text-xl font-black text-[#A855F7]">${{ s.precio_base|default:0|floatformat:2 }}</span>
             </div>
         </div>
         {% empty %}
         <div class="col-span-full py-12 text-center bg-white rounded-[2rem] border border-dashed border-gray-300">
             <h3 class="text-gray-400 font-bold text-sm uppercase tracking-wide">No hay servicios registrados</h3>
+            <p class="text-xs text-gray-400 mt-1">Haz clic en "Nuevo Servicio" para comenzar.</p>
         </div>
         {% endfor %}
     </div>
@@ -71,7 +74,7 @@
     <div class="modal-content bg-white p-6 md:p-8 rounded-[2rem] w-full max-w-2xl m-4 shadow-2xl relative overflow-y-auto max-h-[90vh]">
         
         <button type="button" onclick="cerrarModalServicio()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors focus:outline-none">
-            <i class="fas fa-times text-xl"></i>
+            <i class="fas fa-times text-xl" aria-hidden="true"></i>
         </button>
         
         <h3 id="modal-titulo" class="text-2xl font-black text-[#2D1B4B] mb-6">Configurar Servicio</h3>
@@ -88,7 +91,7 @@
 
             <div class="border-2 border-dashed border-gray-300 rounded-[1.5rem] p-4 md:p-6 mb-6 relative bg-gray-50">
                 <h4 class="text-xs font-black text-gray-500 uppercase mb-4 flex items-center gap-2">
-                    <i class="fas fa-list-ul"></i> Especificaciones del Servicio
+                    <i class="fas fa-list-ul" aria-hidden="true"></i> Especificaciones del Servicio
                 </h4>
                 
                 <div class="flex flex-col sm:flex-row gap-2 mb-4 items-stretch sm:items-center">
@@ -108,18 +111,18 @@
                 </p>
             </div>
 
-            <button type="submit" class="btn-guardar w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#A855F7] transition-all flex justify-center items-center gap-2">
+            <button type="submit" class="btn-guardar w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#A855F7] transition-all flex justify-center items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
                 <span class="texto-btn">GUARDAR SERVICIO</span>
-                <i class="fas fa-spinner fa-spin icono-btn hidden"></i>
+                <i class="fas fa-spinner fa-spin icono-btn hidden" aria-hidden="true"></i>
             </button>
         </form>
     </div>
 </div>
 
-<div id="modal-eliminar" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
+<div id="modal-eliminar" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 z-50 hidden items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
     <div class="bg-white w-full max-w-sm rounded-[2rem] shadow-2xl overflow-hidden m-4 transform transition-all text-center p-6">
         <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-exclamation-triangle text-3xl"></i>
+            <i class="fas fa-exclamation-triangle text-3xl" aria-hidden="true"></i>
         </div>
         <h3 class="text-xl font-black text-[#2D1B4B] mb-2">¿Eliminar Servicio?</h3>
         <p class="text-sm text-gray-500 mb-6">
@@ -129,8 +132,8 @@
         <form id="form-eliminar" method="POST" action="">
             {% csrf_token %}
             <div class="flex gap-3 justify-center">
-                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors">Cancelar</button>
-                <button type="submit" class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600 transition-all flex items-center gap-2" onclick="this.classList.add('opacity-75'); this.querySelector('span').textContent='Eliminando...';">
+                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors focus:outline-none">Cancelar</button>
+                <button type="submit" class="px-6 py-3 bg-red-500 text-white font-bold rounded-xl shadow-lg hover:bg-red-600 transition-all flex items-center gap-2 focus:outline-none" onclick="this.classList.add('opacity-75', 'cursor-not-allowed'); this.querySelector('span').textContent='Eliminando...';">
                     <span>Eliminar</span>
                 </button>
             </div>
@@ -152,12 +155,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // === UX: CONTROL DEL TECLADO (Prevenir Falso Envío) ===
     function handleEnterKey(e) {
         if (e.key === 'Enter') {
-            e.preventDefault(); // Evita que el formulario se envíe
-            
+            e.preventDefault(); 
             if (e.target.id === 'temp-nombre') {
-                inputTempVal.focus(); // Salta al siguiente input
+                inputTempVal.focus(); 
             } else if (e.target.id === 'temp-valor') {
-                window.confirmarCampo(); // Ejecuta la función de agregar
+                window.confirmarCampo(); 
             }
         }
     }
@@ -165,18 +167,16 @@ document.addEventListener('DOMContentLoaded', () => {
     inputTempVal.addEventListener('keydown', handleEnterKey);
 
 
-    // === CREACIÓN SEGURA DE CAMPOS DINÁMICOS (Mitigación XSS) ===
+    // === CREACIÓN SEGURA DE CAMPOS DINÁMICOS ===
     window.confirmarCampo = function(nombre = '', valor = '') {
         const finalNombre = (nombre || inputTempNombre.value).trim();
         const finalValor = (valor || inputTempVal.value).trim();
 
         if (!finalNombre || !finalValor) {
-            // Un toast sutil en lugar de un alert bloqueante
             alert("⚠️ Define tanto la característica como su detalle.");
             return;
         }
 
-        // Creación de Nodos DOM (100% inmune a XSS)
         const div = document.createElement('div');
         div.className = "flex justify-between items-center bg-white p-3 rounded-xl border border-gray-200 shadow-sm animate__animated animate__fadeInLeft";
         
@@ -193,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
         spanValor.title = finalValor;
         spanValor.textContent = finalValor;
 
-        // Inputs ocultos para el POST
         const hiddenNombre = document.createElement('input');
         hiddenNombre.type = 'hidden';
         hiddenNombre.name = 'campo_nombre[]';
@@ -207,40 +206,40 @@ document.addEventListener('DOMContentLoaded', () => {
         const btnEliminar = document.createElement('button');
         btnEliminar.type = 'button';
         btnEliminar.className = "text-red-300 hover:text-red-500 p-2 transition-colors shrink-0";
-        btnEliminar.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        btnEliminar.innerHTML = '<i class="fas fa-trash-alt" aria-hidden="true"></i>';
         btnEliminar.onclick = () => div.remove();
 
         wrapper.append(spanNombre, spanValor, hiddenNombre, hiddenValor);
         div.append(wrapper, btnEliminar);
         containerCampos.appendChild(div);
 
-        // Limpiar inputs si fue ingreso manual
         if(!nombre) {
             inputTempNombre.value = '';
             inputTempVal.value = '';
-            inputTempNombre.focus(); // Mantener el flujo de trabajo
+            inputTempNombre.focus(); 
         }
     };
 
-    // === GESTIÓN DE MODALES ===
+    // === GESTIÓN DE MODALES DE SERVICIO ===
     window.abrirModalServicio = function() {
         document.getElementById('modal-titulo').innerText = 'Nuevo Servicio';
         formServicio.reset();
         document.getElementById('input-id').value = '';
         containerCampos.innerHTML = '';
-        modalServicio.classList.replace('hidden', 'flex');
+        modalServicio.classList.remove('hidden');
+        modalServicio.classList.add('flex');
     };
 
     window.cerrarModalServicio = function() {
-        modalServicio.classList.replace('flex', 'hidden');
+        modalServicio.classList.add('hidden');
+        modalServicio.classList.remove('flex');
     };
 
-    // DELEGACIÓN DE EVENTOS: Editar Servicio (Seguro y limpio)
+    // DELEGACIÓN DE EVENTOS: Editar Servicio
     document.querySelectorAll('.btn-editar').forEach(btn => {
         btn.addEventListener('click', function() {
             window.abrirModalServicio();
             
-            // Extraer datos de los atributos (Sin romper el JS)
             const id = this.dataset.id;
             document.getElementById('modal-titulo').innerText = 'Editar Servicio';
             document.getElementById('input-id').value = id;
@@ -260,16 +259,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Envío del formulario (Loading state)
+    // Loading state formulario
     formServicio.addEventListener('submit', function() {
         const btn = this.querySelector('.btn-guardar');
         btn.disabled = true;
-        btn.classList.add('opacity-75', 'cursor-not-allowed');
         btn.querySelector('.texto-btn').textContent = 'GUARDANDO...';
         btn.querySelector('.icono-btn').classList.remove('hidden');
     });
 
-    // Cierre con Escape y Backdrop
+    // === SOLUCIÓN AL BUG DE URL DEL MODAL ELIMINAR ===
+    const modalEliminar = document.getElementById('modal-eliminar');
+    window.abrirModalEliminar = function(idServicio, nombreServicio) {
+        
+        // La "Django Way": Creamos una URL base usando un ID falso (12345) y lo reemplazamos por el real.
+        // Esto garantiza que si tu urls.py cambia, el frontend no se rompe.
+        const urlBase = "{% url 'eliminar_servicio' 12345 %}".replace('12345', idServicio);
+        
+        document.getElementById('form-eliminar').action = urlBase;
+        document.getElementById('modal-eliminar-nombre').textContent = nombreServicio;
+        
+        modalEliminar.classList.remove('hidden');
+        modalEliminar.classList.add('flex');
+    };
+
+    window.cerrarModalEliminar = function() {
+        modalEliminar.classList.add('hidden');
+        modalEliminar.classList.remove('flex');
+    };
+
+    // Cierre con Escape y Backdrop para ambos modales
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             cerrarModalServicio();
@@ -286,18 +304,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // === MODAL ELIMINAR ===
-    const modalEliminar = document.getElementById('modal-eliminar');
-    window.abrirModalEliminar = function(idServicio, nombreServicio) {
-        // Asegúrate de que esta URL coincida con tu urls.py
-        document.getElementById('form-eliminar').action = `/servicios/eliminar/${idServicio}/`;
-        document.getElementById('modal-eliminar-nombre').textContent = nombreServicio;
-        modalEliminar.classList.remove('hidden');
-    };
-
-    window.cerrarModalEliminar = function() {
-        modalEliminar.classList.add('hidden');
-    };
 });
 </script>
 {% endblock %}
