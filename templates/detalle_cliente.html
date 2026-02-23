@@ -425,7 +425,7 @@
 
     {# ==================== BARRA MASIVA ==================== #}
     <div id="barra-masiva" class="hidden fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-[#2D1B4B] text-white px-6 py-3 rounded-full shadow-2xl items-center gap-6 z-40">
-        <span class="font-bold text-sm"><span id="conteo-sel">0</span> seleccionados</span>
+        <span class="font-bold text-sm"><span id="conteo-sel">0</span> selected</span>
         <div class="flex gap-2">
             <button onclick="ejecutarMasivo('descargar')" class="bg-white/20 hover:bg-white/30 px-4 py-1 rounded-full text-xs font-bold">ZIP</button>
             {% if user.can_delete_client or user.rol == 'admin' %}
@@ -443,10 +443,6 @@
         <div class="bg-[#2D1B4B] p-4 flex justify-between items-center shrink-0">
             <h3 id="preview-title" class="text-white font-bold truncate">Vista Previa</h3>
             <div class="flex gap-4 items-center">
-                <a id="preview-print" href="#" target="_blank" class="text-white hover:text-blue-400 mx-2" title="Abrir en pestaña nueva para imprimir">
-                    <i class="fas fa-external-link-alt"></i> <span class="text-xs font-bold ml-1">ABRIR / IMPRIMIR</span>
-                </a>
-                
                 <a id="preview-download" href="#" class="text-white hover:text-[#A855F7] mx-2" title="Descargar archivo original">
                     <i class="fas fa-download"></i> <span class="text-xs font-bold ml-1">DESCARGAR</span>
                 </a>
@@ -697,7 +693,6 @@
         const body = document.getElementById('preview-body');
         const title = document.getElementById('preview-title');
         const downloadBtn = document.getElementById('preview-download');
-        const printBtn = document.getElementById('preview-print');
         
         openModal('modal-preview');
         body.innerHTML = '<div class="flex flex-col items-center justify-center h-full"><i class="fas fa-circle-notch fa-spin text-5xl text-[#2D1B4B] mb-4"></i><p class="text-gray-500 font-bold">Procesando archivo...</p></div>';
@@ -708,7 +703,6 @@
                 
                 title.innerText = data.nombre;
                 downloadBtn.href = `/archivo/descargar/${id}/`; // Usa la nueva función del backend
-                printBtn.href = data.url; // Abre el archivo puro en nueva pestaña
                 
                 let cHTML = '';
                 if (data.tipo === 'imagen') cHTML = `<div class="flex items-center justify-center h-full bg-black/5"><img src="${data.url}" class="max-w-full max-h-full object-contain shadow-lg rounded"></div>`;
