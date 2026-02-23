@@ -120,6 +120,13 @@
         }
         .generalidades p { margin-bottom: 12px; }
         
+        /* --- CLASE MÁGICA PARA EVITAR FIRMAS SOLAS --- */
+        .bloque-seguro {
+            /* Evita que este bloque se parta a la mitad o quede solo en otra página */
+            page-break-inside: avoid;
+            break-inside: avoid;
+        }
+
         /* --- RESUMEN --- */
         .summary-card {
             background-color: #2D1B4B;
@@ -129,7 +136,6 @@
             margin-top: 10px;
             display: block;
             text-align: right;
-            page-break-inside: avoid;
         }
         .total-amount { font-size: 20pt; font-weight: 900; color: #ffffff; }
         .discount-text { font-size: 8pt; color: #A855F7; font-weight: bold; margin-bottom: 10px; }
@@ -139,7 +145,6 @@
         .firma { 
             text-align: center; 
             margin-top: 40px; 
-            page-break-inside: avoid; 
         }
 
         .firma-imagen { 
@@ -269,42 +274,46 @@
                 </strong>,
                 en un plazo aproximado de gestión de <strong>{{ c.get_tiempo_entrega_display|default:"30 días hábiles" }}</strong>.
             </p>
-            <p>
-                Sin más por el momento, me reitero a sus órdenes para la valoración de costos y propuestas.
-            </p>
         </div>
 
-        <div class="summary-card">
-            
-            {% if c.descuento > 0 %}
-            <div class="discount-text">
-                DESCUENTO APLICADO ({{ c.porcentaje_descuento|floatformat:1 }}%): - $ {{ c.descuento|floatformat:2|intcomma }}
+        <div class="bloque-seguro">
+            <div class="generalidades">
+                <p>
+                    Sin más por el momento, me reitero a sus órdenes para la valoración de costos y propuestas.
+                </p>
             </div>
-            {% endif %}
-            
-            <div class="sub-row">Subtotal: $ {{ c.subtotal|default:c.total|floatformat:2|intcomma }}</div>
-            
-            {% if c.aplica_iva %}
-                <div class="sub-row">I.V.A. ({{ c.porcentaje_iva|floatformat:0 }}%): $ {{ c.monto_iva|floatformat:2|intcomma }}</div>
-            {% endif %}
+
+            <div class="summary-card">
                 
-            <div class="summary-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
-                <span class="total-label" style="font-size: 10pt; text-transform: uppercase;">MONTO TOTAL NETO</span>
+                {% if c.descuento > 0 %}
+                <div class="discount-text">
+                    DESCUENTO APLICADO ({{ c.porcentaje_descuento|floatformat:1 }}%): - $ {{ c.descuento|floatformat:2|intcomma }}
+                </div>
+                {% endif %}
+                
+                <div class="sub-row">Subtotal: $ {{ c.subtotal|default:c.total|floatformat:2|intcomma }}</div>
+                
+                {% if c.aplica_iva %}
+                    <div class="sub-row">I.V.A. ({{ c.porcentaje_iva|floatformat:0 }}%): $ {{ c.monto_iva|floatformat:2|intcomma }}</div>
+                {% endif %}
+                    
+                <div class="summary-row" style="margin-top: 15px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 10px;">
+                    <span class="total-label" style="font-size: 10pt; text-transform: uppercase;">MONTO TOTAL NETO</span>
+                </div>
+                <div class="summary-row">
+                    <span class="total-amount">$ {{ c.total_con_iva|floatformat:2|intcomma }}</span>
+                </div>
             </div>
-            <div class="summary-row">
-                <span class="total-amount">$ {{ c.total_con_iva|floatformat:2|intcomma }}</span>
+
+            <div class="firma">
+                <img src="file:///app/staticfiles/img/firma_full.png" class="firma-imagen" alt="Firma">
+                
+                <div class="firma-linea"></div>
+                <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
+                <div class="firma-cargo">Director General | Gestiones Corpad</div>
+                <div class="firma-web">www.gestionescorpad.com</div>
             </div>
         </div>
-
-        <div class="firma">
-            <img src="file:///app/staticfiles/img/firma_full.png" class="firma-imagen" alt="Firma">
-            
-            <div class="firma-linea"></div>
-            <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
-            <div class="firma-cargo">Director General | Gestiones Corpad</div>
-            <div class="firma-web">www.gestionescorpad.com</div>
-        </div>
-
         <div class="folio-footer">
             GC-COT-{{ c.id }}-{{ c.fecha_creacion|date:"Y" }}
         </div>
