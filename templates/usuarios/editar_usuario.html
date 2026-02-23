@@ -1,13 +1,16 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="max-w-6xl mx-auto animate__animated animate__fadeIn">
+<div class="max-w-6xl mx-auto animate__animated animate__fadeIn pb-10">
     
-    <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-black text-[#1A2238]">
-            Gestionar Usuario: <span class="text-[#C0A062]">{{ u.username }}</span>
-        </h2>
-        <a href="{% url 'gestion_usuarios' %}" class="text-gray-500 font-bold hover:text-[#1A2238] transition-colors">
-            <i class="fas fa-arrow-left"></i> Volver a la lista
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+            <h2 class="text-3xl font-black text-[#1A2238] font-serif">
+                Gestionar Usuario: <span class="text-[#C0A062]">{{ u.username }}</span>
+            </h2>
+            <p class="text-sm text-gray-500 font-bold mt-1">Configuración de perfil, rol y permisos de acceso.</p>
+        </div>
+        <a href="{% url 'gestion_usuarios' %}" class="bg-white border border-gray-200 text-gray-500 font-bold text-xs uppercase tracking-widest px-5 py-2.5 rounded-xl hover:text-[#1A2238] hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-gray-200">
+            <i class="fas fa-arrow-left" aria-hidden="true"></i> Volver a la lista
         </a>
     </div>
 
@@ -17,39 +20,50 @@
         {# ============================================== #}
         {# SECCIÓN 1: PERFIL Y ROL                        #}
         {# ============================================== #}
-        <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-[#1A2238] mb-4 border-b pb-2">
-                <i class="fas fa-id-card mr-2"></i> Perfil y Rol
+        <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-[#1A2238] to-[#C0A062]"></div>
+            
+            <h3 class="text-lg font-bold text-[#1A2238] mb-6 flex items-center gap-2">
+                <i class="fas fa-id-card text-[#C0A062]" aria-hidden="true"></i> Información Personal
             </h3>
             
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div>
                     <label for="first_name" class="label-form">Nombre</label>
-                    <input type="text" id="first_name" name="first_name" value="{{ u.first_name }}" class="input-form">
+                    <input type="text" id="first_name" name="first_name" value="{{ u.first_name }}" autocomplete="given-name" class="input-form">
                 </div>
                 <div>
                     <label for="last_name" class="label-form">Apellidos</label>
-                    <input type="text" id="last_name" name="last_name" value="{{ u.last_name }}" class="input-form">
+                    <input type="text" id="last_name" name="last_name" value="{{ u.last_name }}" autocomplete="family-name" class="input-form">
                 </div>
                 <div>
-                    <label for="email" class="label-form">Email</label>
-                    <input type="email" id="email" name="email" value="{{ u.email }}" class="input-form">
+                    <label for="email" class="label-form">Correo Electrónico</label>
+                    <div class="relative">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                        <input type="email" id="email" name="email" value="{{ u.email }}" autocomplete="email" class="input-form pl-10">
+                    </div>
                 </div>
                 <div>
-                    <label for="telefono" class="label-form">Teléfono</label>
-                    <input type="text" id="telefono" name="telefono" value="{{ u.telefono|default:'' }}" class="input-form">
+                    <label for="telefono" class="label-form">Teléfono (Opcional)</label>
+                    <div class="relative">
+                        <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                        <input type="tel" id="telefono" name="telefono" value="{{ u.telefono|default:'' }}" autocomplete="tel" class="input-form pl-10">
+                    </div>
                 </div>
             </div>
 
-            <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 transition-colors">
+            <div class="bg-blue-50/50 p-5 rounded-2xl border border-blue-100 transition-colors">
                 <label for="rol_selector" class="label-form text-blue-800 mb-2">Rol del Sistema</label>
-                <select name="rol" id="rol_selector" class="w-full p-3 bg-white rounded-xl font-bold text-[#1A2238] border border-blue-200 outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent transition-all" onchange="actualizarVistaPermisos()">
-                    <option value="admin" {% if u.rol == 'admin' %}selected{% endif %}>👑 Administrador Master (Acceso Total)</option>
-                    <option value="analista_sr" {% if u.rol == 'analista_sr' %}selected{% endif %}>👨‍⚖️ Abogado Senior</option>
-                    <option value="analista_jr" {% if u.rol == 'analista_jr' %}selected{% endif %}>📝 Abogado Junior / Pasante</option>
-                </select>
-                <p class="text-xs text-blue-600 mt-2">
-                    <i class="fas fa-info-circle"></i> Si seleccionas "Administrador Master", el usuario tendrá acceso a TODO automáticamente.
+                <div class="relative">
+                    <i class="fas fa-user-shield absolute left-4 top-1/2 -translate-y-1/2 text-blue-500 z-10" aria-hidden="true"></i>
+                    <select name="rol" id="rol_selector" class="w-full pl-10 pr-4 py-3 bg-white rounded-xl font-black text-[#1A2238] border border-blue-200 outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 transition-all cursor-pointer appearance-none relative z-0" onchange="actualizarVistaPermisos()">
+                        <option value="admin" {% if u.rol == 'admin' %}selected{% endif %}>👑 Administrador Master (Acceso Total)</option>
+                        <option value="analista_sr" {% if u.rol == 'analista_sr' %}selected{% endif %}>👨‍⚖️ Abogado Senior</option>
+                        <option value="analista_jr" {% if u.rol == 'analista_jr' %}selected{% endif %}>📝 Abogado Junior / Pasante</option>
+                    </select>
+                </div>
+                <p class="text-[11px] font-bold text-blue-600 mt-3 flex items-center gap-1.5">
+                    <i class="fas fa-info-circle" aria-hidden="true"></i> Si seleccionas "Administrador Master", el usuario tendrá acceso a TODO automáticamente sin importar las casillas de abajo.
                 </p>
             </div>
         </div>
@@ -57,14 +71,14 @@
         {# ============================================== #}
         {# MENSAJE ADMIN (se muestra solo si rol=admin)   #}
         {# ============================================== #}
-        <div id="mensaje-admin" class="hidden bg-green-50 border-l-4 border-green-500 p-6 rounded-r-xl shadow-sm my-6 animate__animated animate__fadeIn">
-            <div class="flex items-center gap-4">
-                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-green-600 shrink-0">
-                    <i class="fas fa-shield-alt text-xl"></i>
+        <div id="mensaje-admin" class="hidden bg-gradient-to-r from-green-50 to-green-100 border border-green-200 p-6 rounded-[2rem] shadow-sm my-6 animate__animated animate__fadeIn">
+            <div class="flex items-center gap-5">
+                <div class="w-14 h-14 bg-white rounded-full flex items-center justify-center text-green-500 shrink-0 shadow-sm">
+                    <i class="fas fa-shield-alt text-2xl" aria-hidden="true"></i>
                 </div>
                 <div>
-                    <h3 class="text-lg font-bold text-green-800">Acceso Total Habilitado</h3>
-                    <p class="text-sm text-green-700">Este usuario es Administrador. Tiene acceso a todas las herramientas, clientes y datos de contacto automáticamente.</p>
+                    <h3 class="text-lg font-black text-green-800">Acceso Total Habilitado</h3>
+                    <p class="text-sm text-green-700 font-medium mt-1">Este usuario es Administrador. Tiene acceso a todas las herramientas, clientes, configuraciones y datos de contacto de manera predeterminada.</p>
                 </div>
             </div>
         </div>
@@ -75,11 +89,11 @@
         <div id="panel-permisos" class="space-y-8 transition-all duration-300">
             
             {# --- 2A: MÓDULOS DEL SISTEMA --- #}
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#C0A062] mb-2">
-                    <i class="fas fa-cubes mr-2"></i> Módulos del Sistema
+            <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-[#C0A062] mb-1 flex items-center gap-2">
+                    <i class="fas fa-cubes" aria-hidden="true"></i> Módulos del Sistema
                 </h3>
-                <p class="text-xs text-gray-400 mb-6">Controla a qué secciones principales puede acceder este usuario.</p>
+                <p class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Controla a qué secciones principales puede acceder.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <label class="check-card" for="chk_cotizaciones">
@@ -147,7 +161,7 @@
                             <input type="checkbox" id="chk_qr" name="access_qr" class="permiso-check" {% if u.access_qr %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📱 Generador de QR</span>
-                                <span class="check-desc">Crear códigos QR personalizados con colores de marca para compartir enlaces o información.</span>
+                                <span class="check-desc">Crear códigos QR personalizados con colores de marca para compartir enlaces o información física.</span>
                             </div>
                         </div>
                     </label>
@@ -155,11 +169,11 @@
             </div>
 
             {# --- 2B: PERMISOS SOBRE CLIENTES Y EXPEDIENTES --- #}
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#1A2238] mb-2">
-                    <i class="fas fa-key mr-2"></i> Permisos sobre Clientes y Expedientes
+            <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-[#1A2238] mb-1 flex items-center gap-2">
+                    <i class="fas fa-key text-[#C0A062]" aria-hidden="true"></i> Permisos de Expedientes
                 </h3>
-                <p class="text-xs text-gray-400 mb-6">Define qué acciones puede realizar este usuario sobre los clientes y sus archivos.</p>
+                <p class="text-xs font-bold text-gray-400 mb-6 uppercase tracking-widest">Qué acciones puede realizar sobre los clientes asignados.</p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     <label class="check-card" for="chk_create_client">
@@ -167,7 +181,7 @@
                             <input type="checkbox" id="chk_create_client" name="can_create_client" class="permiso-check" {% if u.can_create_client %}checked{% endif %}>
                             <div>
                                 <span class="check-title">➕ Crear nuevos clientes</span>
-                                <span class="check-desc">Dar de alta clientes desde el dashboard. También permite crear carpetas dentro de los expedientes.</span>
+                                <span class="check-desc">Dar de alta clientes desde el dashboard. También permite crear subcarpetas en expedientes.</span>
                             </div>
                         </div>
                     </label>
@@ -176,8 +190,8 @@
                         <div class="flex items-start gap-3">
                             <input type="checkbox" id="chk_edit_client" name="can_edit_client" class="permiso-check" {% if u.can_edit_client %}checked{% endif %}>
                             <div>
-                                <span class="check-title">✏️ Editar datos de clientes</span>
-                                <span class="check-desc">Modificar nombre, contacto, teléfono, email. Permite mover archivos entre carpetas y generar links externos.</span>
+                                <span class="check-title">✏️ Editar datos y mover archivos</span>
+                                <span class="check-desc">Modificar datos del cliente. Permite mover archivos entre carpetas y generar links externos.</span>
                             </div>
                         </div>
                     </label>
@@ -187,7 +201,7 @@
                             <input type="checkbox" id="chk_upload" name="can_upload_files" class="permiso-check" {% if u.can_upload_files %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📤 Subir archivos al Drive</span>
-                                <span class="check-desc">Cargar documentos al expediente del cliente, incluyendo archivos con fecha de vencimiento y alertas.</span>
+                                <span class="check-desc">Cargar documentos, auditar validaciones y establecer fechas de vencimiento con alertas.</span>
                             </div>
                         </div>
                     </label>
@@ -196,24 +210,24 @@
                         <div class="flex items-start gap-3">
                             <input type="checkbox" id="chk_view_docs" name="can_view_documents" class="permiso-check" {% if u.can_view_documents %}checked{% endif %}>
                             <div>
-                                <span class="check-title">👁️ Ver documentos</span>
-                                <span class="check-desc">Visualizar archivos en el visor integrado (PDF, Word, Excel, imágenes, video y audio).</span>
+                                <span class="check-title">👁️ Ver y descargar documentos</span>
+                                <span class="check-desc">Visualizar archivos en el visor integrado y descargar documentos físicos u originales.</span>
                             </div>
                         </div>
                     </label>
                 </div>
 
                 {# Permiso peligroso separado #}
-                <div class="border-t border-gray-200 pt-4">
-                    <p class="text-[10px] font-bold text-red-400 uppercase mb-3">
-                        <i class="fas fa-exclamation-triangle mr-1"></i> Zona de Riesgo
+                <div class="border-t border-gray-100 pt-6 mt-2">
+                    <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-1">
+                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Zona de Alto Riesgo
                     </p>
                     <label class="check-card danger-card border-red-200 bg-red-50/50 hover:border-red-300" for="chk_delete">
                         <div class="flex items-start gap-3">
                             <input type="checkbox" id="chk_delete" name="can_delete_client" class="permiso-check danger-check" {% if u.can_delete_client %}checked{% endif %}>
                             <div>
                                 <span class="check-title text-red-600">🗑️ Eliminar clientes, carpetas y archivos</span>
-                                <span class="check-desc">Permite borrar clientes completos, eliminar carpetas y borrar archivos individuales. <strong>Acción irreversible.</strong></span>
+                                <span class="check-desc text-red-400">Permite borrar clientes completos, carpetas enteras y archivos individuales. <strong>Acción irreversible.</strong></span>
                             </div>
                         </div>
                     </label>
@@ -221,50 +235,57 @@
             </div>
 
             {# --- 2C: INFORMACIÓN VISIBLE --- #}
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#1A2238] mb-2">
-                    <i class="fas fa-eye mr-2"></i> Información Visible
+            <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <h3 class="text-lg font-bold text-[#1A2238] mb-1 flex items-center gap-2">
+                    <i class="fas fa-eye text-[#C0A062]" aria-hidden="true"></i> Nivel de Confidencialidad
                 </h3>
-                <p class="text-xs text-gray-400 mb-4">
-                    Nota: Los datos de contacto del cliente <strong>solo son visibles para el Administrador</strong>.
-                </p>
+                <p class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">Regla de seguridad estricta activa.</p>
                 
-                <div class="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                    <div class="flex items-start gap-3">
-                        <i class="fas fa-lock text-amber-500 mt-1"></i>
-                        <div class="text-xs text-amber-800">
-                            <strong>Este usuario verá:</strong> Nombre y logo de empresa, expediente y archivos.<br>
-                            <strong class="mt-2 block">NO verá:</strong> Nombre, teléfono y email del contacto.
+                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
+                    <div class="flex items-start gap-4">
+                        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 shrink-0">
+                            <i class="fas fa-lock" aria-hidden="true"></i>
+                        </div>
+                        <div class="text-sm text-amber-900 leading-relaxed">
+                            <strong>Visibilidad para este rol:</strong> Tendrá acceso a nombre, logo, expediente y archivos del cliente.<br>
+                            <span class="text-amber-700 block mt-1"><i class="fas fa-times-circle text-amber-500 mr-1" aria-hidden="true"></i> <strong>OCULTO:</strong> El nombre de contacto, teléfono y correo electrónico están restringidos exclusivamente para Administradores.</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {# --- 2D: CLIENTES ASIGNADOS --- #}
-            <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <div class="flex justify-between items-center mb-4">
+            {# --- 2D: CLIENTES ASIGNADOS CON BUSCADOR --- #}
+            <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
                     <div>
-                        <h3 class="text-lg font-bold text-[#1A2238]">
-                            <i class="fas fa-briefcase mr-2"></i> Clientes Visibles
+                        <h3 class="text-lg font-bold text-[#1A2238] flex items-center gap-2">
+                            <i class="fas fa-briefcase text-[#C0A062]" aria-hidden="true"></i> Clientes Asignados
                         </h3>
-                        <p class="text-xs text-gray-400 mt-1">Solo podrá ver los expedientes de los clientes marcados aquí.</p>
+                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Solo podrá ver los expedientes marcados.</p>
                     </div>
-                    <button type="button" onclick="seleccionarTodos()" class="text-xs font-bold text-[#C0A062] hover:underline bg-[#C0A062]/10 px-3 py-1.5 rounded-lg transition-colors">
-                        <i class="fas fa-check-double mr-1"></i> Cambiar Todos
-                    </button>
+                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-48 group">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#C0A062] transition-colors" aria-hidden="true"></i>
+                            <input type="text" id="buscador-clientes" placeholder="Buscar cliente..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-[#1A2238] focus:bg-white focus:border-[#C0A062] focus:ring-2 focus:ring-[#C0A062]/20 outline-none transition-all">
+                        </div>
+                        <button type="button" onclick="seleccionarTodos()" class="text-xs font-black text-[#C0A062] bg-[#C0A062]/10 hover:bg-[#C0A062] hover:text-white px-4 py-2 rounded-lg transition-colors focus:outline-none">
+                            <i class="fas fa-check-double mr-1" aria-hidden="true"></i> Cambiar Todos
+                        </button>
+                    </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto custom-scrollbar p-3 border border-gray-100 rounded-xl bg-gray-50">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto custom-scrollbar p-4 border border-gray-100 rounded-2xl bg-gray-50/50 shadow-inner" id="grid-clientes-asignados">
                     {% for cliente in clientes %}
-                    <label class="cliente-card flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm cursor-pointer transition-all border border-gray-100">
+                    <label class="cliente-card flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm cursor-pointer transition-all border border-gray-100 hover:border-gray-300" data-nombre="{{ cliente.nombre_empresa|lower }}">
                         <input type="checkbox" name="clientes_asignados" value="{{ cliente.id }}" class="cliente-check w-5 h-5 accent-[#C0A062] rounded cursor-pointer" 
                             {% if cliente in u.clientes_asignados.all %}checked{% endif %}>
-                        <div>
-                            <span class="block text-xs font-bold text-[#1A2238]">{{ cliente.nombre_empresa }}</span>
+                        <div class="min-w-0">
+                            <span class="block text-xs font-bold text-[#1A2238] truncate" title="{{ cliente.nombre_empresa }}">{{ cliente.nombre_empresa }}</span>
                         </div>
                     </label>
                     {% endfor %}
                 </div>
+                <p id="no-clientes-msg" class="hidden text-center text-gray-400 text-xs font-bold py-4">No se encontraron clientes con esa búsqueda.</p>
             </div>
 
         </div> {# Fin panel-permisos #}
@@ -272,37 +293,47 @@
         {# ============================================== #}
         {# BOTONES DE ACCIÓN PRINCIPALES                  #}
         {# ============================================== #}
-        <div class="flex justify-between items-center pt-6 border-t border-gray-200">
+        <div class="flex flex-col-reverse md:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
             {% if request.user != u %}
-                <button type="button" onclick="abrirModalEliminar()" class="text-red-500 font-bold text-xs hover:text-red-700 hover:underline px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
-                    <i class="fas fa-trash-alt mr-1"></i> Eliminar Usuario
+                <button type="button" onclick="abrirModalEliminar()" class="w-full md:w-auto text-red-500 font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none">
+                    <i class="fas fa-trash-alt mr-1" aria-hidden="true"></i> Eliminar Usuario
                 </button>
             {% else %}
-                <div></div>
+                <div class="hidden md:block"></div>
             {% endif %}
 
-            <button type="submit" class="bg-[#1A2238] text-white px-10 py-4 rounded-xl font-black shadow-lg hover:bg-[#2C3E50] transition-all hover:-translate-y-1 focus:ring-4 focus:ring-[#1A2238]/30">
-                GUARDAR CAMBIOS
+            <button type="submit" id="btn-guardar-usuario" class="w-full md:w-auto bg-[#1A2238] text-white px-10 py-4 rounded-xl font-black text-sm tracking-widest uppercase shadow-lg hover:bg-[#2C3E50] transition-all hover:-translate-y-1 focus:ring-4 focus:ring-[#1A2238]/30 focus:outline-none flex items-center justify-center gap-2 group disabled:opacity-75 disabled:transform-none">
+                <i class="fas fa-save icon-normal group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+                <i class="fas fa-circle-notch fa-spin hidden icon-loading text-lg" aria-hidden="true"></i>
+                <span class="btn-text">GUARDAR CAMBIOS</span>
             </button>
         </div>
     </form>
 </div>
 
 {% if request.user != u %}
-<div id="modal-eliminar" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 animate__animated animate__fadeIn">
-    <div class="bg-white p-8 rounded-2xl w-full max-w-sm m-4 shadow-2xl relative text-center" onclick="event.stopPropagation()">
-        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="fas fa-exclamation-triangle text-3xl text-red-500"></i>
+<div id="modal-eliminar" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative text-center transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-200 shadow-sm">
+            <i class="fas fa-user-times text-3xl text-red-500" aria-hidden="true"></i>
         </div>
-        <h3 class="text-xl font-black text-[#1A2238] mb-2">¿Eliminar Usuario?</h3>
-        <p class="text-sm text-gray-500 mb-6">Esta acción borrará a <strong class="text-[#1A2238]">{{ u.username }}</strong> y no se puede deshacer.</p>
+        <h3 class="text-xl font-black text-[#1A2238] mb-2 font-serif">¿Eliminar Usuario?</h3>
+        <p class="text-sm text-gray-500 mb-6">
+            Esta acción borrará el acceso a <br><strong class="text-[#1A2238] text-base">{{ u.username }}</strong><br>
+            <span class="text-red-500 font-bold block mt-1">No se puede deshacer.</span>
+        </p>
         
         <form method="POST" action="{% url 'eliminar_usuario' u.id %}" id="form-eliminar">
             {% csrf_token %}
             <input type="hidden" name="confirmar_eliminacion" value="true">
-            <div class="flex gap-3 justify-center">
-                <button type="button" onclick="cerrarModalEliminar()" class="px-4 py-2 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors">Cancelar</button>
-                <button type="submit" class="px-4 py-2 bg-red-500 text-white font-bold rounded-xl hover:bg-red-600 shadow-lg transition-colors">Sí, Eliminar</button>
+            <div class="flex gap-3 justify-center border-t border-gray-100 pt-6 mt-2">
+                <button type="button" onclick="cerrarModalEliminar()" class="px-6 py-3 bg-gray-100 text-gray-600 font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-gray-200 transition-colors focus:outline-none">
+                    Cancelar
+                </button>
+                <button type="submit" id="btn-eliminar-usuario" class="px-6 py-3 bg-red-500 text-white font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-red-600 shadow-lg transition-transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-red-300 flex items-center gap-2">
+                    <span class="btn-text">Sí, Eliminar</span>
+                    <i class="fas fa-trash hidden icon-loading" aria-hidden="true"></i>
+                </button>
             </div>
         </form>
     </div>
@@ -311,93 +342,153 @@
 
 <style>
     /* Estilos base refinados */
-    .label-form { display: block; font-size: 0.75rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; margin-bottom: 0.5rem; }
-    .input-form { width: 100%; padding: 0.75rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; color: #1F2937; border: 1px solid #E5E7EB; outline: none; transition: all 0.2s; }
-    .input-form:focus { border-color: #C0A062; background-color: #fff; box-shadow: 0 0 0 3px rgba(192, 160, 98, 0.1); }
+    .label-form { display: block; font-size: 0.65rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; margin-left: 0.25rem; }
+    .input-form { width: 100%; padding: 0.85rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; color: #1F2937; border: 2px solid transparent; outline: none; transition: all 0.2s; }
+    .input-form:focus { border-color: #C0A062; background-color: #fff; box-shadow: 0 4px 6px -1px rgba(192, 160, 98, 0.1), 0 2px 4px -1px rgba(192, 160, 98, 0.06); }
 
-    /* Cards de Checkbox sin depender de :has() */
+    /* Scrollbar minimalista */
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px;}
+    .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 20px; }
+
+    /* Cards de Checkbox (JS Control) */
     .check-card {
         display: block;
         padding: 16px;
-        border-radius: 12px;
+        border-radius: 16px;
         cursor: pointer;
         transition: all 0.2s ease-out;
         border: 1px solid #f3f4f6;
         background: #fafafa;
     }
-    .check-card:hover { border-color: #e5e7eb; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
-    .check-card input { width: 18px; height: 18px; accent-color: #C0A062; cursor: pointer; margin-top: 2px; flex-shrink: 0; }
+    .check-card:hover { border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .check-card input { width: 20px; height: 20px; accent-color: #C0A062; cursor: pointer; margin-top: 2px; flex-shrink: 0; border-radius: 4px; }
     
-    .check-title { display: block; font-weight: 700; font-size: 0.85rem; color: #374151; margin-bottom: 4px; }
-    .check-desc { display: block; font-size: 0.7rem; color: #9CA3AF; line-height: 1.4; }
+    .check-title { display: block; font-weight: 800; font-size: 0.85rem; color: #1A2238; margin-bottom: 4px; }
+    .check-desc { display: block; font-size: 0.7rem; font-weight: 500; color: #6B7280; line-height: 1.4; }
 
-    /* Clases de estado dinámicas (Inyectadas por JS para evitar fallos en navegadores antiguos) */
-    .check-card.is-checked { background-color: #f0fdf4; border-color: #bbf7d0; }
+    /* Clases de estado dinámicas Inyectadas por JS */
+    .check-card.is-checked { background-color: #f0fdf4; border-color: #bbf7d0; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);}
     .check-card.danger-card.is-checked { background-color: #fef2f2; border-color: #fecaca; }
-    .cliente-card.is-checked { border-color: #C0A062; background-color: #fdfdf9; }
+    .cliente-card.is-checked { border-color: #C0A062; background-color: #fdfdf9; box-shadow: inset 0 2px 4px 0 rgba(192, 160, 98, 0.05); }
 </style>
 
 <script>
-    // 1. Manejo del Modal de Eliminación
+    // ==========================================
+    // 1. MOTOR DE MODAL CON ANIMACIONES TAILWIND
+    // ==========================================
+    const modalEliminar = document.getElementById('modal-eliminar');
+    let contentModal = null;
+    if(modalEliminar) contentModal = modalEliminar.querySelector('.modal-content');
+
     function abrirModalEliminar() {
-        const modal = document.getElementById('modal-eliminar');
-        if (modal) {
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
+        if (modalEliminar) {
+            modalEliminar.classList.remove('hidden');
+            modalEliminar.classList.add('flex');
+            document.body.style.overflow = 'hidden';
+            
+            setTimeout(() => {
+                modalEliminar.classList.remove('opacity-0');
+                if(contentModal){
+                    contentModal.classList.remove('scale-95');
+                    contentModal.classList.add('scale-100');
+                }
+            }, 10);
         }
     }
     
     function cerrarModalEliminar() {
-        const modal = document.getElementById('modal-eliminar');
-        if (modal) {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
+        if (modalEliminar) {
+            modalEliminar.classList.add('opacity-0');
+            if(contentModal){
+                contentModal.classList.remove('scale-100');
+                contentModal.classList.add('scale-95');
+            }
+            setTimeout(() => {
+                modalEliminar.classList.add('hidden');
+                modalEliminar.classList.remove('flex');
+                document.body.style.overflow = '';
+            }, 300);
         }
     }
 
-    // Cerrar modal con ESC o clic afuera
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') cerrarModalEliminar();
+        if (e.key === 'Escape' && modalEliminar && !modalEliminar.classList.contains('hidden')) {
+            cerrarModalEliminar();
+        }
     });
-    const modalEliminarOverlay = document.getElementById('modal-eliminar');
-    if(modalEliminarOverlay) {
-        modalEliminarOverlay.addEventListener('click', cerrarModalEliminar);
+
+    if(modalEliminar) {
+        modalEliminar.addEventListener('click', cerrarModalEliminar);
     }
 
-    // 2. Lógica del selector de Rol
+    // ==========================================
+    // 2. LÓGICA DE ROL Y PERMISOS
+    // ==========================================
     function actualizarVistaPermisos() {
         const rol = document.getElementById('rol_selector').value;
         const panelPermisos = document.getElementById('panel-permisos');
         const mensajeAdmin = document.getElementById('mensaje-admin');
 
         if (rol === 'admin') {
-            panelPermisos.classList.add('hidden', 'opacity-0');
+            panelPermisos.classList.add('hidden', 'opacity-0', 'scale-95');
             mensajeAdmin.classList.remove('hidden');
         } else {
-            panelPermisos.classList.remove('hidden', 'opacity-0');
+            panelPermisos.classList.remove('hidden', 'opacity-0', 'scale-95');
             mensajeAdmin.classList.add('hidden');
         }
     }
 
-    // 3. Lógica inteligente de "Seleccionar Todos"
+    // ==========================================
+    // 3. BUSCADOR DE CLIENTES Y SELECCIÓN MÚLTIPLE
+    // ==========================================
     function seleccionarTodos() {
-        const checkboxes = document.querySelectorAll('.cliente-check');
+        const checkboxes = document.querySelectorAll('.cliente-card:not(.hidden) .cliente-check');
         if(checkboxes.length === 0) return;
         
         const marcados = Array.from(checkboxes).filter(c => c.checked).length;
-        const nuevoEstado = marcados !== checkboxes.length;
+        const nuevoEstado = marcados !== checkboxes.length; // Si no están todos, marcarlos. Si sí, desmarcarlos.
         
         checkboxes.forEach(c => {
             c.checked = nuevoEstado;
-            c.dispatchEvent(new Event('change')); 
+            c.dispatchEvent(new Event('change')); // Dispara evento para la UI visual
         });
     }
 
-    // 4. Script visual para Checkboxes (Reemplaza a CSS :has)
+    const inputBuscador = document.getElementById('buscador-clientes');
+    const tarjetasClientes = document.querySelectorAll('.cliente-card');
+    const msgVacio = document.getElementById('no-clientes-msg');
+
+    if (inputBuscador) {
+        inputBuscador.addEventListener('input', function(e) {
+            const query = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+            let visibles = 0;
+
+            tarjetasClientes.forEach(tarjeta => {
+                const nombre = tarjeta.getAttribute('data-nombre').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                if (nombre.includes(query)) {
+                    tarjeta.classList.remove('hidden');
+                    tarjeta.classList.add('flex');
+                    visibles++;
+                } else {
+                    tarjeta.classList.add('hidden');
+                    tarjeta.classList.remove('flex');
+                }
+            });
+
+            if (visibles === 0) msgVacio.classList.remove('hidden');
+            else msgVacio.classList.add('hidden');
+        });
+    }
+
+    // ==========================================
+    // 4. INICIALIZACIÓN Y PREVENCIÓN DE DOBLE SUBMIT
+    // ==========================================
     document.addEventListener('DOMContentLoaded', () => {
-        // Permisos
-        document.querySelectorAll('.permiso-check').forEach(check => {
-            const card = check.closest('.check-card');
+        // UI Visual para Checkboxes
+        document.querySelectorAll('.permiso-check, .cliente-check').forEach(check => {
+            const card = check.closest(check.classList.contains('permiso-check') ? '.check-card' : '.cliente-card');
+            
             if(check.checked) card.classList.add('is-checked');
             
             check.addEventListener('change', (e) => {
@@ -406,19 +497,34 @@
             });
         });
 
-        // Clientes asignados
-        document.querySelectorAll('.cliente-check').forEach(check => {
-            const card = check.closest('.cliente-card');
-            if(check.checked) card.classList.add('is-checked');
-            
-            check.addEventListener('change', (e) => {
-                if(e.target.checked) card.classList.add('is-checked');
-                else card.classList.remove('is-checked');
-            });
-        });
-
-        // Inicializar vista
         actualizarVistaPermisos();
+
+        // Evitar Doble Submit - Guardar Usuario
+        const formUsuario = document.getElementById('form-usuario');
+        if(formUsuario) {
+            formUsuario.addEventListener('submit', function() {
+                const btn = document.getElementById('btn-guardar-usuario');
+                if(!btn) return;
+                btn.disabled = true;
+                btn.querySelector('.icon-normal').classList.add('hidden');
+                btn.querySelector('.icon-loading').classList.remove('hidden');
+                btn.querySelector('.btn-text').textContent = 'GUARDANDO...';
+            });
+        }
+
+        // Evitar Doble Submit - Eliminar Usuario
+        const formEliminar = document.getElementById('form-eliminar');
+        if(formEliminar) {
+            formEliminar.addEventListener('submit', function() {
+                const btn = document.getElementById('btn-eliminar-usuario');
+                if(!btn) return;
+                btn.disabled = true;
+                btn.classList.add('opacity-75', 'cursor-not-allowed', 'transform-none');
+                btn.querySelector('.btn-text').textContent = 'ELIMINANDO...';
+                btn.querySelector('.icon-loading').classList.remove('hidden', 'fa-trash');
+                btn.querySelector('.icon-loading').classList.add('fa-spinner', 'fa-spin');
+            });
+        }
     });
 </script>
 {% endblock %}
