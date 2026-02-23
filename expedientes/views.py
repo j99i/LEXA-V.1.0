@@ -1952,15 +1952,19 @@ def obtener_preview_archivo(request, archivo_id):
 def descargar_archivo_oficial(request, archivo_id):
     doc = get_object_or_404(Documento, id=archivo_id)
     try:
-        # En AWS la mejor práctica de rendimiento es redirigir, 
-        # esto ahorra RAM en tu servidor de Railway
-        return redirect(doc.archivo.url)
+        # En lugar de redirigir a S3, leemos el archivo y forzamos el nombre original
+        response = HttpResponse(doc.archivo.read())
+        
+        # Codificamos el nombre para que soporte espacios, acentos y caracteres especiales
+        nombre_codificado = urllib.parse.quote(doc.nombre_archivo)
+        response['Content-Disposition'] = f"attachment; filename*=UTF-8''{nombre_codificado}"
+        
+        return response
 
     except Exception as e:
         logger.error(f"Error crítico en descarga: {str(e)}")
         messages.error(request, f"Error técnico al descargar: {str(e)}")
-        return redirect('detalle_cliente', cliente_id=doc.cliente.id)
-    
+        return redirect('detalle_cliente', cliente_id=doc.cliente.id)    
 @login_required
 def redactar_correo_autorizaciones(request, carpeta_id):
     carpeta = get_object_or_404(Carpeta, id=carpeta_id)

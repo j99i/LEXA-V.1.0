@@ -2,47 +2,6 @@
 {% load static %}
 
 {% block content %}
-
-<style>
-    @media print {
-        /* Oculta todo el cuerpo por defecto */
-        body * {
-            visibility: hidden;
-        }
-        /* Hace visible solo el modal de vista previa y su contenido */
-        #modal-preview, #modal-preview * {
-            visibility: visible;
-        }
-        /* Ajusta el modal para que ocupe la página entera de impresión sin cortes */
-        #modal-preview {
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: auto;
-            background: white !important;
-            box-shadow: none !important;
-        }
-        /* Oculta botones y elementos innecesarios al imprimir */
-        #modal-preview button, #preview-download, #preview-title {
-            display: none !important;
-        }
-        /* Asegura que el texto y fondo oscuro se vuelvan legibles en papel */
-        #preview-body, #preview-body > div {
-            background: white !important;
-            height: auto !important;
-            overflow: visible !important;
-            padding: 0 !important;
-        }
-        #preview-body pre {
-            color: black !important;
-            white-space: pre-wrap !important;
-            word-wrap: break-word !important;
-            font-size: 12pt !important;
-        }
-    }
-</style>
-
 <div class="max-w-7xl mx-auto animate__animated animate__fadeIn relative">
     
     <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-6">
@@ -483,9 +442,15 @@
     <div class="bg-white w-full max-w-5xl h-[85vh] rounded-xl overflow-hidden relative flex flex-col shadow-2xl" onclick="event.stopPropagation()">
         <div class="bg-[#2D1B4B] p-4 flex justify-between items-center shrink-0">
             <h3 id="preview-title" class="text-white font-bold truncate">Vista Previa</h3>
-            <div class="flex gap-4">
-                <a id="preview-download" href="#" download class="text-white hover:text-[#A855F7]"><i class="fas fa-download"></i></a>
-                <button type="button" onclick="closeModal('modal-preview')" class="text-white hover:text-red-500"><i class="fas fa-times text-xl"></i></button>
+            <div class="flex gap-4 items-center">
+                <a id="preview-print" href="#" target="_blank" class="text-white hover:text-blue-400 mx-2" title="Abrir en pestaña nueva para imprimir">
+                    <i class="fas fa-external-link-alt"></i> <span class="text-xs font-bold ml-1">ABRIR / IMPRIMIR</span>
+                </a>
+                
+                <a id="preview-download" href="#" class="text-white hover:text-[#A855F7] mx-2" title="Descargar archivo original">
+                    <i class="fas fa-download"></i> <span class="text-xs font-bold ml-1">DESCARGAR</span>
+                </a>
+                <button type="button" onclick="closeModal('modal-preview')" class="text-white hover:text-red-500 ml-4"><i class="fas fa-times text-xl"></i></button>
             </div>
         </div>
         <div id="preview-body" class="flex-1 bg-gray-100 overflow-hidden relative flex items-center justify-center"></div>
@@ -637,7 +602,6 @@
 <script>
     // 1. GESTOR CENTRALIZADO DE MODALES
     let activeModalId = null;
-    let originalDocumentTitle = document.title; // Guardar el título original de la pestaña
 
     function openModal(modalId) {
         const modal = document.getElementById(modalId);
@@ -668,7 +632,6 @@
 
         if(idToClose === 'modal-preview') {
             document.getElementById('preview-body').innerHTML = '';
-            document.title = originalDocumentTitle; // Restaurar el título original al cerrar la preview
         }
         if(idToClose === 'modal-auditoria') {
             document.getElementById('auditoria-viewer').src = '';
@@ -734,6 +697,7 @@
         const body = document.getElementById('preview-body');
         const title = document.getElementById('preview-title');
         const downloadBtn = document.getElementById('preview-download');
+        const printBtn = document.getElementById('preview-print');
         
         openModal('modal-preview');
         body.innerHTML = '<div class="flex flex-col items-center justify-center h-full"><i class="fas fa-circle-notch fa-spin text-5xl text-[#2D1B4B] mb-4"></i><p class="text-gray-500 font-bold">Procesando archivo...</p></div>';
@@ -742,13 +706,9 @@
             .then(response => response.json())
             .then(data => {
                 
-                // --- CAMBIO DE NOMBRE AL IMPRIMIR ---
-                // Le damos el nombre exacto del archivo al título de la página,
-                // así cuando le den Ctrl+P, el navegador sugerirá exactamente ese nombre para guardar
-                document.title = data.nombre; 
-                
                 title.innerText = data.nombre;
-                downloadBtn.href = `/archivo/descargar/${id}/`; 
+                downloadBtn.href = `/archivo/descargar/${id}/`; // Usa la nueva función del backend
+                printBtn.href = data.url; // Abre el archivo puro en nueva pestaña
                 
                 let cHTML = '';
                 if (data.tipo === 'imagen') cHTML = `<div class="flex items-center justify-center h-full bg-black/5"><img src="${data.url}" class="max-w-full max-h-full object-contain shadow-lg rounded"></div>`;
