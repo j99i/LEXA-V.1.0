@@ -265,6 +265,7 @@ def dashboard(request):
         'alertas': {'tareas': tareas_criticas} 
     })
 
+
 @login_required
 @requiere_permiso('can_create_client')
 def nuevo_cliente(request):
@@ -279,6 +280,7 @@ def nuevo_cliente(request):
         if request.user.rol != 'admin':
             request.user.clientes_asignados.add(c)
 
+        # Lógica para conservar solo las carpetas seleccionadas
         carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
         carpetas_base = [
             'CARPETA ADMINISTRATIVA', 'LICENCIA DE FUNCIONAMIENTO', 
@@ -293,24 +295,42 @@ def nuevo_cliente(request):
 
         registrar_bitacora(request.user, c, 'creacion', f"Dio de alta al cliente '{c.nombre_empresa}'.")
 
-        # --- MAGIA: SINCRONIZACIÓN AUTOMÁTICA DE SUCURSALES ---
+        # --- MAGIA: SINCRONIZACIÓN AUTOMÁTICA DE SUCURSALES (VERSIÓN AVANZADA) ---
         if c.logo:
-            primera_palabra = c.nombre_empresa.split()[0]
-            palabras_ignoradas = ['grupo', 'operadora', 'comercializadora', 'el', 'la', 'los', 'las']
+            palabras = c.nombre_empresa.upper().split()
             
-            if len(primera_palabra) > 3 and primera_palabra.lower() not in palabras_ignoradas:
-                sucursales = Cliente.objects.filter(nombre_empresa__istartswith=primera_palabra).exclude(id=c.id)
-                count_actualizadas = 0
-                for sucursal in sucursales:
-                    sucursal.logo = c.logo
-                    sucursal.save(update_fields=['logo'])
-                    count_actualizadas += 1
+            if len(palabras) > 0:
+                palabras_genericas = [
+                    'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                    'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                    'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                    'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                    'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                    'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+                ]
                 
-                if count_actualizadas > 0:
-                    messages.info(request, f"💡 Inteligencia AppLegal: El logo se aplicó a {count_actualizadas} sucursal(es) de {primera_palabra}.")
+                # Si empieza con palabra genérica, buscamos coincidencias con las primeras dos palabras
+                if palabras[0] in palabras_genericas and len(palabras) > 1:
+                    clave_busqueda = f"{palabras[0]} {palabras[1]}"
+                else:
+                    # Si es marca propia, buscamos coincidencias solo con la primera palabra
+                    clave_busqueda = palabras[0]
+                
+                if len(clave_busqueda) > 3:
+                    sucursales = Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda).exclude(id=c.id)
+                    
+                    count_actualizadas = 0
+                    for sucursal in sucursales:
+                        sucursal.logo = c.logo
+                        sucursal.save(update_fields=['logo'])
+                        count_actualizadas += 1
+                    
+                    if count_actualizadas > 0:
+                        messages.info(request, f"💡 Inteligencia AppLegal: El logo se aplicó automáticamente a {count_actualizadas} sucursal(es) de '{clave_busqueda}'.")
 
         return redirect('dashboard')
     return render(request, 'nuevo_cliente.html')
+
 @login_required
 @requiere_permiso('can_delete_client')
 def eliminar_cliente(request, cliente_id):
@@ -383,7 +403,6 @@ def editar_cliente(request, cliente_id):
         cliente.email = request.POST.get('email')
         cliente.telefono = request.POST.get('telefono')
         
-        # Variable para saber si subieron un logo nuevo en esta edición
         logo_actualizado = False
         if request.FILES.get('logo'):
             cliente.logo = request.FILES['logo']
@@ -400,26 +419,38 @@ def editar_cliente(request, cliente_id):
         registrar_bitacora(request.user, cliente, 'edicion', "Actualizó datos del cliente.")
         messages.success(request, "Cliente actualizado.")
 
-        # --- MAGIA: SINCRONIZACIÓN AUTOMÁTICA DE SUCURSALES ---
+        # --- MAGIA: SINCRONIZACIÓN AUTOMÁTICA DE SUCURSALES (VERSIÓN AVANZADA) ---
         if logo_actualizado and cliente.logo:
-            # Obtenemos la primera palabra del nombre (Ej. "Cinemex" de "Cinemex Tultitlan")
-            primera_palabra = cliente.nombre_empresa.split()[0]
+            palabras = cliente.nombre_empresa.upper().split()
             
-            # Evitamos palabras genéricas para no sobreescribir logos por error (Ej. "Grupo Bimbo" y "Grupo Modelo")
-            palabras_ignoradas = ['grupo', 'operadora', 'comercializadora', 'el', 'la', 'los', 'las']
-            
-            if len(primera_palabra) > 3 and primera_palabra.lower() not in palabras_ignoradas:
-                # Buscamos todos los clientes que empiecen con esa misma palabra (sin importar mayúsculas)
-                sucursales = Cliente.objects.filter(nombre_empresa__istartswith=primera_palabra).exclude(id=cliente.id)
+            if len(palabras) > 0:
+                palabras_genericas = [
+                    'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                    'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                    'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                    'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                    'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                    'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+                ]
                 
-                count_actualizadas = 0
-                for sucursal in sucursales:
-                    sucursal.logo = cliente.logo # Apuntamos al MISMO archivo físico (Ahorra S3)
-                    sucursal.save(update_fields=['logo'])
-                    count_actualizadas += 1
+                # Si empieza con palabra genérica, buscamos coincidencias con las primeras dos palabras
+                if palabras[0] in palabras_genericas and len(palabras) > 1:
+                    clave_busqueda = f"{palabras[0]} {palabras[1]}"
+                else:
+                    # Si es marca propia, buscamos coincidencias solo con la primera palabra
+                    clave_busqueda = palabras[0]
                 
-                if count_actualizadas > 0:
-                    messages.info(request, f"💡 Inteligencia AppLegal: El logo se sincronizó automáticamente con {count_actualizadas} sucursal(es) de {primera_palabra}.")
+                if len(clave_busqueda) > 3:
+                    sucursales = Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda).exclude(id=cliente.id)
+                    
+                    count_actualizadas = 0
+                    for sucursal in sucursales:
+                        sucursal.logo = cliente.logo
+                        sucursal.save(update_fields=['logo'])
+                        count_actualizadas += 1
+                    
+                    if count_actualizadas > 0:
+                        messages.info(request, f"💡 Inteligencia AppLegal: El logo se sincronizó automáticamente con {count_actualizadas} sucursal(es) de '{clave_busqueda}'.")
 
         return redirect('detalle_cliente', cliente_id=cliente.id)
 
