@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block content %}
-<div class="max-w-6xl mx-auto animate__animated animate__fadeIn pb-10">
+<div class="max-w-6xl mx-auto animate__animated animate__fadeIn pb-24">
     
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
@@ -38,15 +38,15 @@
                 </div>
                 <div>
                     <label for="email" class="label-form">Correo Electrónico</label>
-                    <div class="relative">
-                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                    <div class="relative group">
+                        <i class="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C0A062] transition-colors" aria-hidden="true"></i>
                         <input type="email" id="email" name="email" value="{{ u.email }}" autocomplete="email" class="input-form pl-10">
                     </div>
                 </div>
                 <div>
                     <label for="telefono" class="label-form">Teléfono (Opcional)</label>
-                    <div class="relative">
-                        <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" aria-hidden="true"></i>
+                    <div class="relative group">
+                        <i class="fas fa-phone absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C0A062] transition-colors" aria-hidden="true"></i>
                         <input type="tel" id="telefono" name="telefono" value="{{ u.telefono|default:'' }}" autocomplete="tel" class="input-form pl-10">
                     </div>
                 </div>
@@ -63,7 +63,7 @@
                     </select>
                 </div>
                 <p class="text-[11px] font-bold text-blue-600 mt-3 flex items-center gap-1.5">
-                    <i class="fas fa-info-circle" aria-hidden="true"></i> Si seleccionas "Administrador Master", el usuario tendrá acceso a TODO automáticamente sin importar las casillas de abajo.
+                    <i class="fas fa-info-circle" aria-hidden="true"></i> Si seleccionas "Administrador Master", el usuario tendrá acceso a TODO automáticamente.
                 </p>
             </div>
         </div>
@@ -78,7 +78,7 @@
                 </div>
                 <div>
                     <h3 class="text-lg font-black text-green-800">Acceso Total Habilitado</h3>
-                    <p class="text-sm text-green-700 font-medium mt-1">Este usuario es Administrador. Tiene acceso a todas las herramientas, clientes, configuraciones y datos de contacto de manera predeterminada.</p>
+                    <p class="text-sm text-green-700 font-medium mt-1">Este usuario es Administrador. Tiene acceso a todas las herramientas, clientes, configuraciones y datos confidenciales de manera predeterminada.</p>
                 </div>
             </div>
         </div>
@@ -101,7 +101,7 @@
                             <input type="checkbox" id="chk_cotizaciones" name="access_cotizaciones" class="permiso-check" {% if u.access_cotizaciones %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📄 Cotizaciones y Catálogo</span>
-                                <span class="check-desc">Crear, editar y enviar cotizaciones a prospectos. Gestionar el catálogo de servicios y precios.</span>
+                                <span class="check-desc">Crear, editar y enviar cotizaciones a prospectos. Gestionar servicios.</span>
                             </div>
                         </div>
                     </label>
@@ -111,7 +111,7 @@
                             <input type="checkbox" id="chk_finanzas" name="access_finanzas" class="permiso-check" {% if u.access_finanzas %}checked{% endif %}>
                             <div>
                                 <span class="check-title">💰 Finanzas y Cobranza</span>
-                                <span class="check-desc">Ver panel financiero, cuentas por cobrar, registrar pagos y generar órdenes de cobro y recibos.</span>
+                                <span class="check-desc">Ver panel financiero, cuentas por cobrar, registrar pagos y recibos.</span>
                             </div>
                         </div>
                     </label>
@@ -121,7 +121,7 @@
                             <input type="checkbox" id="chk_agenda" name="access_agenda" class="permiso-check" {% if u.access_agenda %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📅 Agenda Legal</span>
-                                <span class="check-desc">Acceder al calendario, crear eventos, audiencias y recordatorios. Mover eventos con drag & drop.</span>
+                                <span class="check-desc">Acceder al calendario, crear eventos, audiencias y recordatorios.</span>
                             </div>
                         </div>
                     </label>
@@ -131,7 +131,7 @@
                             <input type="checkbox" id="chk_contratos" name="access_contratos" class="permiso-check" {% if u.access_contratos %}checked{% endif %}>
                             <div>
                                 <span class="check-title">⚖️ Generador de Contratos</span>
-                                <span class="check-desc">Seleccionar plantillas, llenar variables y generar documentos DOCX personalizados por cliente.</span>
+                                <span class="check-desc">Seleccionar plantillas, llenar variables y generar documentos DOCX.</span>
                             </div>
                         </div>
                     </label>
@@ -141,7 +141,7 @@
                             <input type="checkbox" id="chk_disenador" name="access_disenador" class="permiso-check" {% if u.access_disenador %}checked{% endif %}>
                             <div>
                                 <span class="check-title">🎨 Diseñador de Plantillas</span>
-                                <span class="check-desc">Subir documentos base, marcar textos y convertirlos en variables reutilizables para contratos.</span>
+                                <span class="check-desc">Marcar textos y convertirlos en variables para contratos.</span>
                             </div>
                         </div>
                     </label>
@@ -151,7 +151,7 @@
                             <input type="checkbox" id="chk_gastos" name="access_gastos" class="permiso-check" {% if u.access_gastos %}checked{% endif %}>
                             <div>
                                 <span class="check-title">🧾 Módulo de Gastos y XML</span>
-                                <span class="check-desc">Cargar facturas XML del SAT, visualizar resumen de gastos por mes y exportar reportes a Excel.</span>
+                                <span class="check-desc">Cargar facturas XML del SAT y exportar reportes a Excel.</span>
                             </div>
                         </div>
                     </label>
@@ -161,7 +161,7 @@
                             <input type="checkbox" id="chk_qr" name="access_qr" class="permiso-check" {% if u.access_qr %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📱 Generador de QR</span>
-                                <span class="check-desc">Crear códigos QR personalizados con colores de marca para compartir enlaces o información física.</span>
+                                <span class="check-desc">Crear códigos QR personalizados con colores de marca.</span>
                             </div>
                         </div>
                     </label>
@@ -181,7 +181,7 @@
                             <input type="checkbox" id="chk_create_client" name="can_create_client" class="permiso-check" {% if u.can_create_client %}checked{% endif %}>
                             <div>
                                 <span class="check-title">➕ Crear nuevos clientes</span>
-                                <span class="check-desc">Dar de alta clientes desde el dashboard. También permite crear subcarpetas en expedientes.</span>
+                                <span class="check-desc">Dar de alta clientes. También permite crear subcarpetas.</span>
                             </div>
                         </div>
                     </label>
@@ -190,8 +190,8 @@
                         <div class="flex items-start gap-3">
                             <input type="checkbox" id="chk_edit_client" name="can_edit_client" class="permiso-check" {% if u.can_edit_client %}checked{% endif %}>
                             <div>
-                                <span class="check-title">✏️ Editar datos y mover archivos</span>
-                                <span class="check-desc">Modificar datos del cliente. Permite mover archivos entre carpetas y generar links externos.</span>
+                                <span class="check-title">✏️ Editar datos y mover</span>
+                                <span class="check-desc">Modificar datos del cliente y mover archivos entre carpetas.</span>
                             </div>
                         </div>
                     </label>
@@ -201,7 +201,7 @@
                             <input type="checkbox" id="chk_upload" name="can_upload_files" class="permiso-check" {% if u.can_upload_files %}checked{% endif %}>
                             <div>
                                 <span class="check-title">📤 Subir archivos al Drive</span>
-                                <span class="check-desc">Cargar documentos, auditar validaciones y establecer fechas de vencimiento con alertas.</span>
+                                <span class="check-desc">Cargar documentos y establecer fechas de vencimiento con alertas.</span>
                             </div>
                         </div>
                     </label>
@@ -211,13 +211,12 @@
                             <input type="checkbox" id="chk_view_docs" name="can_view_documents" class="permiso-check" {% if u.can_view_documents %}checked{% endif %}>
                             <div>
                                 <span class="check-title">👁️ Ver y descargar documentos</span>
-                                <span class="check-desc">Visualizar archivos en el visor integrado y descargar documentos físicos u originales.</span>
+                                <span class="check-desc">Visualizar archivos en el visor integrado y descargarlos.</span>
                             </div>
                         </div>
                     </label>
                 </div>
 
-                {# Permiso peligroso separado #}
                 <div class="border-t border-gray-100 pt-6 mt-2">
                     <p class="text-[10px] font-black text-red-500 uppercase tracking-widest mb-3 flex items-center gap-1">
                         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i> Zona de Alto Riesgo
@@ -227,57 +226,43 @@
                             <input type="checkbox" id="chk_delete" name="can_delete_client" class="permiso-check danger-check" {% if u.can_delete_client %}checked{% endif %}>
                             <div>
                                 <span class="check-title text-red-600">🗑️ Eliminar clientes, carpetas y archivos</span>
-                                <span class="check-desc text-red-400">Permite borrar clientes completos, carpetas enteras y archivos individuales. <strong>Acción irreversible.</strong></span>
+                                <span class="check-desc text-red-400">Permite borrar clientes completos o documentos. <strong>Acción irreversible.</strong></span>
                             </div>
                         </div>
                     </label>
                 </div>
             </div>
 
-            {# --- 2C: INFORMACIÓN VISIBLE --- #}
+            {# --- 2D: CLIENTES ASIGNADOS CON SCROLL Y SELECT ALL --- #}
             <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#1A2238] mb-1 flex items-center gap-2">
-                    <i class="fas fa-eye text-[#C0A062]" aria-hidden="true"></i> Nivel de Confidencialidad
-                </h3>
-                <p class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-widest">Regla de seguridad estricta activa.</p>
                 
-                <div class="bg-amber-50 border border-amber-200 rounded-2xl p-5">
-                    <div class="flex items-start gap-4">
-                        <div class="w-10 h-10 bg-amber-100 rounded-full flex items-center justify-center text-amber-500 shrink-0">
-                            <i class="fas fa-lock" aria-hidden="true"></i>
-                        </div>
-                        <div class="text-sm text-amber-900 leading-relaxed">
-                            <strong>Visibilidad para este rol:</strong> Tendrá acceso a nombre, logo, expediente y archivos del cliente.<br>
-                            <span class="text-amber-700 block mt-1"><i class="fas fa-times-circle text-amber-500 mr-1" aria-hidden="true"></i> <strong>OCULTO:</strong> El nombre de contacto, teléfono y correo electrónico están restringidos exclusivamente para Administradores.</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {# --- 2D: CLIENTES ASIGNADOS CON BUSCADOR --- #}
-            <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100">
                 <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-gray-100 pb-4">
                     <div>
                         <h3 class="text-lg font-bold text-[#1A2238] flex items-center gap-2">
                             <i class="fas fa-briefcase text-[#C0A062]" aria-hidden="true"></i> Clientes Asignados
                         </h3>
-                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Solo podrá ver los expedientes marcados.</p>
+                        <p class="text-xs font-bold text-gray-400 mt-1 uppercase tracking-widest">Seleccione los expedientes a los que tendrá acceso.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                        <div class="relative flex-1 md:w-48 group">
-                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#C0A062] transition-colors" aria-hidden="true"></i>
-                            <input type="text" id="buscador-clientes" placeholder="Buscar cliente..." class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold text-[#1A2238] focus:bg-white focus:border-[#C0A062] focus:ring-2 focus:ring-[#C0A062]/20 outline-none transition-all">
+                    
+                    <div class="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto bg-gray-50 p-2 rounded-xl border border-gray-100">
+                        <label class="flex items-center justify-center gap-2 cursor-pointer w-full sm:w-auto px-3 py-2 bg-white hover:bg-gray-100 border border-gray-200 rounded-lg transition-colors shadow-sm" title="Marcar/Desmarcar visibles">
+                            <input type="checkbox" id="chk-master-clientes" class="w-4 h-4 accent-[#C0A062] rounded cursor-pointer">
+                            <span class="text-xs font-bold text-[#1A2238] uppercase tracking-wider">Todos</span>
+                        </label>
+                        
+                        <div class="w-px h-6 bg-gray-300 hidden sm:block"></div>
+                        
+                        <div class="relative flex-1 w-full sm:w-56 group">
+                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-[#C0A062] transition-colors" aria-hidden="true"></i>
+                            <input type="text" id="buscador-clientes" placeholder="Buscar cliente..." class="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-lg text-xs font-bold text-[#1A2238] focus:border-[#C0A062] focus:ring-2 focus:ring-[#C0A062]/20 outline-none transition-all shadow-sm">
                         </div>
-                        <button type="button" onclick="seleccionarTodos()" class="text-xs font-black text-[#C0A062] bg-[#C0A062]/10 hover:bg-[#C0A062] hover:text-white px-4 py-2 rounded-lg transition-colors focus:outline-none">
-                            <i class="fas fa-check-double mr-1" aria-hidden="true"></i> Cambiar Todos
-                        </button>
                     </div>
                 </div>
                 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 max-h-72 overflow-y-auto custom-scrollbar p-4 border border-gray-100 rounded-2xl bg-gray-50/50 shadow-inner" id="grid-clientes-asignados">
                     {% for cliente in clientes %}
-                    <label class="cliente-card flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm cursor-pointer transition-all border border-gray-100 hover:border-gray-300" data-nombre="{{ cliente.nombre_empresa|lower }}">
-                        <input type="checkbox" name="clientes_asignados" value="{{ cliente.id }}" class="cliente-check w-5 h-5 accent-[#C0A062] rounded cursor-pointer" 
+                    <label class="cliente-card flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm cursor-pointer transition-all border border-gray-100 hover:border-[#C0A062]/50 hover:shadow-md" data-nombre="{{ cliente.nombre_empresa|lower }}">
+                        <input type="checkbox" name="clientes_asignados" value="{{ cliente.id }}" class="cliente-check w-5 h-5 accent-[#C0A062] rounded cursor-pointer shrink-0" 
                             {% if cliente in u.clientes_asignados.all %}checked{% endif %}>
                         <div class="min-w-0">
                             <span class="block text-xs font-bold text-[#1A2238] truncate" title="{{ cliente.nombre_empresa }}">{{ cliente.nombre_empresa }}</span>
@@ -285,30 +270,33 @@
                     </label>
                     {% endfor %}
                 </div>
-                <p id="no-clientes-msg" class="hidden text-center text-gray-400 text-xs font-bold py-4">No se encontraron clientes con esa búsqueda.</p>
+                <p id="no-clientes-msg" class="hidden text-center text-gray-400 text-xs font-bold py-6">No se encontraron clientes con esa búsqueda.</p>
             </div>
 
         </div> {# Fin panel-permisos #}
-
-        {# ============================================== #}
-        {# BOTONES DE ACCIÓN PRINCIPALES                  #}
-        {# ============================================== #}
-        <div class="flex flex-col-reverse md:flex-row justify-between items-center pt-6 border-t border-gray-200 gap-4">
-            {% if request.user != u %}
-                <button type="button" onclick="abrirModalEliminar()" class="w-full md:w-auto text-red-500 font-bold text-xs uppercase tracking-widest px-6 py-3 rounded-xl hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none">
-                    <i class="fas fa-trash-alt mr-1" aria-hidden="true"></i> Eliminar Usuario
-                </button>
-            {% else %}
-                <div class="hidden md:block"></div>
-            {% endif %}
-
-            <button type="submit" id="btn-guardar-usuario" class="w-full md:w-auto bg-[#1A2238] text-white px-10 py-4 rounded-xl font-black text-sm tracking-widest uppercase shadow-lg hover:bg-[#2C3E50] transition-all hover:-translate-y-1 focus:ring-4 focus:ring-[#1A2238]/30 focus:outline-none flex items-center justify-center gap-2 group disabled:opacity-75 disabled:transform-none">
-                <i class="fas fa-save icon-normal group-hover:scale-110 transition-transform" aria-hidden="true"></i>
-                <i class="fas fa-circle-notch fa-spin hidden icon-loading text-lg" aria-hidden="true"></i>
-                <span class="btn-text">GUARDAR CAMBIOS</span>
-            </button>
-        </div>
+        
     </form>
+</div>
+
+{# ============================================== #}
+{# BARRA INFERIOR FLOTANTE (STICKY SAVE)          #}
+{# ============================================== #}
+<div class="fixed bottom-0 left-0 w-full bg-white/95 backdrop-blur-md border-t border-gray-200 p-4 shadow-[0_-10px_40px_rgba(0,0,0,0.08)] z-40 animate__animated animate__slideInUp">
+    <div class="max-w-6xl mx-auto flex flex-col-reverse md:flex-row justify-between items-center gap-4 px-4 md:px-0">
+        {% if request.user != u %}
+            <button type="button" onclick="abrirModalEliminar()" class="w-full md:w-auto text-red-500 font-bold text-xs uppercase tracking-widest px-6 py-3.5 rounded-xl hover:bg-red-50 hover:text-red-700 transition-colors focus:outline-none flex items-center justify-center gap-2 border border-transparent hover:border-red-100">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i> Eliminar Usuario
+            </button>
+        {% else %}
+            <div></div>
+        {% endif %}
+
+        <button type="submit" form="form-usuario" id="btn-guardar-usuario" class="w-full md:w-auto bg-[#1A2238] text-white px-10 py-3.5 rounded-xl font-black text-sm tracking-widest uppercase shadow-lg hover:bg-[#C0A062] hover:shadow-[#C0A062]/30 transition-all hover:-translate-y-1 focus:ring-4 focus:ring-[#C0A062]/30 focus:outline-none flex items-center justify-center gap-2 group disabled:opacity-75 disabled:transform-none">
+            <i class="fas fa-save icon-normal group-hover:scale-110 transition-transform" aria-hidden="true"></i>
+            <i class="fas fa-circle-notch fa-spin hidden icon-loading text-lg" aria-hidden="true"></i>
+            <span class="btn-text">GUARDAR CAMBIOS</span>
+        </button>
+    </div>
 </div>
 
 {% if request.user != u %}
@@ -341,33 +329,21 @@
 {% endif %}
 
 <style>
-    /* Estilos base refinados */
     .label-form { display: block; font-size: 0.65rem; font-weight: 800; color: #9CA3AF; text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.5rem; margin-left: 0.25rem; }
     .input-form { width: 100%; padding: 0.85rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; font-size: 0.875rem; color: #1F2937; border: 2px solid transparent; outline: none; transition: all 0.2s; }
     .input-form:focus { border-color: #C0A062; background-color: #fff; box-shadow: 0 4px 6px -1px rgba(192, 160, 98, 0.1), 0 2px 4px -1px rgba(192, 160, 98, 0.06); }
 
-    /* Scrollbar minimalista */
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px;}
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #E5E7EB; border-radius: 20px; }
 
-    /* Cards de Checkbox (JS Control) */
-    .check-card {
-        display: block;
-        padding: 16px;
-        border-radius: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease-out;
-        border: 1px solid #f3f4f6;
-        background: #fafafa;
-    }
+    .check-card { display: block; padding: 16px; border-radius: 16px; cursor: pointer; transition: all 0.2s ease-out; border: 1px solid #f3f4f6; background: #fafafa; }
     .check-card:hover { border-color: #e5e7eb; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .check-card input { width: 20px; height: 20px; accent-color: #C0A062; cursor: pointer; margin-top: 2px; flex-shrink: 0; border-radius: 4px; }
     
     .check-title { display: block; font-weight: 800; font-size: 0.85rem; color: #1A2238; margin-bottom: 4px; }
     .check-desc { display: block; font-size: 0.7rem; font-weight: 500; color: #6B7280; line-height: 1.4; }
 
-    /* Clases de estado dinámicas Inyectadas por JS */
     .check-card.is-checked { background-color: #f0fdf4; border-color: #bbf7d0; box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.02);}
     .check-card.danger-card.is-checked { background-color: #fef2f2; border-color: #fecaca; }
     .cliente-card.is-checked { border-color: #C0A062; background-color: #fdfdf9; box-shadow: inset 0 2px 4px 0 rgba(192, 160, 98, 0.05); }
@@ -375,7 +351,7 @@
 
 <script>
     // ==========================================
-    // 1. MOTOR DE MODAL CON ANIMACIONES TAILWIND
+    // 1. MOTOR DE MODAL ELIMINAR
     // ==========================================
     const modalEliminar = document.getElementById('modal-eliminar');
     let contentModal = null;
@@ -386,13 +362,9 @@
             modalEliminar.classList.remove('hidden');
             modalEliminar.classList.add('flex');
             document.body.style.overflow = 'hidden';
-            
             setTimeout(() => {
                 modalEliminar.classList.remove('opacity-0');
-                if(contentModal){
-                    contentModal.classList.remove('scale-95');
-                    contentModal.classList.add('scale-100');
-                }
+                if(contentModal){ contentModal.classList.remove('scale-95'); contentModal.classList.add('scale-100'); }
             }, 10);
         }
     }
@@ -400,10 +372,7 @@
     function cerrarModalEliminar() {
         if (modalEliminar) {
             modalEliminar.classList.add('opacity-0');
-            if(contentModal){
-                contentModal.classList.remove('scale-100');
-                contentModal.classList.add('scale-95');
-            }
+            if(contentModal){ contentModal.classList.remove('scale-100'); contentModal.classList.add('scale-95'); }
             setTimeout(() => {
                 modalEliminar.classList.add('hidden');
                 modalEliminar.classList.remove('flex');
@@ -412,18 +381,11 @@
         }
     }
 
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && modalEliminar && !modalEliminar.classList.contains('hidden')) {
-            cerrarModalEliminar();
-        }
-    });
-
-    if(modalEliminar) {
-        modalEliminar.addEventListener('click', cerrarModalEliminar);
-    }
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') cerrarModalEliminar(); });
+    if(modalEliminar) modalEliminar.addEventListener('click', cerrarModalEliminar);
 
     // ==========================================
-    // 2. LÓGICA DE ROL Y PERMISOS
+    // 2. LÓGICA DE ROL
     // ==========================================
     function actualizarVistaPermisos() {
         const rol = document.getElementById('rol_selector').value;
@@ -440,66 +402,100 @@
     }
 
     // ==========================================
-    // 3. BUSCADOR DE CLIENTES Y SELECCIÓN MÚLTIPLE
-    // ==========================================
-    function seleccionarTodos() {
-        const checkboxes = document.querySelectorAll('.cliente-card:not(.hidden) .cliente-check');
-        if(checkboxes.length === 0) return;
-        
-        const marcados = Array.from(checkboxes).filter(c => c.checked).length;
-        const nuevoEstado = marcados !== checkboxes.length; // Si no están todos, marcarlos. Si sí, desmarcarlos.
-        
-        checkboxes.forEach(c => {
-            c.checked = nuevoEstado;
-            c.dispatchEvent(new Event('change')); // Dispara evento para la UI visual
-        });
-    }
-
-    const inputBuscador = document.getElementById('buscador-clientes');
-    const tarjetasClientes = document.querySelectorAll('.cliente-card');
-    const msgVacio = document.getElementById('no-clientes-msg');
-
-    if (inputBuscador) {
-        inputBuscador.addEventListener('input', function(e) {
-            const query = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-            let visibles = 0;
-
-            tarjetasClientes.forEach(tarjeta => {
-                const nombre = tarjeta.getAttribute('data-nombre').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                if (nombre.includes(query)) {
-                    tarjeta.classList.remove('hidden');
-                    tarjeta.classList.add('flex');
-                    visibles++;
-                } else {
-                    tarjeta.classList.add('hidden');
-                    tarjeta.classList.remove('flex');
-                }
-            });
-
-            if (visibles === 0) msgVacio.classList.remove('hidden');
-            else msgVacio.classList.add('hidden');
-        });
-    }
-
-    // ==========================================
-    // 4. INICIALIZACIÓN Y PREVENCIÓN DE DOBLE SUBMIT
+    // 3. UI CHECKBOXES Y BUSCADOR INTELIGENTE
     // ==========================================
     document.addEventListener('DOMContentLoaded', () => {
-        // UI Visual para Checkboxes
+        const chkMaster = document.getElementById('chk-master-clientes');
+        const checkboxesClientes = document.querySelectorAll('.cliente-check');
+        const inputBuscador = document.getElementById('buscador-clientes');
+        const tarjetasClientes = document.querySelectorAll('.cliente-card');
+        const msgVacio = document.getElementById('no-clientes-msg');
+
+        // Actualiza el aspecto de las tarjetas al seleccionar
+        function actualizarAparienciaTarjeta(checkbox) {
+            const card = checkbox.closest(checkbox.classList.contains('permiso-check') ? '.check-card' : '.cliente-card');
+            if(checkbox.checked) card.classList.add('is-checked');
+            else card.classList.remove('is-checked');
+        }
+
+        // --- MAGIA UX: Lógica del Master Checkbox ---
+        function evaluarEstadoMaster() {
+            if(!chkMaster) return;
+            const visibles = Array.from(checkboxesClientes).filter(c => !c.closest('.cliente-card').classList.contains('hidden'));
+            const marcados = visibles.filter(c => c.checked).length;
+
+            if (visibles.length === 0) {
+                chkMaster.checked = false; chkMaster.indeterminate = false;
+            } else if (marcados === visibles.length) {
+                chkMaster.checked = true; chkMaster.indeterminate = false;
+            } else if (marcados > 0) {
+                chkMaster.checked = false; chkMaster.indeterminate = true;
+            } else {
+                chkMaster.checked = false; chkMaster.indeterminate = false;
+            }
+        }
+
+        if(chkMaster) {
+            chkMaster.addEventListener('change', (e) => {
+                const marcar = e.target.checked;
+                checkboxesClientes.forEach(c => {
+                    if (!c.closest('.cliente-card').classList.contains('hidden')) {
+                        c.checked = marcar;
+                        actualizarAparienciaTarjeta(c);
+                    }
+                });
+            });
+        }
+
+        // Eventos individuales
         document.querySelectorAll('.permiso-check, .cliente-check').forEach(check => {
-            const card = check.closest(check.classList.contains('permiso-check') ? '.check-card' : '.cliente-card');
-            
-            if(check.checked) card.classList.add('is-checked');
-            
+            actualizarAparienciaTarjeta(check); // Carga inicial
             check.addEventListener('change', (e) => {
-                if(e.target.checked) card.classList.add('is-checked');
-                else card.classList.remove('is-checked');
+                actualizarAparienciaTarjeta(e.target);
+                if(e.target.classList.contains('cliente-check')) evaluarEstadoMaster();
             });
         });
 
+        // --- TRUCO UX: SELECCIONAR TODOS POR DEFECTO SI ES USUARIO NUEVO ---
+        // Si no hay ningún cliente seleccionado al cargar la página, los marcamos todos automáticamente
+        const numSeleccionadosInicial = Array.from(checkboxesClientes).filter(c => c.checked).length;
+        if (numSeleccionadosInicial === 0 && checkboxesClientes.length > 0) {
+            if(chkMaster) {
+                chkMaster.checked = true;
+                chkMaster.dispatchEvent(new Event('change'));
+            }
+        }
+
+        // --- BUSCADOR ---
+        if (inputBuscador) {
+            inputBuscador.addEventListener('input', function(e) {
+                const query = e.target.value.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                let visibles = 0;
+
+                tarjetasClientes.forEach(tarjeta => {
+                    const nombre = tarjeta.getAttribute('data-nombre').normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    if (nombre.includes(query)) {
+                        tarjeta.classList.remove('hidden'); tarjeta.classList.add('flex');
+                        visibles++;
+                    } else {
+                        tarjeta.classList.add('hidden'); tarjeta.classList.remove('flex');
+                    }
+                });
+
+                if (visibles === 0) msgVacio.classList.remove('hidden');
+                else msgVacio.classList.add('hidden');
+
+                evaluarEstadoMaster(); // Recalcular el Master Checkbox basado en la búsqueda
+            });
+        }
+
+        // Inits
+        evaluarEstadoMaster();
         actualizarVistaPermisos();
 
-        // Evitar Doble Submit - Guardar Usuario
+        // ==========================================
+        // 4. EVITAR DOBLE ENVÍO Y LOADING STATES
+        // ==========================================
         const formUsuario = document.getElementById('form-usuario');
         if(formUsuario) {
             formUsuario.addEventListener('submit', function() {
@@ -512,7 +508,6 @@
             });
         }
 
-        // Evitar Doble Submit - Eliminar Usuario
         const formEliminar = document.getElementById('form-eliminar');
         if(formEliminar) {
             formEliminar.addEventListener('submit', function() {
