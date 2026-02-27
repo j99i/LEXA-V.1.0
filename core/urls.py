@@ -102,8 +102,7 @@ urlpatterns = [
     path('generar-final/', views.generar_contrato_final, name='generar_contrato_final'),
     path('cliente/<uuid:cliente_id>/carpeta/<int:carpeta_id>/preparar-entrega/', views.preparar_entrega_autorizaciones, name='preparar_entrega'),
     path('cliente/<uuid:cliente_id>/enviar-recordatorio/', views.enviar_recordatorio_documentacion, name='enviar_recordatorio'),
-    path('cliente/<int:cliente_id>/eliminar-especiales/', views.eliminar_carpetas_especiales, name='eliminar_carpetas_especiales'),
-    # AGENDA
+   path('cliente/<uuid:cliente_id>/eliminar-especiales/', views.eliminar_carpetas_especiales, name='eliminar_carpetas_especiales'),
     path('agenda/', views.agenda_legal, name='agenda_legal'),
     path('agenda/api/', views.api_eventos, name='api_eventos'),
     path('agenda/crear/', views.crear_evento, name='crear_evento'),
