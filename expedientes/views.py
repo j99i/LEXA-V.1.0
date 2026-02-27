@@ -1186,7 +1186,6 @@ def detalle_cotizacion(request, cotizacion_id):
     )
     
     recalculo_necesario = False
-    
     if c.total == 0 and c.items.exists():
         recalculo_necesario = True
     
@@ -1200,9 +1199,25 @@ def detalle_cotizacion(request, cotizacion_id):
         c.calcular_totales()
         c.refresh_from_db()
 
+    # ---> INTELIGENCIA: Buscar sucursales para el Wizard <---
+    sucursales_sugeridas = []
+    if c.prospecto_empresa:
+        palabras = c.prospecto_empresa.upper().split()
+        if palabras:
+            palabras_genericas = ['GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS']
+            if palabras[0] in palabras_genericas and len(palabras) > 1:
+                clave_busqueda = f"{palabras[0]} {palabras[1]}"
+            else:
+                clave_busqueda = palabras[0]
+            
+            if len(clave_busqueda) > 3:
+                # Buscamos todas las sucursales que empiecen con ese nombre
+                sucursales_sugeridas = Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda).order_by('nombre_empresa')
+
     return render(request, 'cotizaciones/detalle.html', {
         'c': c, 
-        'plantillas_ws': PlantillaMensaje.objects.filter(tipo='whatsapp')
+        'plantillas_ws': PlantillaMensaje.objects.filter(tipo='whatsapp'),
+        'sucursales_sugeridas': sucursales_sugeridas
     })
 
 @login_required
@@ -1232,6 +1247,7 @@ def convertir_a_cliente(request, cotizacion_id):
         messages.warning(request, f"Esta cotización ya es un cliente.")
         return redirect('detalle_cliente', cliente_id=c.cliente_convertido.id)
 
+    # Limpiar items no seleccionados
     items_aceptados_ids = request.POST.getlist('items_seleccionados')
     items_a_borrar = ItemCotizacion.objects.filter(cotizacion=c).exclude(id__in=items_aceptados_ids)
     if items_a_borrar.exists():
@@ -1239,52 +1255,30 @@ def convertir_a_cliente(request, cotizacion_id):
         c.calcular_totales()
         c.refresh_from_db()
 
-    nombre_busqueda = c.prospecto_empresa if c.prospecto_empresa else c.prospecto_nombre
-    cli = Cliente.objects.filter(nombre_empresa__iexact=nombre_busqueda).first()
+    # ---> 1. OBTENER SUCURSALES SELECCIONADAS <---
+    sucursales_ids = request.POST.getlist('sucursales_seleccionadas')
+    clientes_afectados = list(Cliente.objects.filter(id__in=sucursales_ids))
 
-    if not cli:
-        cli = Cliente.objects.create(
-            nombre_empresa=nombre_busqueda,
-            nombre_contacto=c.prospecto_nombre,
-            email=c.prospecto_email,
-            telefono=c.prospecto_telefono,
-            datos_extra={'direccion': c.prospecto_direccion, 'cargo': c.prospecto_cargo}
-        )
-        if request.user.rol != 'admin':
-            request.user.clientes_asignados.add(cli)
+    if not clientes_afectados:
+        # Si no seleccionó ninguna (o es cliente nuevo), creamos uno normal
+        nombre_busqueda = c.prospecto_empresa if c.prospecto_empresa else c.prospecto_nombre
+        cli = Cliente.objects.filter(nombre_empresa__iexact=nombre_busqueda).first()
+        if not cli:
+            cli = Cliente.objects.create(
+                nombre_empresa=nombre_busqueda,
+                nombre_contacto=c.prospecto_nombre,
+                email=c.prospecto_email,
+                telefono=c.prospecto_telefono,
+                datos_extra={'direccion': c.prospecto_direccion, 'cargo': c.prospecto_cargo}
+            )
+            if request.user.rol != 'admin':
+                request.user.clientes_asignados.add(cli)
+        clientes_afectados.append(cli)
 
-    carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
-    
-    carpetas_base = [
-        'CARPETA ADMINISTRATIVA',
-        'LICENCIA DE FUNCIONAMIENTO',
-        'PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL',
-        'PROTECCIÓN CIVIL MUNICIPAL',
-        'PROTECCIÓN CIVIL ESTATAL',
-        'MEDIO AMBIENTE',
-        'REGISTRO AMBIENTAL ESTATAL',
-        'CEDULA DE ZONIFICACIÓN',
-        'LICENCIA DE USO DE SUELO'
-    ]
+    # El "Cliente Matriz" (al que se le cobra) será el primero de la lista
+    cliente_principal = clientes_afectados[0]
 
-    for nombre_carpeta in carpetas_base:
-        if nombre_carpeta not in carpetas_seleccionadas:
-            Carpeta.objects.filter(cliente=cli, nombre=nombre_carpeta).delete()
-    
-    carpeta_cotizaciones, _ = Carpeta.objects.get_or_create(nombre="Cotizaciones", cliente=cli, defaults={'es_expediente': False})
-
-    html_string = render_to_string('cotizaciones/pdf_template.html', {'c': c})
-    html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
-    pdf_content = html.write_pdf()
-    
-    nombre_safe = slugify(c.titulo or f"v1_{c.id}").replace("-", "_")
-    nombre_archivo = f"Cotizacion_{c.id}_{nombre_safe}_FINAL.pdf"
-    
-    if not Documento.objects.filter(carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo).exists():
-        nuevo_doc = Documento(cliente=cli, carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo, subido_por=request.user)
-        nuevo_doc.archivo.save(nombre_archivo, ContentFile(pdf_content))
-        nuevo_doc.save()
-
+    # ---> 2. FINANZAS: SE COBRA UNA SOLA VEZ (AL CLIENTE PRINCIPAL) <---
     monto_final = c.total_con_iva if c.aplica_iva else c.total
     hoy = timezone.now().date()
     
@@ -1297,40 +1291,45 @@ def convertir_a_cliente(request, cotizacion_id):
 
     if c.condiciones_pago == '50_50':
         mitad = monto_final / Decimal(2)
-        CuentaPorCobrar.objects.create(
-            cliente=cli, cotizacion=c, 
-            concepto=f"50% Anticipo - {c.titulo}", 
-            monto_total=mitad, saldo_pendiente=mitad, 
-            fecha_vencimiento=hoy, estado='pendiente'
-        )
-        CuentaPorCobrar.objects.create(
-            cliente=cli, cotizacion=c, 
-            concepto=f"50% Liquidación - {c.titulo}", 
-            monto_total=mitad, saldo_pendiente=mitad, 
-            fecha_vencimiento=fecha_final_proyecto, estado='pendiente'
-        )
+        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"50% Anticipo - {c.titulo}", monto_total=mitad, saldo_pendiente=mitad, fecha_vencimiento=hoy, estado='pendiente')
+        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"50% Liquidación - {c.titulo}", monto_total=mitad, saldo_pendiente=mitad, fecha_vencimiento=fecha_final_proyecto, estado='pendiente')
     elif c.condiciones_pago == '100_entrega':
-        CuentaPorCobrar.objects.create(
-            cliente=cli, cotizacion=c, 
-            concepto=f"Pago Contra Entrega - {c.titulo}", 
-            monto_total=monto_final, saldo_pendiente=monto_final, 
-            fecha_vencimiento=fecha_final_proyecto, estado='pendiente'
-        )
+        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"Pago Contra Entrega - {c.titulo}", monto_total=monto_final, saldo_pendiente=monto_final, fecha_vencimiento=fecha_final_proyecto, estado='pendiente')
     else: 
-        CuentaPorCobrar.objects.create(
-            cliente=cli, cotizacion=c, 
-            concepto=f"Pago de Contado - {c.titulo}", 
-            monto_total=monto_final, saldo_pendiente=monto_final, 
-            fecha_vencimiento=hoy, estado='pendiente'
-        )
+        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"Pago de Contado - {c.titulo}", monto_total=monto_final, saldo_pendiente=monto_final, fecha_vencimiento=hoy, estado='pendiente')
 
+
+    # ---> 3. OPERACIÓN: SE CREAN CARPETAS EN TODAS LAS SUCURSALES <---
+    carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
+    
+    # Renderizamos el PDF solo una vez en memoria
+    html_string = render_to_string('cotizaciones/pdf_template.html', {'c': c})
+    html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
+    pdf_content = html.write_pdf()
+    
+    nombre_safe = slugify(c.titulo or f"v1_{c.id}").replace("-", "_")
+    nombre_archivo = f"Cotizacion_{c.id}_{nombre_safe}_FINAL.pdf"
+
+    for cli_sucursal in clientes_afectados:
+        # Crea solo las carpetas seleccionadas (respeta las que ya existan)
+        for nombre_carpeta in carpetas_seleccionadas:
+            Carpeta.objects.get_or_create(nombre=nombre_carpeta, cliente=cli_sucursal, defaults={'es_expediente': False})
+        
+        # Guarda el PDF en su respectiva carpeta
+        carpeta_cotizaciones, _ = Carpeta.objects.get_or_create(nombre="Cotizaciones", cliente=cli_sucursal, defaults={'es_expediente': False})
+        if not Documento.objects.filter(carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo).exists():
+            nuevo_doc = Documento(cliente=cli_sucursal, carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo, subido_por=request.user)
+            nuevo_doc.archivo.save(nombre_archivo, ContentFile(pdf_content))
+            nuevo_doc.save()
+
+    # 4. Finalizar cotización
     c.estado = 'aceptada'
-    c.cliente_convertido = cli
+    c.cliente_convertido = cliente_principal
     c.save()
 
-    registrar_bitacora(request.user, cli, 'creacion', f"Convirtió la cotización '{c.titulo}' en cliente y generó cuentas por cobrar.")
-    messages.success(request, f"¡Trato cerrado! Se han generado las carpetas seleccionadas con sus subcarpetas de autorizaciones.")
-    return redirect('detalle_cliente', cliente_id=cli.id)
+    registrar_bitacora(request.user, cliente_principal, 'creacion', f"Convirtió cotización corporativa para {len(clientes_afectados)} sucursales.")
+    messages.success(request, f"¡Trato corporativo cerrado! Se armaron los expedientes en {len(clientes_afectados)} sucursal(es).")
+    return redirect('detalle_cliente', cliente_id=cliente_principal.id)
 
 @login_required
 def enviar_cotizacion_email(request, cotizacion_id):

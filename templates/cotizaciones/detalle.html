@@ -174,7 +174,6 @@
         <form action="{% url 'enviar_cotizacion_email' c.id %}" method="POST" class="form-con-carga">
             {% csrf_token %}
             <div class="p-6 space-y-4">
-                
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Asunto</label>
                     <input type="text" name="asunto" value="Propuesta: {{ c.titulo }}" required class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm border border-gray-200 focus:border-[#A855F7] outline-none">
@@ -200,12 +199,9 @@
                             
                             <div class="w-full space-y-2">
                                 <input type="text" name="firma_nombre" value="Lic. Maribel Aldana Santos" 
-                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[11px] font-bold text-[#2D1B4B] placeholder-gray-400 focus:border-[#A855F7] outline-none shadow-sm"
-                                       placeholder="Nombre Completo" required>
-                                
+                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[11px] font-bold text-[#2D1B4B] placeholder-gray-400 focus:border-[#A855F7] outline-none shadow-sm" placeholder="Nombre Completo" required>
                                 <input type="text" name="firma_cargo" value="Gestiones Corpad | Directora General" 
-                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[10px] text-gray-500 placeholder-gray-400 focus:border-[#A855F7] outline-none shadow-sm"
-                                       placeholder="Cargo / Puesto" required>
+                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[10px] text-gray-500 placeholder-gray-400 focus:border-[#A855F7] outline-none shadow-sm" placeholder="Cargo / Puesto" required>
                             </div>
                         </div>
                     </div>
@@ -226,85 +222,106 @@
 <div id="modal-conversion" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
     <div class="modal-content bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden m-4 flex flex-col max-h-[90vh]">
         <div class="bg-[#2D1B4B] p-4 flex justify-between items-center text-white shrink-0">
-            <h3 class="font-bold flex items-center gap-2"><i class="fas fa-handshake"></i> Cerrar Trato</h3>
+            <h3 class="font-bold flex items-center gap-2"><i class="fas fa-handshake"></i> Cerrar Trato Corporativo</h3>
             <button type="button" class="btn-cerrar-modal hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors" aria-label="Cerrar modal"><i class="fas fa-times"></i></button>
         </div>
         
-        <form action="{% url 'convertir_cliente' c.id %}" method="POST" class="form-con-carga p-6 space-y-6 overflow-y-auto custom-scrollbar">
+        <form action="{% url 'convertir_cliente' c.id %}" method="POST" class="form-con-carga flex flex-col h-full overflow-hidden">
             {% csrf_token %}
             
-            <p class="text-xs text-gray-500 mb-2">Confirma qué servicios aceptó el cliente y qué carpetas deseas crear para iniciar.</p>
+            <div id="wizard-step-1" class="p-6 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-[#A855F7] text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">1</span>
+                    <h4 class="font-bold text-[#2D1B4B]">Configuración Base</h4>
+                </div>
+                <p class="text-xs text-gray-500 mb-2">Confirma qué servicios se aceptaron y qué carpetas se crearán en cada sucursal.</p>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-3">1. Servicios Aceptados</label>
-                <div class="bg-gray-50 rounded-xl p-4 space-y-3 max-h-40 overflow-y-auto border border-gray-100">
-                    {% for item in c.items.all %}
-                    <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors">
-                        <input type="checkbox" name="items_seleccionados" value="{{ item.id }}" checked
-                               class="w-5 h-5 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
-                        <div class="text-sm">
-                            <span class="font-bold text-[#2D1B4B] block">{{ item.servicio.nombre }}</span>
-                            <span class="text-xs text-gray-500">${{ item.subtotal|floatformat:2|intcomma }}</span>
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">1. Servicios Aceptados</label>
+                    <div class="bg-gray-50 rounded-xl p-4 space-y-3 max-h-32 overflow-y-auto border border-gray-100">
+                        {% for item in c.items.all %}
+                        <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors">
+                            <input type="checkbox" name="items_seleccionados" value="{{ item.id }}" checked class="w-5 h-5 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
+                            <div class="text-sm">
+                                <span class="font-bold text-[#2D1B4B] block">{{ item.servicio.nombre }}</span>
+                                <span class="text-xs text-gray-500">${{ item.subtotal|floatformat:2|intcomma }}</span>
+                            </div>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-3">2. Carpetas a Generar</label>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-32 overflow-y-auto pr-2">
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CARPETA ADMINISTRATIVA" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Administrativa</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE FUNCIONAMIENTO" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Lic. Funcionamiento</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Prog. Esp. Protección Civil</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL MUNICIPAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Protección Civil Mpal.</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL ESTATAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Protección Civil Estatal</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="MEDIO AMBIENTE" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Medio Ambiente</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="REGISTRO AMBIENTAL ESTATAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Reg. Ambiental Estatal</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CEDULA DE ZONIFICACIÓN" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Cédula Zonificación</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE USO DE SUELO" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]"><span class="text-[11px] font-bold text-[#2D1B4B]">Lic. Uso de Suelo</span></label>
+                    </div>
+                </div>
+
+                <button type="button" id="btn-siguiente-wizard" class="w-full bg-[#2D1B4B] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#3E2C5E] transition-all flex justify-center items-center gap-2 mt-4">
+                    SIGUIENTE: ELEGIR SUCURSALES <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+
+            <div id="wizard-step-2" class="p-6 space-y-6 flex-1 hidden flex-col">
+                <div class="flex items-center gap-2 mb-2">
+                    <span class="bg-[#A855F7] text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">2</span>
+                    <h4 class="font-bold text-[#2D1B4B]">Asignación a Sucursales</h4>
+                </div>
+                
+                <p class="text-[11px] text-gray-500 mb-2 leading-relaxed">
+                    Seleccione a qué sucursales de <strong>{{ c.prospecto_empresa }}</strong> se les armará el expediente. 
+                    <br><span class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">* El cobro de la cotización se le asignará ÚNICAMENTE a la primera sucursal seleccionada.</span>
+                </p>
+
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex-1 overflow-y-auto custom-scrollbar">
+                    {% if sucursales_sugeridas %}
+                        <div class="space-y-2">
+                        {% for sucursal in sucursales_sugeridas %}
+                            <label class="flex items-center gap-3 cursor-pointer p-3 bg-white hover:bg-purple-50 rounded-lg transition-colors border border-gray-100 hover:border-purple-200 shadow-sm">
+                                <input type="checkbox" name="sucursales_seleccionadas" value="{{ sucursal.id }}" checked class="w-5 h-5 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
+                                <div class="text-sm">
+                                    <span class="font-bold text-[#2D1B4B] block">{{ sucursal.nombre_empresa }}</span>
+                                    <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ sucursal.datos_extra.direccion|default:"Sin dirección registrada" }}</span>
+                                </div>
+                            </label>
+                        {% endfor %}
                         </div>
-                    </label>
-                    {% endfor %}
+                    {% else %}
+                        <div class="text-center p-8 flex flex-col items-center justify-center h-full">
+                            <i class="fas fa-building text-gray-300 text-4xl mb-3"></i>
+                            <p class="text-sm font-bold text-[#2D1B4B]">No se encontraron sucursales previas.</p>
+                            <p class="text-xs text-gray-500 mt-2">Se creará un nuevo cliente principal llamado <br><strong>"{{ c.prospecto_empresa }}"</strong>.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex gap-3 mt-4 pt-4 border-t border-gray-100 shrink-0">
+                    <button type="button" id="btn-atras-wizard" class="px-5 py-3 bg-gray-100 text-gray-600 font-bold rounded-xl hover:bg-gray-200 transition-colors">
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                    <button type="submit" class="btn-submit-loader flex-1 bg-[#A855F7] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#9333EA] transition-all flex justify-center items-center gap-2">
+                        <span class="texto-btn">CERRAR TRATO MULTISITIO</span> <i class="fas fa-check-circle icono-btn"></i>
+                    </button>
                 </div>
             </div>
 
-            <div>
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-3">2. Carpetas a Generar</label>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-2">
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="CARPETA ADMINISTRATIVA" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Administrativa</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE FUNCIONAMIENTO" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Lic. Funcionamiento</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Prog. Esp. Protección Civil</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL MUNICIPAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Protección Civil Mpal.</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL ESTATAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Protección Civil Estatal</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="MEDIO AMBIENTE" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Medio Ambiente</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="REGISTRO AMBIENTAL ESTATAL" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Reg. Ambiental Estatal</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="CEDULA DE ZONIFICACIÓN" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Cédula Zonificación</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg transition-colors">
-                        <input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE USO DE SUELO" checked class="w-4 h-4 text-[#A855F7] rounded accent-[#A855F7]">
-                        <span class="text-[11px] font-bold text-[#2D1B4B]">Lic. Uso de Suelo</span>
-                    </label>
-                </div>
-            </div>
-
-            <button type="submit" class="btn-submit-loader w-full bg-[#A855F7] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#9333EA] transition-all flex justify-center items-center gap-2">
-                <span class="texto-btn">CONFIRMAR Y CREAR EXPEDIENTE</span> <i class="fas fa-check-circle icono-btn hidden"></i>
-            </button>
         </form>
     </div>
 </div>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
-    // === 1. DATOS SEGUROS (Prevención XSS con escapejs) ===
+    // === 1. DATOS SEGUROS ===
     const datosCotizacion = {
         nombre: "{{ c.prospecto_nombre|escapejs }}",
         titulo: "{{ c.titulo|escapejs }}",
@@ -313,7 +330,7 @@ document.addEventListener('DOMContentLoaded', () => {
         urlPdf: window.location.origin + "{% url 'pdf_cotizacion' c.id %}"
     };
 
-    // === 2. GESTIÓN DE MODALES (UX y Accesibilidad) ===
+    // === 2. GESTIÓN DE MODALES ===
     const modales = document.querySelectorAll('.modal-backdrop');
     
     function abrirModal(id) {
@@ -328,7 +345,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modales.forEach(modal => modal.classList.add('hidden'));
     }
 
-    // Delegación para abrir modales
     document.querySelectorAll('.btn-abrir-modal').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const target = e.currentTarget.getAttribute('data-modal-target');
@@ -336,51 +352,63 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Delegación para cerrar modales (Botón X o Clic en el fondo oscuro)
     modales.forEach(modal => {
         modal.addEventListener('click', (e) => {
-            // Cierra si hace clic en el fondo (backdrop) o en el botón de cerrar
             if (e.target === modal || e.target.closest('.btn-cerrar-modal')) {
                 cerrarModalesActivos();
             }
         });
     });
 
-    // Cerrar con tecla Escape
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') cerrarModalesActivos();
     });
 
-    // === 3. PREVENCIÓN DE DOBLE ENVÍO (Loading State) ===
+    // === 3. LÓGICA DEL WIZARD (NUEVO) ===
+    const step1 = document.getElementById('wizard-step-1');
+    const step2 = document.getElementById('wizard-step-2');
+    const btnSiguiente = document.getElementById('btn-siguiente-wizard');
+    const btnAtras = document.getElementById('btn-atras-wizard');
+
+    if(btnSiguiente && btnAtras) {
+        btnSiguiente.addEventListener('click', () => {
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden', 'animate__fadeOutRight');
+            step2.classList.add('animate__animated', 'animate__fadeInRight');
+        });
+        btnAtras.addEventListener('click', () => {
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden', 'animate__fadeOutLeft');
+            step1.classList.add('animate__animated', 'animate__fadeInLeft');
+        });
+    }
+
+    // === 4. PREVENCIÓN DE DOBLE ENVÍO ===
     document.querySelectorAll('.form-con-carga').forEach(form => {
         form.addEventListener('submit', function() {
             const btn = this.querySelector('.btn-submit-loader');
             if(btn) {
-                // Deshabilitar botón
                 btn.disabled = true;
                 btn.classList.add('opacity-75', 'cursor-not-allowed');
-                
-                // Cambiar texto e ícono a "Cargando"
                 const textoBtn = btn.querySelector('.texto-btn');
                 const iconoBtn = btn.querySelector('.icono-btn');
                 
                 if(textoBtn) textoBtn.textContent = 'PROCESANDO...';
                 if(iconoBtn) {
-                    iconoBtn.className = 'fas fa-spinner fa-spin icono-btn'; // Reemplaza icono actual por spinner
+                    iconoBtn.className = 'fas fa-spinner fa-spin icono-btn';
                     iconoBtn.classList.remove('hidden');
                 }
             }
         });
     });
 
-    // === 4. LÓGICA DE WHATSAPP ===
+    // === 5. LÓGICA DE WHATSAPP ===
     const selectTemplate = document.getElementById('ws-template-select');
     const textareaWa = document.getElementById('ws-message-body');
     const btnEnviarWa = document.getElementById('btn-enviar-wa');
 
     function cargarPlantillaWhatsApp() {
         if(!selectTemplate || !textareaWa) return;
-        
         const tipo = selectTemplate.value;
         let texto = "";
         
@@ -405,8 +433,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 window.open(`https://wa.me/${datosCotizacion.telefono}?text=${encodeURIComponent(mensajeFinal)}`, '_blank');
             } else {
                 alert("⚠️ Modo Local: Se descargará el PDF, pero se abrirá WhatsApp con tu texto.");
-                
-                // Simular descarga local
                 const link = document.createElement('a');
                 link.href = "{% url 'pdf_cotizacion' c.id %}";
                 link.download = `Cotizacion_${datosCotizacion.titulo}.pdf`;
