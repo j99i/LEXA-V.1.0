@@ -533,6 +533,12 @@
                 <i class="fas fa-folder-plus" aria-hidden="true"></i> GENERAR
             </button>
         </form>
+
+        {% if user.can_delete_client or user.rol == 'admin' %}
+            <button type="button" onclick="closeModal('modal-carpetas-especiales'); setTimeout(() => openModal('modal-eliminar-especiales'), 300);" class="w-full mt-3 bg-red-50 text-red-500 border border-red-200 py-3 rounded-xl font-bold text-xs hover:bg-red-500 hover:text-white shadow-sm transition-all flex justify-center items-center gap-2 focus:outline-none">
+                <i class="fas fa-trash-alt" aria-hidden="true"></i> BORRAR TODAS LAS ESPECIALES
+            </button>
+        {% endif %}
     </div>
 </div>
 
@@ -788,6 +794,51 @@
                 </a>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="modal-eliminar-especiales" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-md m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-eliminar-especiales')" class="absolute top-6 right-6 w-8 h-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors focus:outline-none"><i class="fas fa-times"></i></button>
+        
+        <div class="w-16 h-16 rounded-full bg-red-100 text-red-500 flex items-center justify-center text-3xl mx-auto mb-4 border-4 border-red-50 shadow-sm">
+            <i class="fas fa-exclamation-triangle"></i>
+        </div>
+        
+        <h3 class="text-xl font-black text-center text-[#2D1B4B] mb-2 font-serif">Confirmar Eliminación</h3>
+        <p class="text-xs text-center text-gray-500 mb-6 leading-relaxed">Estás a punto de borrar las carpetas con semáforo y <strong>todos los archivos que contienen</strong>.</p>
+        
+        <form action="{% url 'eliminar_carpetas_especiales' cliente.id %}" method="POST">
+            {% csrf_token %}
+            
+            <div class="space-y-3 mb-8">
+                <label class="flex items-start gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-red-50 hover:border-red-200 transition-colors bg-white">
+                    <input type="radio" name="alcance" value="solo_este" checked class="mt-1 w-4 h-4 accent-red-500 cursor-pointer">
+                    <div>
+                        <span class="block text-sm font-bold text-[#2D1B4B]">Solo en este cliente</span>
+                        <span class="block text-xs text-gray-500 mt-1">{{ cliente.nombre_empresa }}</span>
+                    </div>
+                </label>
+
+                {% if sucursales_relacionadas_count > 1 %}
+                <label class="flex items-start gap-3 p-4 border border-red-200 bg-red-50/50 rounded-xl cursor-pointer hover:bg-red-100 transition-colors shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-red-500 text-white text-[9px] font-black px-2 py-1 rounded-bl-lg">MASIVO</div>
+                    <input type="radio" name="alcance" value="todas_sucursales" class="mt-1 w-4 h-4 accent-red-600 cursor-pointer">
+                    <div class="pr-6">
+                        <span class="block text-sm font-black text-red-700">En todas las sucursales</span>
+                        <span class="block text-[11px] text-red-600/80 mt-1 leading-tight">Se borrarán en las <strong>{{ sucursales_relacionadas_count }} sucursales</strong> que comienzan con "{{ clave_busqueda }}".</span>
+                    </div>
+                </label>
+                {% endif %}
+            </div>
+
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal('modal-eliminar-especiales')" class="flex-1 bg-gray-100 text-gray-600 font-bold py-3.5 rounded-xl hover:bg-gray-200 transition-colors focus:outline-none">Cancelar</button>
+                <button type="submit" class="flex-1 bg-red-500 text-white font-black py-3.5 rounded-xl hover:bg-red-600 shadow-lg shadow-red-500/30 transition-transform hover:-translate-y-1 focus:outline-none flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i> ELIMINAR
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
@@ -1090,6 +1141,7 @@
             .catch(error => { body.innerHTML = '<div class="flex items-center justify-center h-full text-red-500 font-bold w-full bg-red-50"><i class="fas fa-exclamation-triangle text-2xl mr-2"></i> Error al cargar el archivo.</div>'; });
     }
 
+    // AQUI ESTÁ LA LÓGICA ESTRICTA PARA MOVER
     function abrirModalMover(archivoId, nombreArchivo) {
         document.getElementById('form-mover').action = `/archivo/mover/${archivoId}/`;
         document.getElementById('lbl-mover-archivo').innerText = nombreArchivo;

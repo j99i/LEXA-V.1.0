@@ -343,52 +343,91 @@ def eliminar_cliente(request, cliente_id):
 
 @login_required
 def detalle_cliente(request, cliente_id, carpeta_id=None):
-    cliente = get_object_or_404(Cliente.objects.prefetch_related('carpetas_drive'), id=cliente_id)
-    
-    carpeta_actual = None
-    carpetas = []
-    documentos = []
-    breadcrumbs = []
-
-    if carpeta_id:
-        carpeta_actual = get_object_or_404(
-            Carpeta.objects.select_related('padre').prefetch_related('subcarpetas', 'documentos'), 
-            id=carpeta_id, 
-            cliente=cliente
-        )
-        carpetas = carpeta_actual.subcarpetas.all()
-        documentos = carpeta_actual.documentos.all().order_by('-fecha_subida')
-        
-        padre = carpeta_actual.padre
-        while padre:
-            breadcrumbs.insert(0, padre)
-            padre = padre.padre
+    # 1. Seguridad: Verificar si el usuario tiene acceso a este cliente
+    if request.user.rol != 'admin':
+        cliente = get_object_or_404(request.user.clientes_asignados, id=cliente_id)
     else:
-        carpetas = [c for c in cliente.carpetas_drive.all() if c.padre_id is None]
+        cliente = get_object_or_404(Cliente, id=cliente_id)
 
-    stats_cliente = {
-        'total_docs': Documento.objects.filter(cliente=cliente).count(),
-        'expedientes_activos': len(cliente.carpetas_drive.all()) 
-    }
+    # 2. Navegación (Breadcrumbs)
+    carpeta_actual = None
+    breadcrumbs = []
+    if carpeta_id:
+        carpeta_actual = get_object_or_404(Carpeta, id=carpeta_id, cliente=cliente)
+        
+        # Construir breadcrumbs (Ruta de navegación)
+        temp = carpeta_actual.padre
+        while temp:
+            breadcrumbs.insert(0, temp)
+            temp = temp.padre
 
-    todas_carpetas = cliente.carpetas_drive.all()
-    historial = cliente.bitacora_set.all().select_related('usuario').order_by('-fecha')[:20]
-    archivos_pendientes = ArchivoTemporal.objects.filter(solicitud__cliente=cliente)
+    # 3. Obtener subcarpetas
+    if carpeta_actual:
+        carpetas = Carpeta.objects.filter(cliente=cliente, padre=carpeta_actual).order_by('nombre')
+    else:
+        carpetas = Carpeta.objects.filter(cliente=cliente, padre__isnull=True).order_by('nombre')
 
+    # 4. Obtener archivos
+    if carpeta_actual:
+        documentos = Documento.objects.filter(cliente=cliente, carpeta=carpeta_actual).order_by('-fecha_subida')
+    else:
+        documentos = Documento.objects.filter(cliente=cliente, carpeta__isnull=True).order_by('-fecha_subida')
+
+    # 5. Obtener Historial de Bitácora (Solo últimos 50 para no saturar)
+    historial = Bitacora.objects.filter(cliente=cliente).select_related('usuario').order_by('-fecha')[:50]
+
+    # 6. Estadísticas Generales del Cliente
+    total_docs = Documento.objects.filter(cliente=cliente).count()
+    carpetas_base = Carpeta.objects.filter(cliente=cliente, padre__isnull=True).count()
+
+    # 7. Obtener todas las carpetas (para el Modal de Mover Archivo)
+    todas_carpetas = Carpeta.objects.filter(cliente=cliente).order_by('nombre')
+    
+    # 8. Obtener archivos temporales pendientes de auditoría
+    archivos_pendientes = ArchivoTemporal.objects.filter(
+        solicitud__cliente=cliente
+    ).order_by('-fecha_subida')
+
+    # ---> 9. INTELIGENCIA: Contar sucursales relacionadas para el Modal de Borrado Masivo <---
+    sucursales_relacionadas_count = 1
+    clave_busqueda = ""
+    if cliente.nombre_empresa:
+        palabras = cliente.nombre_empresa.upper().split()
+        if len(palabras) > 0:
+            palabras_genericas = [
+                'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+            ]
+            if palabras[0] in palabras_genericas and len(palabras) > 1:
+                clave_busqueda = f"{palabras[0]} {palabras[1]}"
+            else:
+                clave_busqueda = palabras[0]
+            
+            if len(clave_busqueda) > 3:
+                sucursales_relacionadas_count = Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda).count()
+
+    # 10. Construcción del Contexto
     context = {
         'cliente': cliente,
         'carpeta_actual': carpeta_actual,
         'carpetas': carpetas,
         'documentos': documentos,
         'breadcrumbs': breadcrumbs,
-        'stats_cliente': stats_cliente,
         'todas_carpetas': todas_carpetas,
         'historial': historial,
         'archivos_pendientes': archivos_pendientes,
+        'stats_cliente': {
+            'total_docs': total_docs,
+            'expedientes_activos': carpetas_base
+        },
+        'sucursales_relacionadas_count': sucursales_relacionadas_count,
+        'clave_busqueda': clave_busqueda,
     }
-
     return render(request, 'detalle_cliente.html', context)
-
 @login_required
 def editar_cliente(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
@@ -2668,4 +2707,61 @@ def crear_carpetas_especiales(request, cliente_id):
         
         messages.success(request, f"Se generaron o actualizaron {len(carpetas_seleccionadas)} carpetas especiales.")
         
+    return redirect('detalle_cliente', cliente_id=cliente.id)
+
+@login_required
+def eliminar_carpetas_especiales(request, cliente_id):
+    if not (request.user.can_delete_client or request.user.rol == 'admin'):
+        messages.error(request, "No tienes permiso para eliminar carpetas.")
+        return redirect('detalle_cliente', cliente_id=cliente_id)
+
+    if request.method == 'POST':
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        alcance = request.POST.get('alcance', 'solo_este') # <-- 'solo_este' o 'todas_sucursales'
+        
+        nombres_semaforo = [
+            'Autorizaciones liberadas', 'CARPETA ADMINISTRATIVA',
+            'LICENCIA DE FUNCIONAMIENTO', 'PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL',
+            'PROTECCIÓN CIVIL MUNICIPAL', 'PROTECCIÓN CIVIL ESTATAL',
+            'MEDIO AMBIENTE', 'REGISTRO AMBIENTAL ESTATAL',
+            'CEDULA DE ZONIFICACIÓN', 'LICENCIA DE USO DE SUELO'
+        ]
+        
+        clientes_afectados = [cliente]
+        
+        # Si eligió MASIVO, buscamos todas las sucursales
+        if alcance == 'todas_sucursales':
+            palabras = cliente.nombre_empresa.upper().split()
+            if len(palabras) > 0:
+                palabras_genericas = [
+                    'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                    'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                    'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                    'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                    'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                    'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+                ]
+                if palabras[0] in palabras_genericas and len(palabras) > 1:
+                    clave_busqueda = f"{palabras[0]} {palabras[1]}"
+                else:
+                    clave_busqueda = palabras[0]
+                
+                if len(clave_busqueda) > 3:
+                    clientes_afectados = list(Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda))
+        
+        total_borradas = 0
+        for cli in clientes_afectados:
+            carpetas = Carpeta.objects.filter(cliente=cli, nombre__in=nombres_semaforo)
+            count = carpetas.count()
+            if count > 0:
+                for c in carpetas:
+                    c.delete()
+                total_borradas += count
+        
+        if total_borradas > 0:
+            registrar_bitacora(request.user, cliente, 'eliminacion', f"Eliminó {total_borradas} carpetas especiales en {len(clientes_afectados)} sucursal(es).")
+            messages.success(request, f"¡Éxito! Se eliminaron {total_borradas} carpetas especiales en {len(clientes_afectados)} sucursal(es).")
+        else:
+            messages.warning(request, "No se encontraron carpetas especiales para eliminar.")
+            
     return redirect('detalle_cliente', cliente_id=cliente.id)
