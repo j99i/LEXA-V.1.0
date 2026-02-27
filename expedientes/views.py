@@ -1131,22 +1131,45 @@ def nueva_cotizacion(request):
         items_to_create = []
         servicios_db = {str(s.id): s for s in Servicio.objects.filter(id__in=servicios_ids)}
 
-        for s_id, cant, prec, desc in zip(servicios_ids, cantidades, precios, descripciones):
+        # Iteración segura por índices para evitar que un array más corto rompa el guardado
+        for i in range(len(servicios_ids)):
+            s_id = servicios_ids[i]
+            
             if s_id and s_id in servicios_db:
                 servicio = servicios_db[s_id]
-                cantidad = int(cant)
-                try: precio_u = Decimal(prec)
-                except: precio_u = Decimal('0.00')
+                
+                # Extracción segura con fallback a valores por defecto
+                cantidad_str = cantidades[i] if i < len(cantidades) else '1'
+                precio_str = precios[i] if i < len(precios) else '0'
+                desc = descripciones[i] if i < len(descripciones) else ''
+                
+                try: 
+                    cantidad = int(cantidad_str)
+                except ValueError: 
+                    cantidad = 1
+                    
+                try: 
+                    precio_u = Decimal(precio_str)
+                except ValueError: 
+                    precio_u = Decimal('0.00')
+                
+                # Calcular subtotal manualmente para que bulk_create lo registre
+                subtotal_calculado = Decimal(cantidad) * precio_u
                 
                 items_to_create.append(ItemCotizacion(
                     cotizacion=cotizacion,
                     servicio=servicio,
                     cantidad=cantidad,
                     precio_unitario=precio_u,
+                    subtotal=subtotal_calculado,
                     descripcion_personalizada=desc
                 ))
         
-        ItemCotizacion.objects.bulk_create(items_to_create)
+        # Guardar todo en bloque
+        if items_to_create:
+            ItemCotizacion.objects.bulk_create(items_to_create)
+            
+        # Recalcular totales generales de la cotización
         cotizacion.calcular_totales()
 
         messages.success(request, 'Cotización creada exitosamente.')
