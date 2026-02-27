@@ -1199,19 +1199,30 @@ def detalle_cotizacion(request, cotizacion_id):
         c.calcular_totales()
         c.refresh_from_db()
 
-    # ---> INTELIGENCIA: Buscar sucursales para el Wizard <---
+    # ---> INTELIGENCIA DE SUCURSALES (Idéntica a la lógica del Logo) <---
     sucursales_sugeridas = []
     if c.prospecto_empresa:
         palabras = c.prospecto_empresa.upper().split()
-        if palabras:
-            palabras_genericas = ['GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS']
+        
+        if len(palabras) > 0:
+            palabras_genericas = [
+                'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+            ]
+            
+            # Si empieza con palabra genérica, buscamos coincidencias con las primeras dos palabras
             if palabras[0] in palabras_genericas and len(palabras) > 1:
                 clave_busqueda = f"{palabras[0]} {palabras[1]}"
             else:
+                # Si es marca propia, buscamos coincidencias solo con la primera palabra
                 clave_busqueda = palabras[0]
             
             if len(clave_busqueda) > 3:
-                # Buscamos todas las sucursales que empiecen con ese nombre
+                # Traemos TODAS las sucursales sin límite
                 sucursales_sugeridas = Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda).order_by('nombre_empresa')
 
     return render(request, 'cotizaciones/detalle.html', {

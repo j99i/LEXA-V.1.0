@@ -282,15 +282,15 @@
                     <br><span class="text-red-500 font-bold bg-red-50 px-2 py-0.5 rounded">* El cobro de la cotización se le asignará ÚNICAMENTE a la primera sucursal seleccionada.</span>
                 </p>
 
-                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex-1 overflow-y-auto custom-scrollbar">
+                <div class="bg-gray-50 rounded-xl p-4 border border-gray-100 flex-1 max-h-72 overflow-y-auto custom-scrollbar">
                     {% if sucursales_sugeridas %}
                         <div class="space-y-2">
                         {% for sucursal in sucursales_sugeridas %}
                             <label class="flex items-center gap-3 cursor-pointer p-3 bg-white hover:bg-purple-50 rounded-lg transition-colors border border-gray-100 hover:border-purple-200 shadow-sm">
-                                <input type="checkbox" name="sucursales_seleccionadas" value="{{ sucursal.id }}" checked class="w-5 h-5 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
-                                <div class="text-sm">
-                                    <span class="font-bold text-[#2D1B4B] block">{{ sucursal.nombre_empresa }}</span>
-                                    <span class="text-[10px] text-gray-400 uppercase tracking-wider">{{ sucursal.datos_extra.direccion|default:"Sin dirección registrada" }}</span>
+                                <input type="checkbox" name="sucursales_seleccionadas" value="{{ sucursal.id }}" checked class="w-5 h-5 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7] shrink-0">
+                                <div class="text-sm overflow-hidden">
+                                    <span class="font-bold text-[#2D1B4B] block truncate">{{ sucursal.nombre_empresa }}</span>
+                                    <span class="text-[10px] text-gray-400 uppercase tracking-wider block truncate">{{ sucursal.datos_extra.direccion|default:"Sin dirección registrada" }}</span>
                                 </div>
                             </label>
                         {% endfor %}
@@ -309,7 +309,7 @@
                         <i class="fas fa-arrow-left"></i>
                     </button>
                     <button type="submit" class="btn-submit-loader flex-1 bg-[#A855F7] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#9333EA] transition-all flex justify-center items-center gap-2">
-                        <span class="texto-btn">CERRAR TRATO MULTISITIO</span> <i class="fas fa-check-circle icono-btn"></i>
+                        <span class="texto-btn">CERRAR TRATO MULTISITIO</span> <i class="fas fa-check-circle icono-btn hidden"></i>
                     </button>
                 </div>
             </div>
