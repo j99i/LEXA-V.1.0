@@ -2691,24 +2691,60 @@ def exportar_gastos_excel(request):
     
 @login_required
 def crear_carpetas_especiales(request, cliente_id):
-    cliente = get_object_or_404(Cliente, id=cliente_id)
-    
-    if request.method == 'POST':
-        carpetas_seleccionadas = request.POST.getlist('carpetas')
-        
-        for nombre in carpetas_seleccionadas:
-            carpeta, creada = Carpeta.objects.get_or_create(
-                nombre=nombre,
-                cliente=cliente,
-                defaults={'es_expediente': False}
-            )
-            if creada:
-                registrar_bitacora(request.user, cliente, 'creacion', f"Se generó la carpeta del sistema: '{nombre}'.")
-        
-        messages.success(request, f"Se generaron o actualizaron {len(carpetas_seleccionadas)} carpetas especiales.")
-        
-    return redirect('detalle_cliente', cliente_id=cliente.id)
+    if not (request.user.can_create_client or request.user.rol == 'admin'):
+        messages.error(request, "No tienes permiso para crear carpetas.")
+        return redirect('detalle_cliente', cliente_id=cliente_id)
 
+    if request.method == 'POST':
+        cliente = get_object_or_404(Cliente, id=cliente_id)
+        carpetas_seleccionadas = request.POST.getlist('carpetas')
+        alcance = request.POST.get('alcance_crear', 'solo_este') # 'solo_este' o 'todas_sucursales'
+        
+        if not carpetas_seleccionadas:
+            messages.warning(request, "Debes seleccionar al menos una carpeta.")
+            return redirect('detalle_cliente', cliente_id=cliente_id)
+        
+        clientes_afectados = [cliente]
+        
+        # Si elige MASIVO, buscamos todas las sucursales relacionadas
+        if alcance == 'todas_sucursales':
+            palabras = cliente.nombre_empresa.upper().split()
+            if len(palabras) > 0:
+                palabras_genericas = [
+                    'GRUPO', 'OPERADORA', 'COMERCIALIZADORA', 'EL', 'LA', 'LOS', 'LAS', 
+                    'CORPORATIVO', 'CONSORCIO', 'GASTRONOMIA', 'SERVICIOS', 'CONSTRUCTORA', 
+                    'PROMOTORA', 'PROVEEDORA', 'DISTRIBUIDORA', 'INMOBILIARIA', 'TRANSPORTES', 
+                    'LOGISTICA', 'RESTAURANTE', 'HOTEL', 'CLINICA', 'HOSPITAL', 'INSTITUTO', 
+                    'COLEGIO', 'AGENCIA', 'DESPACHO', 'ASOCIACION', 'SOCIEDAD', 'SISTEMAS', 
+                    'INDUSTRIAS', 'ADMINISTRADORA', 'CENTRO', 'FABRICA', 'PRODUCTORA'
+                ]
+                if palabras[0] in palabras_genericas and len(palabras) > 1:
+                    clave_busqueda = f"{palabras[0]} {palabras[1]}"
+                else:
+                    clave_busqueda = palabras[0]
+                
+                if len(clave_busqueda) > 3:
+                    clientes_afectados = list(Cliente.objects.filter(nombre_empresa__istartswith=clave_busqueda))
+        
+        carpetas_creadas = 0
+        for cli in clientes_afectados:
+            for nombre_carpeta in carpetas_seleccionadas:
+                # get_or_create evita que se dupliquen si ya existían
+                _, created = Carpeta.objects.get_or_create(
+                    nombre=nombre_carpeta, 
+                    cliente=cli, 
+                    defaults={'es_expediente': False}
+                )
+                if created:
+                    carpetas_creadas += 1
+        
+        if carpetas_creadas > 0:
+            registrar_bitacora(request.user, cliente, 'creacion', f"Creó {carpetas_creadas} carpetas especiales en {len(clientes_afectados)} sucursal(es).")
+            messages.success(request, f"¡Éxito! Se generaron {carpetas_creadas} carpetas en {len(clientes_afectados)} sucursal(es).")
+        else:
+            messages.info(request, "Las carpetas seleccionadas ya existían en los clientes elegidos.")
+
+    return redirect('detalle_cliente', cliente_id=cliente_id)
 @login_required
 def eliminar_carpetas_especiales(request, cliente_id):
     if not (request.user.can_delete_client or request.user.rol == 'admin'):

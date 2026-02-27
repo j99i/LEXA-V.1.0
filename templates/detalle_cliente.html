@@ -480,14 +480,17 @@
 {# ==================== MODALES ==================== #}
 
 <div id="modal-carpetas-especiales" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/90 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
-    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
-        <button type="button" onclick="closeModal('modal-carpetas-especiales')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors focus:outline-none"><i class="fas fa-times text-xl" aria-hidden="true"></i></button>
-        <h3 class="text-xl font-black text-[#2D1B4B] mb-1 font-serif"><i class="fas fa-star text-yellow-400 mr-2" aria-hidden="true"></i>Especiales</h3>
-        <p class="text-xs text-gray-500 mb-4 leading-tight">Selecciona las carpetas con semáforo que deseas agregar a este cliente (no se duplicarán si ya existen).</p>
+    <div class="bg-white p-8 rounded-[2rem] w-full max-w-sm m-4 shadow-2xl relative transform scale-95 transition-transform duration-300 modal-content flex flex-col max-h-[90vh]" onclick="event.stopPropagation()">
+        <button type="button" onclick="closeModal('modal-carpetas-especiales')" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors focus:outline-none z-10"><i class="fas fa-times text-xl" aria-hidden="true"></i></button>
         
-        <form action="{% url 'crear_carpetas_especiales' cliente.id %}" method="POST">
+        <div class="shrink-0">
+            <h3 class="text-xl font-black text-[#2D1B4B] mb-1 font-serif"><i class="fas fa-star text-yellow-400 mr-2" aria-hidden="true"></i>Especiales</h3>
+            <p class="text-xs text-gray-500 mb-4 leading-tight">Selecciona las carpetas con semáforo que deseas agregar a este cliente (no se duplicarán si ya existen).</p>
+        </div>
+        
+        <form action="{% url 'crear_carpetas_especiales' cliente.id %}" method="POST" class="flex flex-col overflow-hidden form-con-carga">
             {% csrf_token %}
-            <div class="max-h-[45vh] overflow-y-auto mb-6 pr-2 space-y-2 custom-scrollbar border-y border-gray-100 py-4">
+            <div class="overflow-y-auto mb-4 pr-2 space-y-2 custom-scrollbar border-y border-gray-100 py-4 flex-1">
                 <label class="flex items-center gap-3 p-2 hover:bg-purple-50 rounded-lg cursor-pointer transition-colors border border-red-100 bg-red-50/30">
                     <input type="checkbox" name="carpetas" value="Autorizaciones liberadas" class="w-4 h-4 text-[#A855F7] rounded focus:ring-[#A855F7] border-gray-300">
                     <span class="text-[10px] font-black text-red-600 uppercase"><i class="fas fa-shield-alt mr-1" aria-hidden="true"></i> AUTORIZACIONES LIBERADAS</span>
@@ -529,19 +532,41 @@
                     <span class="text-[10px] font-bold text-[#2D1B4B] uppercase">LICENCIA DE USO DE SUELO</span>
                 </label>
             </div>
-            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2 focus:outline-none">
-                <i class="fas fa-folder-plus" aria-hidden="true"></i> GENERAR
+
+            <div class="space-y-2 mb-4 shrink-0">
+                <p class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">¿Dónde aplicar?</p>
+                <label class="flex items-center gap-3 p-3 border border-gray-200 rounded-xl cursor-pointer hover:bg-purple-50 hover:border-purple-200 transition-colors bg-white">
+                    <input type="radio" name="alcance_crear" value="solo_este" checked class="w-4 h-4 accent-[#A855F7] cursor-pointer">
+                    <div class="leading-tight">
+                        <span class="block text-xs font-bold text-[#2D1B4B]">Solo en este cliente</span>
+                    </div>
+                </label>
+
+                {% if sucursales_relacionadas_count > 1 %}
+                <label class="flex items-center gap-3 p-3 border border-purple-200 bg-purple-50/50 rounded-xl cursor-pointer hover:bg-purple-100 transition-colors shadow-sm relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-[#A855F7] text-white text-[9px] font-black px-2 py-1 rounded-bl-lg">MASIVO</div>
+                    <input type="radio" name="alcance_crear" value="todas_sucursales" class="w-4 h-4 accent-[#A855F7] cursor-pointer">
+                    <div class="pr-6 leading-tight">
+                        <span class="block text-xs font-black text-[#A855F7]">En todas las sucursales</span>
+                        <span class="block text-[9px] text-[#A855F7]/80 mt-0.5">Se aplicará a <strong>{{ sucursales_relacionadas_count }} sucursales</strong>.</span>
+                    </div>
+                </label>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="w-full bg-[#2D1B4B] text-white py-3 rounded-xl font-bold hover:bg-[#A855F7] shadow-lg transition-all flex justify-center items-center gap-2 focus:outline-none shrink-0 btn-submit-loader">
+                <i class="fas fa-folder-plus icono-btn" aria-hidden="true"></i> 
+                <span class="texto-btn">GENERAR</span>
             </button>
         </form>
 
         {% if user.can_delete_client or user.rol == 'admin' %}
-            <button type="button" onclick="closeModal('modal-carpetas-especiales'); setTimeout(() => openModal('modal-eliminar-especiales'), 300);" class="w-full mt-3 bg-red-50 text-red-500 border border-red-200 py-3 rounded-xl font-bold text-xs hover:bg-red-500 hover:text-white shadow-sm transition-all flex justify-center items-center gap-2 focus:outline-none">
+            <button type="button" onclick="closeModal('modal-carpetas-especiales'); setTimeout(() => openModal('modal-eliminar-especiales'), 300);" class="w-full mt-3 shrink-0 bg-red-50 text-red-500 border border-red-200 py-3 rounded-xl font-bold text-xs hover:bg-red-500 hover:text-white shadow-sm transition-all flex justify-center items-center gap-2 focus:outline-none">
                 <i class="fas fa-trash-alt" aria-hidden="true"></i> BORRAR TODAS LAS ESPECIALES
             </button>
         {% endif %}
     </div>
 </div>
-
 <div id="modal-preview" role="dialog" aria-modal="true" class="fixed inset-0 bg-[#0f0718]/95 hidden items-center justify-center z-50 transition-opacity opacity-0 duration-300">
     <div class="bg-white w-full max-w-5xl h-[85vh] rounded-2xl overflow-hidden relative flex flex-col shadow-2xl transform scale-95 transition-transform duration-300 modal-content" onclick="event.stopPropagation()">
         <div class="bg-[#2D1B4B] p-4 flex justify-between items-center shrink-0">
