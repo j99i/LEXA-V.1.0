@@ -25,7 +25,6 @@
         
         /* --- SIDEBAR --- */
         #sidebar { width: 4.5rem; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
-        /* TIP SENIOR: Solo aplicamos el hover en dispositivos que soporten ratón (desktop) */
         @media (hover: hover) {
             #sidebar:hover { width: 17rem; }
             #sidebar:hover .logo-collapsed { display: none; }
@@ -33,7 +32,6 @@
             #sidebar:hover .nav-text { opacity: 1; transform: translateX(0); pointer-events: auto; transition-delay: 0.1s; }
         }
         
-        /* Lógica de visualización del Logo */
         .logo-collapsed { display: flex; }
         .logo-expanded { display: none; opacity: 0; }
         .nav-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; white-space: nowrap; pointer-events: none; }
@@ -188,51 +186,59 @@
                                     <p class="text-xs font-bold">Todo al día.</p>
                                 </div>
                             {% else %}
+                                
                                 {% if notif_tareas %}
                                 <div class="p-2 bg-red-50/50">
                                     <p class="text-[10px] font-black text-red-400 uppercase px-2 mb-1">Tareas Críticas</p>
                                     {% for t in notif_tareas %}
-                                    <a href="{% url 'detalle_cliente' t.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm">
+                                    <a href="{% url 'detalle_cliente' t.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-red-200">
                                         <div class="flex justify-between items-start">
-                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ t.titulo }}</span>
-                                            <span class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded">Vence Hoy</span>
+                                            <span class="text-xs font-bold text-[#2D1B4B] leading-tight">{{ t.titulo }}</span>
+                                            <span class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded whitespace-nowrap ml-2 shrink-0">Vence Hoy</span>
                                         </div>
-                                        <p class="text-[9px] text-gray-500 truncate">{{ t.cliente.nombre_empresa }}</p>
+                                        <p class="text-[9px] text-gray-500 truncate mt-1"><i class="fas fa-building mr-1"></i>{{ t.cliente.nombre_empresa }}</p>
                                     </a>
                                     {% endfor %}
                                 </div>
                                 {% endif %}
+
                                 {% if notif_eventos %}
                                 <div class="p-2 bg-blue-50/50 border-t border-gray-100">
-                                    <p class="text-[10px] font-black text-blue-400 uppercase px-2 mb-1">Agenda (Próx. 48h)</p>
+                                    <p class="text-[10px] font-black text-blue-400 uppercase px-2 mb-1">Vencimientos y Agenda</p>
                                     {% for e in notif_eventos %}
-                                    <div class="p-2 hover:bg-white rounded-lg transition-colors mb-1 cursor-default shadow-sm">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ e.titulo }}</span>
-                                            <span class="text-[9px] font-bold text-blue-500">{{ e.inicio|date:"H:i" }}</span>
+                                    <a href="{% if e.cliente %}{% url 'detalle_cliente' e.cliente.id %}{% else %}{% url 'agenda_legal' %}{% endif %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-blue-200">
+                                        <div class="flex justify-between items-start">
+                                            <span class="text-xs font-bold text-[#2D1B4B] leading-tight pr-2">{{ e.titulo }}</span>
+                                            <span class="text-[9px] font-bold text-blue-500 shrink-0">{{ e.inicio|date:"d/m H:i" }}</span>
                                         </div>
-                                        <p class="text-[9px] text-gray-500">{{ e.cliente.nombre_empresa|default:"Evento Personal" }}</p>
-                                    </div>
+                                        <p class="text-[9px] text-gray-500 truncate mt-1">
+                                            <i class="fas {% if e.cliente %}fa-folder-open{% else %}fa-calendar-alt{% endif %} mr-1"></i>
+                                            {{ e.cliente.nombre_empresa|default:"Ver en agenda general" }}
+                                        </p>
+                                    </a>
                                     {% endfor %}
                                 </div>
                                 {% endif %}
+
                                 {% if notif_cobros %}
                                 <div class="p-2 bg-amber-50/50 border-t border-gray-100">
                                     <p class="text-[10px] font-black text-amber-500 uppercase px-2 mb-1">Cobranza (3 días)</p>
                                     {% for c in notif_cobros %}
-                                    <div class="p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm">
+                                    <a href="{% url 'finanzas_cliente' c.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-amber-200">
                                         <div class="flex justify-between items-center">
-                                            <span class="text-xs font-bold text-[#2D1B4B]">{{ c.cliente.nombre_empresa }}</span>
-                                            <span class="text-xs font-black text-amber-600">${{ c.saldo_pendiente }}</span>
+                                            <span class="text-xs font-bold text-[#2D1B4B] truncate pr-2">{{ c.cliente.nombre_empresa }}</span>
+                                            <span class="text-xs font-black text-amber-600 shrink-0">${{ c.saldo_pendiente }}</span>
                                         </div>
-                                    </div>
+                                        <p class="text-[9px] text-gray-500 truncate mt-1"><i class="fas fa-file-invoice-dollar mr-1"></i>{{ c.concepto }}</p>
+                                    </a>
                                     {% endfor %}
                                 </div>
                                 {% endif %}
+                                
                             {% endif %}
                         </div>
                     </div>
-                </div>
+                    </div>
 
                 <a href="{% url 'mi_perfil' %}" class="flex items-center gap-4 group cursor-pointer border-l border-gray-200 pl-6">
                     <div class="text-right hidden md:block">
@@ -289,7 +295,7 @@
         const panelNotif = document.getElementById('panel-notificaciones');
 
         function toggleNotificaciones(e) {
-            if (e) e.stopPropagation(); // Evitar que el clic se propague al document
+            if (e) e.stopPropagation(); 
             
             const isHidden = panelNotif.classList.contains('hidden');
             if (isHidden) {
@@ -303,22 +309,19 @@
 
         function cerrarPanelNotificaciones() {
             if (!panelNotif.classList.contains('hidden')) {
-                // Pequeña animación de salida
                 panelNotif.classList.remove('animate__fadeIn');
                 panelNotif.classList.add('animate__fadeOut');
                 btnNotif.setAttribute('aria-expanded', 'false');
-                setTimeout(() => panelNotif.classList.add('hidden'), 200); // Dar tiempo a la animación
+                setTimeout(() => panelNotif.classList.add('hidden'), 200); 
             }
         }
 
-        // Cerrar si se hace clic fuera
         document.addEventListener('click', (e) => {
             if (!panelNotif.contains(e.target) && !btnNotif.contains(e.target)) {
                 cerrarPanelNotificaciones();
             }
         });
 
-        // Cerrar con tecla Escape
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') cerrarPanelNotificaciones();
         });
@@ -326,30 +329,28 @@
 
         // 2. AUTO-DESTRUCCIÓN DE ALERTAS (TOASTS)
         document.addEventListener("DOMContentLoaded", () => {
-            const toasts = document.querySelectorAll('.toast-message:not(.is-error)'); // Ignoramos errores, esos el usuario debe leerlos
+            const toasts = document.querySelectorAll('.toast-message:not(.is-error)');
             toasts.forEach(toast => {
                 setTimeout(() => {
                     toast.classList.remove('animate__fadeInDown');
                     toast.classList.add('animate__fadeOutUp');
-                    setTimeout(() => toast.remove(), 800); // Eliminar del DOM tras animación
-                }, 5000); // Desaparecer a los 5 segundos
+                    setTimeout(() => toast.remove(), 800); 
+                }, 5000); 
             });
         });
 
 
-        // 3. PROTECTOR GLOBAL DE FORMULARIOS (Previene dobles envíos en TODA la app)
+        // 3. PROTECTOR GLOBAL DE FORMULARIOS
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('form').forEach(form => {
                 form.addEventListener('submit', function(e) {
-                    // Evitar bloquear si el form no es válido (requeridos HTML5)
                     if (!this.checkValidity()) return; 
 
                     const submitBtn = this.querySelector('button[type="submit"]');
                     if(submitBtn && !submitBtn.dataset.processed) {
-                        submitBtn.dataset.processed = "true"; // Marcar para evitar re-ejecución
+                        submitBtn.dataset.processed = "true"; 
                         submitBtn.disabled = true;
                         
-                        // Guardar tamaño original para que el botón no brinque visualmente
                         const currentWidth = submitBtn.offsetWidth;
                         submitBtn.style.minWidth = currentWidth + 'px';
 
@@ -357,8 +358,6 @@
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando...';
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
                         
-                        // Respaldo de seguridad: si la petición tarda mucho o falla silenciosamente, 
-                        // restaurar el botón después de 10 segundos.
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
