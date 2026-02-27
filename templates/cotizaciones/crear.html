@@ -198,21 +198,21 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="md:col-span-6">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                <select name="servicios_seleccionados[]" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio cursor-pointer focus:border-[#A855F7] transition-colors">
+                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio cursor-pointer focus:border-[#A855F7] transition-colors">
                     <option value="">-- Seleccionar --</option>
                     {% for s in servicios %}
                     <option value="{{ s.id }}" data-precio="{{ s.precio_base|default:0 }}" data-desc="{{ s.descripcion|escapejs }}">{{ s.nombre }}</option>
                     {% endfor %}
                 </select>
-                <textarea name="descripciones_personalizadas[]" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-xs text-gray-500 txt-desc resize-none outline-none transition-colors" placeholder="Descripción..."></textarea>
+                <textarea name="descripciones_personalizadas" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-xs text-gray-500 txt-desc resize-none outline-none transition-colors" placeholder="Descripción..."></textarea>
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cant. *</label>
-                <input type="number" name="cantidades[]" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-center input-cant outline-none transition-colors">
+                <input type="number" name="cantidades" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-center input-cant outline-none transition-colors">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Precio Unit. *</label>
-                <input type="number" name="precios_personalizados[]" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-right input-precio outline-none transition-colors">
+                <input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-right input-precio outline-none transition-colors">
             </div>
             <div class="md:col-span-2 text-right pt-6">
                 <span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span>
