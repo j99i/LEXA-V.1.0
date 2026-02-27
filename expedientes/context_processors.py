@@ -1,7 +1,7 @@
 from django.utils import timezone
 from datetime import timedelta
-from django.db.models import Q
-from .models import Tarea, Evento, CuentaPorCobrar, Cliente
+from django.db.models import Q, Count
+from .models import Tarea, Evento, CuentaPorCobrar, Cliente, ArchivoTemporal
 
 def notificaciones_globales(request):
     if not request.user.is_authenticated:
@@ -41,12 +41,24 @@ def notificaciones_globales(request):
             fecha_vencimiento__lte=hoy + timedelta(days=3)
         ).select_related('cliente')
 
+    # D. NUEVO: Auditorías de Documentos (Archivos Temporales)
+    # Agrupamos por cliente para que si suben 10 archivos, salga 1 sola notificación con el conteo.
+    auditorias = ArchivoTemporal.objects.filter(
+        solicitud__cliente__in=mis_clientes
+    ).values(
+        'solicitud__cliente__id', 
+        'solicitud__cliente__nombre_empresa'
+    ).annotate(
+        total_archivos=Count('id')
+    )
+
     # Conteo Total para el "Globito Rojo"
-    total_notif = tareas.count() + eventos.count() + len(cobros)
+    total_notif = tareas.count() + eventos.count() + len(cobros) + len(auditorias)
 
     return {
         'notif_tareas': tareas,
         'notif_eventos': eventos,
         'notif_cobros': cobros,
+        'notif_auditorias': auditorias, # <-- Lo pasamos al HTML
         'total_notif': total_notif
     }
