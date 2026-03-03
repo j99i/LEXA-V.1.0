@@ -3,10 +3,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
 <style>
-    /* --- ESTÉTICA JARVIS v12.5 (100% Manual / Con Borrado) --- */
+    /* --- ESTÉTICA JARVIS v12.7 (Auto-Código / Descripción Manual / Ultra UX) --- */
     .neural-bg { background-color: #0f172a; }
     
-    /* Status Dot */
     .system-status {
         width: 8px; height: 8px; background: #22c55e;
         border-radius: 50%; box-shadow: 0 0 8px #22c55e;
@@ -15,16 +14,18 @@
     .system-status.processing { background: #eab308; box-shadow: 0 0 8px #eab308; animation: blink 0.5s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
 
-    /* Chip Variable (Compacto) */
+    /* Estilo del texto convertido a variable */
     .var-chip {
         display: inline-flex; align-items: center; gap: 4px;
         background: #f0fdf4; border: 1px solid #86efac;
         color: #15803d; font-weight: 700; font-family: 'Consolas', monospace;
         padding: 0px 4px; border-radius: 4px; font-size: 0.85em; 
-        cursor: default; user-select: none; white-space: nowrap; vertical-align: baseline;
+        cursor: pointer; user-select: none; white-space: nowrap; vertical-align: baseline;
+    }
+    .var-chip:hover {
+        background: #fee2e2; border-color: #f87171; color: #b91c1c;
     }
 
-    /* Chat Bubble (Compacto) */
     .chat-bubble {
         background: white; border-radius: 8px; padding: 8px 12px;
         margin-bottom: 8px; border-left: 3px solid #6366f1;
@@ -33,15 +34,6 @@
     }
     @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-    .chat-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
-    .chat-btn {
-        padding: 4px 10px; border-radius: 4px; font-weight: bold; font-size: 10px;
-        cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569;
-        transition: all 0.2s;
-    }
-    .chat-btn.primary { background: #7c3aed; color: white; border-color: #7c3aed; }
-    .chat-btn:hover { filter: brightness(0.95); }
-    
     .btn-toolbar { 
         font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px;
         color: #64748b; transition: all 0.2s; padding: 4px 8px; border-radius: 4px;
@@ -49,18 +41,9 @@
     .btn-toolbar:not(:disabled):hover { color: #7c3aed; background: #f1f5f9; }
     .btn-toolbar:disabled { opacity: 0.4; cursor: not-allowed; }
 
-    /* Botones de acción en la lista (Link / Trash) */
-    .btn-action-list {
-        width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
-        background: white; border: 1px solid #f1f5f9; display: flex;
-        align-items: center; justify-content: center; transition: all 0.2s;
-    }
-
-    /* Custom Scrollbar Thin */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
     .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 2px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 </style>
 
 <div class="max-w-[1900px] mx-auto h-[calc(100vh-60px)] flex flex-col animate__animated animate__fadeIn p-2 font-sans text-slate-800">
@@ -88,7 +71,6 @@
     <div class="flex-1 flex gap-3 overflow-hidden">
         
         <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col relative overflow-hidden group">
-            
             <div id="drop-zone" class="absolute inset-0 bg-slate-50 z-30 flex flex-col items-center justify-center border-4 border-dashed border-purple-100 m-4 rounded-xl hover:bg-purple-50/50 transition-all cursor-pointer">
                 <div class="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
                     <i class="fas fa-file-word text-4xl text-purple-600"></i>
@@ -105,7 +87,7 @@
                             <i class="fas fa-undo"></i> DESHACER
                         </button>
                         <div class="h-3 w-px bg-gray-300"></div>
-                        <span id="status-text" class="text-[9px] font-mono text-emerald-600 font-bold uppercase">Mapeo Manual Activado</span>
+                        <span id="status-text" class="text-[9px] font-mono text-emerald-600 font-bold uppercase">Selecciona texto para crear variables</span>
                     </div>
                 </div>
 
@@ -116,20 +98,20 @@
 
         <div class="w-[450px] flex flex-col gap-3 h-full transition-all">
             
-            <div class="h-[40%] bg-slate-50 rounded-2xl shadow-inner border border-gray-200 flex flex-col overflow-hidden relative">
+            <div class="h-[35%] bg-slate-50 rounded-2xl shadow-inner border border-gray-200 flex flex-col overflow-hidden relative">
                 <div class="p-2 px-3 bg-white border-b border-gray-100 flex justify-between items-center shadow-sm z-10">
                     <span class="font-black text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-2">
                         <i class="fas fa-terminal text-purple-600"></i> Terminal
                     </span>
-                    <button id="btn-limpiar-log" class="text-gray-300 hover:text-red-400 hover:bg-gray-50 p-1 rounded transition-colors"><i class="fas fa-eraser text-xs"></i></button>
+                    <button id="btn-limpiar-log" class="text-gray-300 hover:text-red-400 hover:bg-gray-50 p-1 rounded transition-colors" title="Limpiar Terminal"><i class="fas fa-eraser text-xs"></i></button>
                 </div>
                 <div id="chat-log" class="flex-1 overflow-y-auto p-3 custom-scrollbar flex flex-col-reverse relative bg-slate-50/50"></div>
             </div>
 
-            <div class="h-[60%] bg-white rounded-2xl shadow-lg border border-purple-100 flex flex-col overflow-hidden relative">
+            <div class="h-[65%] bg-white rounded-2xl shadow-lg border border-purple-100 flex flex-col overflow-hidden relative">
                 <div id="panel-header" class="p-3 bg-slate-900 text-white flex flex-col gap-1 transition-colors duration-300">
                     <div class="flex justify-between items-center">
-                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">SELECCIÓN</span>
+                        <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TEXTO SELECCIONADO</span>
                         <span class="text-[9px] font-mono text-purple-300 opacity-50">MODO: MANUAL</span>
                     </div>
                     <div class="flex items-center gap-2 overflow-hidden bg-white/5 p-1.5 px-2 rounded-lg border border-white/10">
@@ -140,36 +122,45 @@
 
                 <div class="flex-1 flex flex-col overflow-hidden relative">
                     <div class="flex border-b border-gray-100">
-                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors">VINCULAR / ELIMINAR</button>
-                        <button id="tab-crear" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors">CREAR</button>
+                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors">GLOSARIO / VINCULAR</button>
+                        <button id="tab-crear" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors">NUEVA VARIABLE</button>
                     </div>
 
                     <div id="mode-buscar" class="flex-1 flex flex-col p-3 gap-2 overflow-hidden">
-                        <div class="relative group">
+                        
+                        <button id="btn-nuke-vars" class="w-full mb-1 py-1.5 bg-red-50 text-red-600 font-bold text-[9px] uppercase tracking-widest rounded border border-red-200 hover:bg-red-500 hover:text-white transition-colors flex items-center justify-center gap-2">
+                            <i class="fas fa-bomb"></i> Eliminar TODAS las variables
+                        </button>
+
+                        <div class="relative group mt-1">
                             <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs group-focus-within:text-purple-500 transition-colors"></i>
-                            <input type="text" id="filtro-existente" placeholder="Filtrar variables..." class="w-full pl-8 p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-1 focus:ring-purple-200 outline-none transition-all">
+                            <input type="text" id="filtro-existente" placeholder="Buscar variable..." class="w-full pl-8 p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-1 focus:ring-purple-200 outline-none transition-all">
                         </div>
-                        <div id="lista-glosario" class="flex-1 overflow-y-auto custom-scrollbar space-y-1 pr-1">
+                        
+                        <div id="lista-glosario" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1 mt-1">
                             {% for v in glosario %}
-                            <div class="item-glosario p-2 px-3 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-purple-50 cursor-pointer flex justify-between items-center group transition-all" data-clave="{{ v.clave }}">
-                                <div class="overflow-hidden">
-                                    <p class="text-xs font-bold text-slate-700 group-hover:text-purple-800 truncate">{{ v.descripcion }}</p>
-                                    <p class="text-[9px] text-slate-400 font-mono group-hover:text-purple-500 mt-0.5 truncate">{{ v.clave }}</p>
+                            <div class="item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-purple-300 bg-white shadow-sm transition-all" data-clave="{{ v.clave }}">
+                                <div class="mb-2">
+                                    <p class="text-xs font-bold text-slate-700 truncate">{{ v.descripcion }}</p>
+                                    <p class="text-[10px] text-purple-600 font-mono font-bold truncate">{{ v.clave }}</p>
                                 </div>
-                                <div class="flex gap-1 items-center">
-                                    <div class="btn-action-list btn-link hover:border-purple-300 hover:text-purple-600 shadow-sm" title="Vincular al texto seleccionado">
-                                        <i class="fas fa-link text-[10px] text-gray-300 pointer-events-none"></i>
-                                    </div>
-                                    <div class="btn-action-list btn-delete hover:border-red-300 hover:text-red-500 shadow-sm" title="Eliminar variable y desvincular del texto">
-                                        <i class="fas fa-trash text-[10px] text-gray-300 pointer-events-none"></i>
-                                    </div>
+                                <div class="flex gap-2">
+                                    <button class="btn-link flex-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
+                                        <i class="fas fa-link pointer-events-none"></i> Vincular
+                                    </button>
+                                    <button class="btn-unlink flex-1 bg-amber-50 text-amber-700 hover:bg-amber-500 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
+                                        <i class="fas fa-unlink pointer-events-none"></i> Desvincular
+                                    </button>
+                                    <button class="btn-delete w-8 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white text-[10px] rounded font-bold transition-colors flex justify-center items-center" title="Eliminar Permanente">
+                                        <i class="fas fa-trash pointer-events-none"></i>
+                                    </button>
                                 </div>
                             </div>
                             {% empty %}
                             <div id="empty-glosario" class="flex flex-col items-center justify-center h-full opacity-50 text-center p-4">
                                 <i class="fas fa-box-open text-3xl text-gray-300 mb-2"></i>
                                 <p class="text-xs font-bold text-gray-400">Aún no hay variables</p>
-                                <p class="text-[10px] text-gray-400 mt-1">Selecciona texto para crear la primera.</p>
+                                <p class="text-[9px] text-gray-400 mt-1">Selecciona texto en el documento</p>
                             </div>
                             {% endfor %}
                         </div>
@@ -182,28 +173,24 @@
                             </div>
                             <div>
                                 <p class="text-[9px] font-bold text-slate-400 uppercase">ACCIÓN REQUERIDA</p>
-                                <p class="text-[10px] font-bold text-blue-800">Asigna un nombre manualmente</p>
+                                <p class="text-[10px] font-bold text-blue-800">Escribe la descripción manual</p>
                             </div>
                         </div>
                         
                         <div>
-                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Código de la variable <span class="text-red-500">*</span></label>
-                            <div class="relative">
-                                <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all text-purple-700 font-bold placeholder-purple-200" placeholder="Ej: nombre_cliente">
-                                <div class="absolute right-3 top-3 text-purple-200 pointer-events-none"><i class="fas fa-code text-xs"></i></div>
-                            </div>
-                            <p class="text-[9px] text-slate-400 mt-1 ml-1"><i class="fas fa-info-circle"></i> Sin espacios, usa guiones bajos (_)</p>
+                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Código de la Variable (Automático)</label>
+                            <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all text-purple-700 font-bold" placeholder="ej: var_nombre_cliente">
                         </div>
                         
                         <div>
-                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Descripción <span class="text-red-500">*</span></label>
-                            <input type="text" id="input-desc-nueva" class="w-full text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all placeholder-gray-300" placeholder="Ej: Nombre completo del arrendatario">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1 text-red-600">Descripción Obligatoria <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-desc-nueva" class="w-full text-xs p-3 bg-white border border-red-200 rounded-xl focus:border-red-500 focus:ring-2 focus:ring-red-500/20 outline-none transition-all" placeholder="¿Qué significa este dato? (Ej: Nombre del Titular)">
                         </div>
 
                         <button id="btn-crear-accion" class="mt-auto w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-xs shadow-lg hover:bg-black transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5">
-                            <i class="fas fa-plus-circle"></i> GUARDAR VARIABLE
+                            <i class="fas fa-save"></i> GUARDAR VARIABLE
                         </button>
-                        <p class="text-center text-[9px] text-gray-400 mt-[-5px]">Puedes presionar <b>Enter</b> para guardar</p>
+                        <p class="text-center text-[9px] text-gray-400 mt-[-5px]">Presiona <b>Enter</b> para guardar rápido</p>
                     </div>
                 </div>
             </div>
@@ -220,81 +207,35 @@
 
 {% verbatim %}
 <script>
-/**
- * 🧱 JARVIS SECURITY LAYER
- */
 const JarvisSecurity = {
-    sanitizeHTML: (dirty) => DOMPurify.sanitize(dirty, {
-        ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'p', 'br', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'ul', 'ol', 'li', 'span', 'div', 'h1', 'h2', 'h3'],
-        ALLOWED_ATTR: ['class', 'style', 'colspan', 'rowspan'] 
-    }),
-    
-    sanitizeString: (str) => {
-        const div = document.createElement('div');
-        div.textContent = str;
-        return div.innerHTML;
-    }
+    sanitizeHTML: (dirty) => DOMPurify.sanitize(dirty, { ALLOWED_TAGS: ['b', 'i', 'em', 'strong', 'u', 'p', 'br', 'table', 'tr', 'td', 'th', 'tbody', 'thead', 'ul', 'ol', 'li', 'span', 'div', 'h1', 'h2', 'h3'], ALLOWED_ATTR: ['class', 'style', 'colspan', 'rowspan'] }),
+    sanitizeString: (str) => { const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 };
 
-/**
- * 🧠 JARVIS HISTORY (Time Travel)
- */
 const JarvisHistory = {
-    undoStack: [],
-    redoStack: [],
-
-    pushAction(action) {
-        this.undoStack.push(action);
-        this.redoStack = []; 
-        this.updateUI();
-    },
-
+    undoStack: [], redoStack: [],
+    pushAction(action) { this.undoStack.push(action); this.redoStack = []; this.updateUI(); },
     undo() {
         const action = this.undoStack.pop();
         if (!action) return;
-        
-        action.nodes.forEach(item => {
-            JarvisDOM.restoreNode(item.current, item.originalText);
-        });
-
+        action.nodes.forEach(item => { JarvisDOM.restoreNode(item.current, item.originalText); });
         JarvisState.removeReplacement(action.variable, action.originalText);
-
-        this.redoStack.push(action);
-        this.updateUI();
+        this.redoStack.push(action); this.updateUI();
         return action;
     },
-
-    redo() {
-        const action = this.redoStack.pop();
-        if (!action) return;
-        this.undoStack.push(action); 
-        this.updateUI();
-        return action;
-    },
-
-    updateUI() {
-        document.getElementById('btn-undo').disabled = this.undoStack.length === 0;
-    }
+    updateUI() { document.getElementById('btn-undo').disabled = this.undoStack.length === 0; }
 };
 
-/**
- * 🏢 JARVIS DOM
- */
 const JarvisDOM = {
     replaceTextInNode: (textNode, matchText, replacementElement) => {
         if (textNode.nodeType !== Node.TEXT_NODE) return null;
-        
-        const fullText = textNode.nodeValue;
-        const index = fullText.indexOf(matchText);
+        const index = textNode.nodeValue.indexOf(matchText);
         if (index === -1) return null;
-
         const middleNode = textNode.splitText(index);
         middleNode.splitText(matchText.length);
         middleNode.parentNode.replaceChild(replacementElement, middleNode);
-        
         return replacementElement;
     },
-
     restoreNode: (element, originalText) => {
         if (!element || !element.parentNode) return;
         const textNode = document.createTextNode(originalText);
@@ -303,43 +244,19 @@ const JarvisDOM = {
     }
 };
 
-/**
- * 💾 JARVIS STATE
- */
 const JarvisState = {
-    reemplazos: [], 
-    archivo: null,
-    selection: null,
-    actionRegistry: new Map(), 
-
-    addReplacement(texto, variable, modo) {
-        this.reemplazos.push({ texto_original: texto, variable, modo });
-    },
-
+    reemplazos: [], archivo: null, selection: null,
+    addReplacement(texto, variable, modo) { this.reemplazos.push({ texto_original: texto, variable, modo }); },
     removeReplacement(variable, texto) {
         const idx = this.reemplazos.findIndex(r => r.variable === variable && r.texto_original === texto);
         if (idx > -1) this.reemplazos.splice(idx, 1);
-    },
-
-    registerAction(id, callback) {
-        this.actionRegistry.set(id, callback);
-    },
-
-    triggerAction(id) {
-        if (this.actionRegistry.has(id)) {
-            this.actionRegistry.get(id)();
-            this.actionRegistry.delete(id); 
-        }
     }
 };
 
-/**
- * 🖥️ JARVIS UI
- */
 const JarvisUI = {
     init() {
         this.bindEvents();
-        this.log("Sistema Mapeo 100% Manual Listo. Sube un documento.", "system");
+        this.log("Sistema Mapeo 100% Manual Listo.", "system");
     },
 
     bindEvents() {
@@ -358,44 +275,70 @@ const JarvisUI = {
         $('tab-crear').onclick = () => this.setTab('crear');
         $('btn-crear-accion').onclick = () => this.apiCreateVariable();
         
-        $('input-clave-nueva').oninput = (e) => {
-            e.target.value = this.sanitizeVarName(e.target.value);
-        };
+        $('input-clave-nueva').oninput = (e) => e.target.value = this.sanitizeVarName(e.target.value);
         
-        const handleEnterKey = (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                this.apiCreateVariable();
-            }
-        };
+        const handleEnterKey = (e) => { if (e.key === 'Enter') { e.preventDefault(); this.apiCreateVariable(); } };
         $('input-clave-nueva').addEventListener('keypress', handleEnterKey);
         $('input-desc-nueva').addEventListener('keypress', handleEnterKey);
         
-        // --- DELEGACIÓN DE EVENTOS PARA EL GLOSARIO (VINCULAR Y ELIMINAR) ---
+        // DELEGACIÓN DE EVENTOS PARA EL GLOSARIO
         $('lista-glosario').addEventListener('click', (e) => {
             const item = e.target.closest('.item-glosario');
             if (!item) return;
-
             const clave = item.dataset.clave;
 
-            // Si se hace clic en el botón de eliminar (basura)
             if (e.target.closest('.btn-delete')) {
-                e.stopPropagation(); // Evita que se seleccione
-                if(confirm(`¿Seguro que deseas eliminar la variable "${clave}" y desvincularla de todo el texto?`)){
-                    this.eliminarVariable(clave);
+                e.stopPropagation();
+                if(confirm(`⚠️ PELIGRO ⚠️\n\n¿Estás seguro que deseas ELIMINAR LA VARIABLE "${clave}" de la Base de Datos permanentemente?\n\n(Se desvinculará del texto automáticamente).`)){
+                    this.eliminarVariableDefinitiva(clave);
                 }
                 return;
             }
 
-            // Si se hace clic en el item o en el botón link (vincular)
-            this.promptAssignment(clave);
+            if (e.target.closest('.btn-unlink')) {
+                e.stopPropagation();
+                this.desvincularVariable(clave, false);
+                return;
+            }
+
+            if (e.target.closest('.btn-link') || e.target === item) {
+                this.promptAssignment(clave);
+            }
         });
         
         $('filtro-existente').oninput = (e) => {
             const val = e.target.value.toLowerCase();
             document.querySelectorAll('.item-glosario').forEach(el => {
-                el.style.display = el.innerText.toLowerCase().includes(val) ? 'flex' : 'none';
+                el.style.display = el.innerText.toLowerCase().includes(val) ? 'block' : 'none';
             });
+        };
+
+        // EVENTO DEL BOTON NUCLEAR (BORRAR TODAS)
+        $('btn-nuke-vars').onclick = async () => {
+            if(!confirm("🛑 ALERTA MÁXIMA 🛑\n\nEstás a punto de ELIMINAR TODAS LAS VARIABLES DE LA BASE DE DATOS del sistema.\n\nEsto no se puede recuperar. ¿Estás absolutamente seguro?")) return;
+            
+            const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const btn = $('btn-nuke-vars');
+            const oldHtml = btn.innerHTML;
+            btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> BORRANDO EL SISTEMA...";
+            
+            try {
+                const res = await fetch('/api/eliminar-todas-variables/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json', 'X-CSRFToken': token}
+                });
+                const data = await res.json();
+                if(data.status === 'ok') {
+                    document.querySelectorAll('.item-glosario').forEach(el => {
+                        const clave = el.dataset.clave;
+                        this.desvincularVariable(clave, true); // modo silencioso
+                        el.remove();
+                    });
+                    this.log(`💣 BOOM: TODAS las variables fueron eliminadas de la Base de Datos.`, 'system');
+                    const emptyMsg = document.getElementById('empty-glosario');
+                    if(emptyMsg) emptyMsg.style.display = 'flex';
+                }
+            } catch(e) { console.error(e); } finally { btn.innerHTML = oldHtml; }
         };
     },
 
@@ -403,33 +346,19 @@ const JarvisUI = {
         const icon = document.getElementById('sys-status-icon');
         const text = document.getElementById('sys-status-text');
         if(busy) {
-            icon.classList.add('processing');
-            text.innerText = "PROCESANDO";
+            icon.classList.add('processing'); text.innerText = "PROCESANDO";
             text.className = "font-bold text-[9px] tracking-wide text-yellow-400 leading-none";
         } else {
-            icon.classList.remove('processing');
-            text.innerText = "ESPERANDO";
+            icon.classList.remove('processing'); text.innerText = "ESPERANDO";
             text.className = "font-bold text-[9px] tracking-wide text-emerald-400 leading-none";
         }
     },
 
-    log(msg, type='robot', actions=[]) {
+    log(msg, type='robot') {
         const log = document.getElementById('chat-log');
         const div = document.createElement('div');
         div.className = `chat-bubble border-l-${type === 'user' ? 'pink' : type === 'system' ? 'red' : 'indigo'}-500`;
-        
         const safeMsg = JarvisSecurity.sanitizeString(msg);
-        
-        let actionsHtml = '';
-        if (actions.length > 0) {
-            actionsHtml = `<div class="chat-actions">` + 
-                actions.map(a => {
-                    JarvisState.registerAction(a.id, a.callback);
-                    return `<button class="chat-btn ${a.primary?'primary':''}" onclick="JarvisState.triggerAction('${a.id}')">${a.label}</button>`;
-                }).join('') +
-                `</div>`;
-        }
-
         let iconType = type === 'user' ? 'user' : type === 'system' ? 'exclamation-triangle' : 'robot';
         let labelType = type === 'user' ? 'Tú' : type === 'system' ? 'SISTEMA' : 'CORPAD ASSISTANT';
 
@@ -439,7 +368,6 @@ const JarvisUI = {
                 <span class="text-[9px] font-bold tracking-widest uppercase">${labelType}</span>
             </div>
             <div class="text-slate-700 leading-relaxed font-medium text-xs">${safeMsg}</div>
-            ${actionsHtml}
         `;
         log.prepend(div);
     },
@@ -448,98 +376,67 @@ const JarvisUI = {
         if (!file) return;
         JarvisState.archivo = file;
         this.updateStatus(true);
-        
-        const fd = new FormData();
-        fd.append('archivo', file);
-        
+        const fd = new FormData(); fd.append('archivo', file);
         const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const urlUpload = "/api/previsualizar-word/"; 
-
         try {
-            const res = await fetch(urlUpload, { method: 'POST', body: fd, headers: {'X-CSRFToken': token} });
+            const res = await fetch("/api/previsualizar-word/", { method: 'POST', body: fd, headers: {'X-CSRFToken': token} });
             const data = await res.json();
-            
             if (data.html) {
                 document.getElementById('editor-canvas').innerHTML = JarvisSecurity.sanitizeHTML(data.html);
                 document.getElementById('drop-zone').classList.add('hidden');
                 document.getElementById('editor-wrapper').classList.remove('hidden');
-                
-                // NOTA: Análisis automático (variables por default) removido permanentemente.
-                this.log("Documento cargado correctamente. Selecciona texto para mapear.", "robot");
-            } else {
-                throw new Error(data.msg);
-            }
-        } catch (e) {
-            this.log(`Error al cargar el documento: ${e.message}`, 'system');
-        } finally {
-            this.updateStatus(false);
-        }
+                this.log("Documento cargado. Selecciona texto para mapear.", "robot");
+            } else throw new Error(data.msg);
+        } catch (e) { this.log(`Error: ${e.message}`, 'system'); } finally { this.updateStatus(false); }
     },
 
     handleSelection() {
-        const sel = window.getSelection();
-        const text = sel.toString().trim();
+        const sel = window.getSelection(); const text = sel.toString().trim();
         if (!text) return;
-
         JarvisState.selection = { text, range: sel.getRangeAt(0).cloneRange() };
-        
         document.getElementById('texto-focus').innerText = text.substring(0, 30) + (text.length>30?'...':'');
         document.getElementById('panel-header').classList.replace('bg-slate-900', 'bg-purple-900');
-
+        
+        // UX 1: Auto-generar código limitando tamaño
+        const autoCode = "var_" + this.sanitizeVarName(text);
         const inputClave = document.getElementById('input-clave-nueva');
-        inputClave.value = ""; 
-        document.getElementById('input-desc-nueva').value = text;
+        const inputDesc = document.getElementById('input-desc-nueva');
+        
+        inputClave.value = autoCode.substring(0, 40); // 40 caracteres max
+        
+        // UX 2: Forzar descripción vacía para obligar al usuario a pensarla
+        inputDesc.value = "";
 
-        if (document.querySelectorAll('.item-glosario').length === 0) {
-            this.setTab('crear');
-        }
+        // UX 3: Cambiar a la pestaña de crear automáticamente
+        this.setTab('crear');
 
+        // UX 4: Foco inmediato en el input vacío para que escriban de inmediato
         setTimeout(() => {
             if(!document.getElementById('mode-crear').classList.contains('hidden')){
-                inputClave.focus();
+                inputDesc.focus();
             }
         }, 100);
     },
 
     promptAssignment(variable) {
-        if (!JarvisState.selection) return;
-        
-        variable = this.sanitizeVarName(variable);
-        const text = JarvisState.selection.text;
-        
-        const content = document.getElementById('editor-canvas').textContent;
-        const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        const count = (content.match(new RegExp(escaped, 'gi')) || []).length - 1;
-
-        const actionId = crypto.randomUUID();
-
-        if (count > 0) {
-            this.log(`El texto "${text.substring(0,10)}..." se repite ${count} veces en el documento.`, 'robot', [
-                { id: actionId+'_all', label: 'Vincular TODAS', primary: true, callback: () => this.executeAssignment(variable, true) },
-                { id: actionId+'_one', label: 'Solo esta', primary: false, callback: () => this.executeAssignment(variable, false) }
-            ]);
-        } else {
-            this.executeAssignment(variable, false);
-        }
+        if (!JarvisState.selection) return this.log("⚠️ Selecciona un texto en el documento primero.", "system");
+        this.executeAssignment(variable, true); // Vincula todas las coincidencias directo
     },
 
     executeAssignment(variable, isMassive) {
         variable = this.sanitizeVarName(variable);
-        
-        if (!variable) {
-            this.log("❌ Nombre de variable inválido.", "system");
-            return;
-        }
+        if (!variable) return;
         
         const { text, range } = JarvisState.selection;
         const nodesAffected = [];
 
-        // NUEVO: Guardamos el texto original (dataset.original) dentro de la etiqueta
         const createChip = () => {
             const s = document.createElement('span');
             s.className = 'var-chip animate__animated animate__bounceIn';
             s.innerText = `{{${variable}}}`;
-            s.dataset.original = text; 
+            s.dataset.original = text;
+            s.title = "Clic para DESVINCULAR este dato en específico";
+            s.onclick = (e) => { e.stopPropagation(); this.desvincularChipIndividual(s, variable, text); };
             return s;
         };
 
@@ -552,11 +449,7 @@ const JarvisUI = {
             const walker = document.createTreeWalker(document.getElementById('editor-canvas'), NodeFilter.SHOW_TEXT);
             const targets = [];
             let n;
-            while(n = walker.nextNode()) {
-                if (n.nodeValue.includes(text) && !n.parentNode.classList.contains('var-chip')) {
-                    targets.push(n);
-                }
-            }
+            while(n = walker.nextNode()) if (n.nodeValue.includes(text) && !n.parentNode.classList.contains('var-chip')) targets.push(n);
 
             targets.forEach(node => {
                 while (node.nodeValue && node.nodeValue.includes(text)) {
@@ -566,213 +459,182 @@ const JarvisUI = {
                         nodesAffected.push({ current: chip, originalText: text });
                         node = nextNode.nextSibling; 
                         if(!node || node.nodeType !== Node.TEXT_NODE) break;
-                    } else { break; }
+                    } else break;
                 }
             });
         }
 
-        JarvisHistory.pushAction({
-            variable,
-            originalText: text,
-            isMassive,
-            nodes: nodesAffected 
-        });
-
-        JarvisState.addReplacement(text, variable, isMassive ? 'GLOBAL' : 'SINGLE');
-
-        this.log(`Variable mapeada: <b>${variable}</b>`, 'robot');
+        JarvisHistory.pushAction({ variable, originalText: text, isMassive, nodes: nodesAffected });
+        JarvisState.addReplacement(text, variable, 'GLOBAL');
+        this.log(`✅ Variable <b>${variable}</b> vinculada a ${nodesAffected.length} elementos.`, 'robot');
         this.clearSelection();
     },
 
     async apiCreateVariable() {
         let clave = document.getElementById('input-clave-nueva').value;
         const desc = document.getElementById('input-desc-nueva').value;
-        
         clave = this.sanitizeVarName(clave);
+        
         const inputClaveDOM = document.getElementById('input-clave-nueva');
         const inputDescDOM = document.getElementById('input-desc-nueva');
 
         if (!clave) {
             inputClaveDOM.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-            this.log("⚠️ ATENCIÓN: Debes asignar un código a la variable antes de guardar.", "system");
+            this.log("⚠️ El código no puede estar vacío.", "system");
             inputClaveDOM.focus();
             setTimeout(() => inputClaveDOM.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
             return;
         }
-        if (!desc) {
+
+        // UX 5: Bloqueo fuerte si la descripción está vacía
+        if (!desc.trim()) {
             inputDescDOM.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            this.log("⚠️ DEBES ESCRIBIR LA DESCRIPCIÓN MANUALMENTE PARA GUARDAR.", "system");
             inputDescDOM.focus();
             setTimeout(() => inputDescDOM.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
             return;
         }
 
         const btn = document.getElementById('btn-crear-accion');
-        const txt = btn.innerHTML;
-        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> PROCESANDO...";
-        btn.disabled = true;
-        inputClaveDOM.disabled = true;
-        inputDescDOM.disabled = true;
-
+        const txt = btn.innerHTML; btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i>..."; btn.disabled = true;
         const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
-        const urlApi = "/api/crear-variable/";
 
         try {
-            const res = await fetch(urlApi, {
-                method: 'POST', 
-                headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
+            const res = await fetch("/api/crear-variable/", {
+                method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
                 body: JSON.stringify({ clave, descripcion: desc })
             });
             const data = await res.json();
-            
             if(data.status === 'ok') {
-                const varNameClean = this.sanitizeVarName(data.clave || clave);
-                
                 const emptyMsg = document.getElementById('empty-glosario');
                 if(emptyMsg) emptyMsg.style.display = 'none';
 
-                this.addGlossaryItem(varNameClean, desc);
-                this.promptAssignment(varNameClean);
+                this.addGlossaryItem(clave, desc);
+                if (JarvisState.selection) this.promptAssignment(clave);
+                
+                // UX 6: Limpiar y volver a la lista
                 this.setTab('buscar');
-
                 inputClaveDOM.value = "";
                 inputDescDOM.value = "";
-            } else {
-                alert(data.msg);
-                this.log(`Error del servidor: ${data.msg}`, "system");
-            }
-        } catch(e) { 
-            console.error(e); 
-            this.log("Error de conexión al crear la variable.", "system");
-        } finally { 
-            btn.innerHTML = txt; 
-            btn.disabled = false;
-            inputClaveDOM.disabled = false;
-            inputDescDOM.disabled = false;
-        }
+            } else alert(data.msg);
+        } catch(e) { console.error(e); } finally { btn.innerHTML = txt; btn.disabled = false; }
     },
 
-    // --- NUEVA FUNCIÓN: ELIMINAR Y DESVINCULAR VARIABLE ---
-    eliminarVariable(variable) {
-        // 1. Restaurar el texto en el canvas
+    // DESVINCULAR TODAS LAS DE ESE TIPO
+    desvincularVariable(variable, silencioso = false) {
         const editor = document.getElementById('editor-canvas');
         const chips = editor.querySelectorAll('.var-chip');
         let count = 0;
         
         chips.forEach(chip => {
             if (chip.innerText.includes(`{{${variable}}}`)) {
-                const originalText = chip.dataset.original || variable;
-                const txtNode = document.createTextNode(originalText);
+                const txtNode = document.createTextNode(chip.dataset.original || variable);
                 chip.parentNode.replaceChild(txtNode, chip);
                 count++;
             }
         });
 
-        // 2. Quitar del state interno para no enviarlo en saveTemplate()
         JarvisState.reemplazos = JarvisState.reemplazos.filter(r => r.variable !== variable);
-        
-        // 3. Limpiar del historial de deshacer
         JarvisHistory.undoStack = JarvisHistory.undoStack.filter(act => act.variable !== variable);
         JarvisHistory.updateUI();
 
-        // 4. Eliminar el item visual de la lista
-        const itemUI = document.querySelector(`.item-glosario[data-clave="${variable}"]`);
-        if (itemUI) itemUI.remove();
-
-        // 5. Mostrar log de confirmación
-        this.log(`🗑️ La variable <b>${variable}</b> fue eliminada. Se restauraron ${count} vinculaciones.`, 'system');
-
-        // Mostrar el mensaje de vacío si nos quedamos sin variables
-        if (document.querySelectorAll('.item-glosario').length === 0) {
-            const emptyMsg = document.getElementById('empty-glosario');
-            if(emptyMsg) emptyMsg.style.display = 'flex';
+        if(!silencioso) {
+            if (count > 0) this.log(`🔗 Se desvincularon ${count} textos de la variable <b>${variable}</b>.`, 'robot');
+            else this.log(`ℹ️ La variable <b>${variable}</b> no estaba vinculada en el documento.`, 'system');
         }
+    },
+
+    // DESVINCULAR SOLO UN CHIP (AL HACER CLIC EN LA ETIQUETA EN EL DOCUMENTO)
+    desvincularChipIndividual(chip, variable, textoOriginal) {
+        const txtNode = document.createTextNode(textoOriginal);
+        chip.parentNode.replaceChild(txtNode, chip);
+        this.log(`🔗 Se desvinculó una ocurrencia de <b>${variable}</b>.`, 'robot');
+        // Limpiar de la lista de envíos si ya no hay más en el canvas
+        const quedan = document.getElementById('editor-canvas').querySelector(`.var-chip:contains('{{${variable}}}')`);
+        if(!quedan) {
+            JarvisState.reemplazos = JarvisState.reemplazos.filter(r => r.variable !== variable);
+        }
+    },
+
+    // ELIMINAR DEFINITIVAMENTE DE LA BD
+    async eliminarVariableDefinitiva(variable) {
+        const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        try {
+            const res = await fetch('/api/eliminar-variable/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json', 'X-CSRFToken': token},
+                body: JSON.stringify({ clave: variable })
+            });
+            const data = await res.json();
+            if(data.status === 'ok') {
+                this.desvincularVariable(variable, true); // Quita del texto sin hacer ruido
+                const itemUI = document.querySelector(`.item-glosario[data-clave="${variable}"]`);
+                if (itemUI) itemUI.remove();
+                this.log(`🗑️ Variable <b>${variable}</b> eliminada de la Base de Datos.`, 'system');
+                
+                if (document.querySelectorAll('.item-glosario').length === 0) {
+                    const emptyMsg = document.getElementById('empty-glosario');
+                    if(emptyMsg) emptyMsg.style.display = 'flex';
+                }
+            }
+        } catch(e) { console.error(e); }
     },
 
     saveTemplate() {
         const nombre = document.getElementById('nombre-plantilla').value;
-        const inputNombre = document.getElementById('nombre-plantilla');
-        
-        if (!nombre) {
-            inputNombre.classList.add('border-red-500', 'ring-2', 'ring-red-200');
-            setTimeout(() => inputNombre.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
-            inputNombre.focus();
-            return this.log("❌ Debes asignarle un Nombre a la Plantilla en la barra superior.", "system");
-        }
-        if (!JarvisState.archivo) {
-            return this.log("❌ Falta el contrato base (.docx). Arrastra el archivo primero.", "system");
-        }
-        if (JarvisState.reemplazos.length === 0) {
-            return this.log("⚠️ No has mapeado ninguna variable en el documento.", "system");
-        }
-        
-        const reemplazosLimpios = JarvisState.reemplazos.map(r => ({
-            ...r,
-            variable: this.sanitizeVarName(r.variable)
-        }));
-        
-        const tieneVariablesVacias = reemplazosLimpios.some(r => r.variable === "");
-        if (tieneVariablesVacias) {
-            return this.log("❌ Error fatal: Hay variables sin nombre detectadas. Revisa tus mapeos.", "system");
-        }
+        if (!nombre) return this.log("❌ Debes asignarle un Nombre a la Plantilla.", "system");
+        if (!JarvisState.archivo) return this.log("❌ Falta el contrato base.", "system");
+        if (JarvisState.reemplazos.length === 0) return this.log("⚠️ No has mapeado ninguna variable.", "system");
         
         document.getElementById('input-nombre-final').value = nombre;
         const dt = new DataTransfer(); dt.items.add(JarvisState.archivo);
         document.getElementById('input-archivo-final').files = dt.files;
-        document.getElementById('input-reemplazos-final').value = JSON.stringify(reemplazosLimpios);
+        document.getElementById('input-reemplazos-final').value = JSON.stringify(JarvisState.reemplazos);
         
-        this.log("Empaquetando formato y sincronizando...", "robot");
-        
-        const btnGuardar = document.getElementById('btn-guardar');
-        btnGuardar.innerHTML = "<i class='fas fa-spinner fa-spin'></i> GUARDANDO...";
-        btnGuardar.disabled = true;
-
+        this.log("Guardando...", "robot");
+        document.getElementById('btn-guardar').innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
+        document.getElementById('btn-guardar').disabled = true;
         document.getElementById('form-final').submit();
     },
 
     sanitizeVarName: (str) => {
         if (!str) return '';
-        return str.toString().trim().toLowerCase()
-                  .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                  .replace(/[^a-z0-9]/g, '_')
-                  .replace(/_+/g, '_')
-                  .replace(/^_|_$/g, ''); 
+        return str.toString().trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, ''); 
     },
 
     setTab(tab) {
-        const buscar = document.getElementById('mode-buscar');
-        const crear = document.getElementById('mode-crear');
-        const tBuscar = document.getElementById('tab-buscar');
-        const tCrear = document.getElementById('tab-crear');
-
+        const buscar = document.getElementById('mode-buscar'), crear = document.getElementById('mode-crear');
+        const tBuscar = document.getElementById('tab-buscar'), tCrear = document.getElementById('tab-crear');
         if(tab === 'buscar') {
             buscar.classList.remove('hidden'); crear.classList.add('hidden');
-            tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors";
+            tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors";
             tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors";
         } else {
             crear.classList.remove('hidden'); buscar.classList.add('hidden');
-            tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors";
+            tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors";
             tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors";
-            
-            setTimeout(() => { document.getElementById('input-clave-nueva').focus(); }, 50);
         }
     },
 
     addGlossaryItem(clave, desc) {
         const div = document.createElement('div');
-        div.className = 'item-glosario p-2 px-3 rounded-lg border border-gray-100 hover:border-purple-200 hover:bg-purple-50 cursor-pointer flex justify-between items-center group transition-all animate__animated animate__fadeIn';
+        div.className = 'item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-purple-300 bg-white shadow-sm transition-all animate__animated animate__fadeIn';
         div.dataset.clave = clave;
         div.innerHTML = `
-            <div class="overflow-hidden">
-                <p class="text-xs font-bold text-slate-700 group-hover:text-purple-800 truncate">${desc}</p>
-                <p class="text-[10px] text-slate-400 font-mono group-hover:text-purple-500 mt-0.5 truncate">${clave}</p>
+            <div class="mb-2">
+                <p class="text-xs font-bold text-slate-700 truncate">${desc}</p>
+                <p class="text-[10px] text-purple-600 font-mono font-bold truncate">${clave}</p>
             </div>
-            <div class="flex gap-1 items-center">
-                <div class="btn-action-list btn-link hover:border-purple-300 hover:text-purple-600 shadow-sm" title="Vincular al texto seleccionado">
-                    <i class="fas fa-link text-[10px] text-gray-300 pointer-events-none"></i>
-                </div>
-                <div class="btn-action-list btn-delete hover:border-red-300 hover:text-red-500 shadow-sm" title="Eliminar variable y desvincular del texto">
-                    <i class="fas fa-trash text-[10px] text-gray-300 pointer-events-none"></i>
-                </div>
+            <div class="flex gap-2">
+                <button class="btn-link flex-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
+                    <i class="fas fa-link pointer-events-none"></i> Vincular
+                </button>
+                <button class="btn-unlink flex-1 bg-amber-50 text-amber-700 hover:bg-amber-500 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
+                    <i class="fas fa-unlink pointer-events-none"></i> Desvincular
+                </button>
+                <button class="btn-delete w-8 bg-red-50 text-red-600 hover:bg-red-600 hover:text-white text-[10px] rounded font-bold transition-colors flex justify-center items-center" title="Eliminar Permanente">
+                    <i class="fas fa-trash pointer-events-none"></i>
+                </button>
             </div>`;
         document.getElementById('lista-glosario').prepend(div);
     },
@@ -784,7 +646,6 @@ const JarvisUI = {
         document.getElementById('panel-header').classList.replace('bg-purple-900', 'bg-slate-900');
     }
 };
-
 document.addEventListener('DOMContentLoaded', () => JarvisUI.init());
 </script>
 {% endverbatim %}
