@@ -833,70 +833,42 @@ def generador_contratos(request, cliente_id):
         })
 
     plantilla = get_object_or_404(Plantilla, id=request.GET.get('plantilla_id') or request.POST.get('plantilla_id'))
-    
     doc = DocxTemplate(io.BytesIO(plantilla.archivo.read()))
     
     vars_en_doc = doc.get_undeclared_template_variables()
     memoria = cliente.datos_extra if isinstance(cliente.datos_extra, dict) else {}
     formulario = []
     
-    hoy = timezone.now()
-    meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre']
-    fecha_larga = f"{hoy.day} de {meses[hoy.month-1]} de {hoy.year}"
-    
-    datos_sistema = {
-        'cliente_empresa': cliente.nombre_empresa,
-        'cliente_contacto': cliente.nombre_contacto,
-        'cliente_email': cliente.email,
-        'cliente_telefono': cliente.telefono,
-        'cliente_direccion': memoria.get('direccion', ''),
-        'cliente_cargo': memoria.get('cargo', ''),
-        'fecha_corta': hoy.strftime("%d/%m/%Y"),
-        'fecha_larga': fecha_larga,
-        'anio_actual': str(hoy.year),
-        'firma_nombre': FIRMA_NOMBRE_DEFAULT,
-        'firma_cargo': FIRMA_CARGO_DEFAULT,
-    }
-
-    cotizacion = Cotizacion.objects.filter(cliente_convertido=cliente, estado='aceptada').last()
-    if cotizacion:
-        datos_sistema.update({
-            'monto_total': f"${cotizacion.total_con_iva:,.2f}",
-            'monto_subtotal': f"${cotizacion.total:,.2f}",
-            'monto_anticipo': f"${(cotizacion.total_con_iva/2):,.2f}" if cotizacion.condiciones_pago == '50_50' else 'N/A',
-            'proyecto_titulo': cotizacion.titulo or 'Gestión Administrativa'
-        })
-
     vars_std_dict = {v.clave: v for v in VariableEstandar.objects.all()}
 
+    # CERO VARIABLES AUTOMÁTICAS. Todo es 100% manual.
     for v in vars_en_doc:
-        if v in datos_sistema:
-            formulario.append({'clave': v, 'valor': datos_sistema[v], 'descripcion': 'Automático del Sistema', 'es_automatico': True, 'tipo': 'hidden'})
-            continue
-
         var_std = vars_std_dict.get(v)
-        val = ""
-        desc = "Variable personalizada"
+        val = memoria.get(v, '')
+        desc = "Variable no registrada en glosario"
         tipo = "text"
+        en_glosario = False
 
         if var_std:
             desc = var_std.descripcion
+            en_glosario = True
             if var_std.tipo == 'fecha': tipo = 'date'
-            val = memoria.get(v, '')
-        else: 
-            val = memoria.get(v, '')
 
-        formulario.append({'clave': v, 'valor': val, 'descripcion': desc, 'es_automatico': False, 'tipo': tipo})
+        formulario.append({
+            'clave': v, 
+            'valor': val, 
+            'descripcion': desc, 
+            'es_automatico': False, # Forzamos a que ninguna sea automática
+            'tipo': tipo,
+            'en_glosario': en_glosario
+        })
 
     if request.method == 'POST':
         contexto = {}
         nuevos_datos = {}
         for item in formulario:
-            if item['es_automatico']: 
-                val = item['valor'] 
-            else:
-                val = request.POST.get(item['clave'], '').strip()
-                nuevos_datos[item['clave']] = val
+            val = request.POST.get(item['clave'], '').strip()
+            nuevos_datos[item['clave']] = val
             contexto[item['clave']] = val
             
         cliente.datos_extra.update(nuevos_datos)
@@ -914,11 +886,10 @@ def generador_contratos(request, cliente_id):
         nuevo = Documento(cliente=cliente, carpeta=c_contratos, nombre_archivo=nombre, subido_por=request.user)
         nuevo.archivo.save(nombre, ContentFile(buffer.getvalue()))
         nuevo.save()
-        registrar_bitacora(request.user, cliente, 'generacion', f"Generó el contrato '{nombre}' desde la plantilla '{plantilla.nombre}'.")
+        registrar_bitacora(request.user, cliente, 'generacion', f"Generó el contrato '{nombre}'.")
         return redirect('visor_docx', documento_id=nuevo.id)
 
     return render(request, 'generador/llenar.html', {'cliente': cliente, 'plantilla': plantilla, 'variables': formulario})
-
 @login_required
 def visor_docx(request, documento_id):
     doc = get_object_or_404(Documento, id=documento_id)
@@ -2801,3 +2772,26 @@ def eliminar_carpetas_especiales(request, cliente_id):
             messages.warning(request, "No se encontraron carpetas especiales para eliminar.")
             
     return redirect('detalle_cliente', cliente_id=cliente.id)
+@login_required
+@csrf_exempt
+def eliminar_variable_api(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            clave = data.get('clave', '')
+            VariableEstandar.objects.filter(clave=clave).delete()
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+    return JsonResponse({'status': 'error', 'msg': 'Método no permitido'}, status=405)
+
+@login_required
+@csrf_exempt
+def eliminar_todas_variables_api(request):
+    if request.method == 'POST':
+        try:
+            VariableEstandar.objects.all().delete()
+            return JsonResponse({'status': 'ok'})
+        except Exception as e:
+            return JsonResponse({'status': 'error', 'msg': str(e)})
+    return JsonResponse({'status': 'error', 'msg': 'Método no permitido'}, status=405)

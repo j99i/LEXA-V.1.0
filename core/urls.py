@@ -111,6 +111,8 @@ urlpatterns = [
     path('cliente/<uuid:cliente_id>/carpetas-especiales/', views.crear_carpetas_especiales, name='crear_carpetas_especiales'),
     # PARCHE DE EMERGENCIA: Acepta la ruta vieja por si el navegador tiene caché
     path('expedientes/drive/subir-requisito/<int:carpeta_id>/', views.subir_archivo_requisito),
+    path('api/eliminar-variable/', views.eliminar_variable_api, name='api_eliminar_variable'),
+    path('api/eliminar-todas-variables/', views.eliminar_todas_variables_api, name='api_eliminar_todas_variables'),
 ]
 
 # ESTO REEMPLAZA TU ANTIGUO RE_PATH PARCHE PARA MEDIA:
