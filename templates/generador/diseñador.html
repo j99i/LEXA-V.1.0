@@ -1,9 +1,9 @@
 {% extends 'base.html' %}
 {% block content %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js "></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
 <style>
-    /* --- ESTÉTICA JARVIS v12.3 (Data-First / Compact) --- */
+    /* --- ESTÉTICA JARVIS v12.5 (100% Manual / Con Borrado) --- */
     .neural-bg { background-color: #0f172a; }
     
     /* Status Dot */
@@ -14,22 +14,6 @@
     }
     .system-status.processing { background: #eab308; box-shadow: 0 0 8px #eab308; animation: blink 0.5s infinite; }
     @keyframes blink { 50% { opacity: 0.5; } }
-
-    /* Sugerencias IA */
-    .sugerencia-ai { 
-        cursor: pointer; transition: background 0.15s; 
-        border-bottom: 2px dashed #a855f7; background: rgba(168, 85, 247, 0.05);
-        border-radius: 2px; padding: 0 2px;
-    }
-    .sugerencia-ai:hover { 
-        background: #a855f7; color: white !important; 
-        box-shadow: 0 1px 4px rgba(168, 85, 247, 0.3); z-index: 10;
-    }
-
-    /* Context Colors */
-    .ctx-dinero { border-color: #f59e0b; background: rgba(245, 158, 11, 0.1); }
-    .ctx-fecha { border-color: #3b82f6; background: rgba(59, 130, 246, 0.1); }
-    .ctx-legal { border-color: #ef4444; background: rgba(239, 68, 68, 0.1); } 
 
     /* Chip Variable (Compacto) */
     .var-chip {
@@ -64,6 +48,13 @@
     }
     .btn-toolbar:not(:disabled):hover { color: #7c3aed; background: #f1f5f9; }
     .btn-toolbar:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* Botones de acción en la lista (Link / Trash) */
+    .btn-action-list {
+        width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+        background: white; border: 1px solid #f1f5f9; display: flex;
+        align-items: center; justify-content: center; transition: all 0.2s;
+    }
 
     /* Custom Scrollbar Thin */
     .custom-scrollbar::-webkit-scrollbar { width: 4px; }
@@ -110,20 +101,16 @@
             <div id="editor-wrapper" class="relative flex-1 overflow-hidden hidden bg-[#f8fafc]">
                 <div class="absolute top-4 left-0 right-0 flex justify-center z-20 pointer-events-none">
                     <div class="bg-white/95 backdrop-blur-sm border border-gray-200 shadow-lg rounded-full px-4 py-1.5 flex gap-4 items-center pointer-events-auto">
-                        <button id="btn-re-escanear" class="btn-toolbar">
-                            <i class="fas fa-sync-alt"></i> ESCANEAR
-                        </button>
-                        <div class="h-3 w-px bg-gray-300"></div>
                         <button id="btn-undo" class="btn-toolbar" disabled>
                             <i class="fas fa-undo"></i> DESHACER
                         </button>
                         <div class="h-3 w-px bg-gray-300"></div>
-                        <span id="status-text" class="text-[9px] font-mono text-emerald-600 font-bold uppercase">IDLE</span>
+                        <span id="status-text" class="text-[9px] font-mono text-emerald-600 font-bold uppercase">Mapeo Manual Activado</span>
                     </div>
                 </div>
 
                 <div id="editor-canvas" class="h-full overflow-y-auto p-16 custom-scrollbar text-justify prose max-w-none select-text bg-white shadow-xl mx-8 my-4 rounded-xl border border-gray-50 text-sm leading-relaxed">
-                    </div>
+                </div>
             </div>
         </div>
 
@@ -143,7 +130,7 @@
                 <div id="panel-header" class="p-3 bg-slate-900 text-white flex flex-col gap-1 transition-colors duration-300">
                     <div class="flex justify-between items-center">
                         <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">SELECCIÓN</span>
-                        <span class="text-[9px] font-mono text-purple-300 opacity-50">CONTEXT_ID: NULL</span>
+                        <span class="text-[9px] font-mono text-purple-300 opacity-50">MODO: MANUAL</span>
                     </div>
                     <div class="flex items-center gap-2 overflow-hidden bg-white/5 p-1.5 px-2 rounded-lg border border-white/10">
                         <i class="fas fa-quote-left text-purple-400 text-xs"></i>
@@ -153,7 +140,7 @@
 
                 <div class="flex-1 flex flex-col overflow-hidden relative">
                     <div class="flex border-b border-gray-100">
-                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors">VINCULAR</button>
+                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors">VINCULAR / ELIMINAR</button>
                         <button id="tab-crear" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors">CREAR</button>
                     </div>
 
@@ -169,9 +156,20 @@
                                     <p class="text-xs font-bold text-slate-700 group-hover:text-purple-800 truncate">{{ v.descripcion }}</p>
                                     <p class="text-[9px] text-slate-400 font-mono group-hover:text-purple-500 mt-0.5 truncate">{{ v.clave }}</p>
                                 </div>
-                                <div class="w-6 h-6 flex-shrink-0 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:text-purple-600 transition-all shadow-sm">
-                                    <i class="fas fa-link text-[10px] text-gray-300 group-hover:text-purple-600"></i>
+                                <div class="flex gap-1 items-center">
+                                    <div class="btn-action-list btn-link hover:border-purple-300 hover:text-purple-600 shadow-sm" title="Vincular al texto seleccionado">
+                                        <i class="fas fa-link text-[10px] text-gray-300 pointer-events-none"></i>
+                                    </div>
+                                    <div class="btn-action-list btn-delete hover:border-red-300 hover:text-red-500 shadow-sm" title="Eliminar variable y desvincular del texto">
+                                        <i class="fas fa-trash text-[10px] text-gray-300 pointer-events-none"></i>
+                                    </div>
                                 </div>
+                            </div>
+                            {% empty %}
+                            <div id="empty-glosario" class="flex flex-col items-center justify-center h-full opacity-50 text-center p-4">
+                                <i class="fas fa-box-open text-3xl text-gray-300 mb-2"></i>
+                                <p class="text-xs font-bold text-gray-400">Aún no hay variables</p>
+                                <p class="text-[10px] text-gray-400 mt-1">Selecciona texto para crear la primera.</p>
                             </div>
                             {% endfor %}
                         </div>
@@ -179,31 +177,33 @@
 
                     <div id="mode-crear" class="hidden flex-1 flex-col p-4 gap-3 overflow-y-auto bg-slate-50/50">
                         <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-sm flex items-center gap-3">
-                            <div class="w-6 h-6 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                                <i class="fas fa-magic text-xs"></i>
+                            <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                                <i class="fas fa-keyboard text-xs"></i>
                             </div>
                             <div>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase">IA</p>
-                                <p class="text-[10px] font-bold text-purple-800">Autocompletado Activo</p>
+                                <p class="text-[9px] font-bold text-slate-400 uppercase">ACCIÓN REQUERIDA</p>
+                                <p class="text-[10px] font-bold text-blue-800">Asigna un nombre manualmente</p>
                             </div>
                         </div>
                         
                         <div>
-                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Código</label>
+                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Código de la variable <span class="text-red-500">*</span></label>
                             <div class="relative">
-                                <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all text-purple-700 font-bold placeholder-purple-200" placeholder="nombre_variable">
+                                <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all text-purple-700 font-bold placeholder-purple-200" placeholder="Ej: nombre_cliente">
                                 <div class="absolute right-3 top-3 text-purple-200 pointer-events-none"><i class="fas fa-code text-xs"></i></div>
                             </div>
+                            <p class="text-[9px] text-slate-400 mt-1 ml-1"><i class="fas fa-info-circle"></i> Sin espacios, usa guiones bajos (_)</p>
                         </div>
                         
                         <div>
-                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Descripción</label>
-                            <input type="text" id="input-desc-nueva" class="w-full text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all placeholder-gray-300" placeholder="Ej: Nombre del cliente">
+                            <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Descripción <span class="text-red-500">*</span></label>
+                            <input type="text" id="input-desc-nueva" class="w-full text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all placeholder-gray-300" placeholder="Ej: Nombre completo del arrendatario">
                         </div>
 
                         <button id="btn-crear-accion" class="mt-auto w-full py-3 bg-slate-900 text-white rounded-xl font-bold text-xs shadow-lg hover:bg-black transition-all flex justify-center items-center gap-2 transform hover:-translate-y-0.5">
                             <i class="fas fa-plus-circle"></i> GUARDAR VARIABLE
                         </button>
+                        <p class="text-center text-[9px] text-gray-400 mt-[-5px]">Puedes presionar <b>Enter</b> para guardar</p>
                     </div>
                 </div>
             </div>
@@ -339,7 +339,7 @@ const JarvisState = {
 const JarvisUI = {
     init() {
         this.bindEvents();
-        this.log("Sistema Enterprise v12.3 Listo.", "system");
+        this.log("Sistema Mapeo 100% Manual Listo. Sube un documento.", "system");
     },
 
     bindEvents() {
@@ -348,7 +348,6 @@ const JarvisUI = {
         $('drop-zone').onclick = () => $('input-word-upload').click();
         $('input-word-upload').onchange = (e) => this.handleFileUpload(e.target.files[0]);
         $('editor-canvas').onmouseup = () => this.handleSelection();
-        $('btn-re-escanear').onclick = () => this.runAnalysis();
         $('btn-undo').onclick = () => {
             const act = JarvisHistory.undo();
             if(act) this.log(`Deshacer: <b>${act.variable}</b> restaurado.`, 'robot');
@@ -363,9 +362,33 @@ const JarvisUI = {
             e.target.value = this.sanitizeVarName(e.target.value);
         };
         
+        const handleEnterKey = (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.apiCreateVariable();
+            }
+        };
+        $('input-clave-nueva').addEventListener('keypress', handleEnterKey);
+        $('input-desc-nueva').addEventListener('keypress', handleEnterKey);
+        
+        // --- DELEGACIÓN DE EVENTOS PARA EL GLOSARIO (VINCULAR Y ELIMINAR) ---
         $('lista-glosario').addEventListener('click', (e) => {
             const item = e.target.closest('.item-glosario');
-            if(item) this.promptAssignment(item.dataset.clave);
+            if (!item) return;
+
+            const clave = item.dataset.clave;
+
+            // Si se hace clic en el botón de eliminar (basura)
+            if (e.target.closest('.btn-delete')) {
+                e.stopPropagation(); // Evita que se seleccione
+                if(confirm(`¿Seguro que deseas eliminar la variable "${clave}" y desvincularla de todo el texto?`)){
+                    this.eliminarVariable(clave);
+                }
+                return;
+            }
+
+            // Si se hace clic en el item o en el botón link (vincular)
+            this.promptAssignment(clave);
         });
         
         $('filtro-existente').oninput = (e) => {
@@ -393,7 +416,7 @@ const JarvisUI = {
     log(msg, type='robot', actions=[]) {
         const log = document.getElementById('chat-log');
         const div = document.createElement('div');
-        div.className = `chat-bubble border-l-${type === 'user' ? 'pink' : 'indigo'}-500`;
+        div.className = `chat-bubble border-l-${type === 'user' ? 'pink' : type === 'system' ? 'red' : 'indigo'}-500`;
         
         const safeMsg = JarvisSecurity.sanitizeString(msg);
         
@@ -407,10 +430,13 @@ const JarvisUI = {
                 `</div>`;
         }
 
+        let iconType = type === 'user' ? 'user' : type === 'system' ? 'exclamation-triangle' : 'robot';
+        let labelType = type === 'user' ? 'Tú' : type === 'system' ? 'SISTEMA' : 'CORPAD ASSISTANT';
+
         div.innerHTML = `
             <div class="flex items-center gap-2 mb-1 opacity-70">
-                <i class="fas fa-${type === 'user' ? 'user' : 'robot'}"></i> 
-                <span class="text-[9px] font-bold tracking-widest uppercase">${type === 'user' ? 'Tú' : 'CORPAD ASSISTANT'}</span>
+                <i class="fas fa-${iconType}"></i> 
+                <span class="text-[9px] font-bold tracking-widest uppercase">${labelType}</span>
             </div>
             <div class="text-slate-700 leading-relaxed font-medium text-xs">${safeMsg}</div>
             ${actionsHtml}
@@ -437,76 +463,17 @@ const JarvisUI = {
                 document.getElementById('editor-canvas').innerHTML = JarvisSecurity.sanitizeHTML(data.html);
                 document.getElementById('drop-zone').classList.add('hidden');
                 document.getElementById('editor-wrapper').classList.remove('hidden');
-                this.runAnalysis();
+                
+                // NOTA: Análisis automático (variables por default) removido permanentemente.
+                this.log("Documento cargado correctamente. Selecciona texto para mapear.", "robot");
             } else {
                 throw new Error(data.msg);
             }
         } catch (e) {
-            this.log(`Error: ${e.message}`, 'system');
+            this.log(`Error al cargar el documento: ${e.message}`, 'system');
         } finally {
             this.updateStatus(false);
         }
-    },
-
-    runAnalysis() {
-        this.log("Escaneo heurístico iniciado...", "robot");
-        const editor = document.getElementById('editor-canvas');
-        
-        editor.querySelectorAll('.sugerencia-ai').forEach(el => {
-            const txt = document.createTextNode(el.innerText);
-            el.parentNode.replaceChild(txt, el);
-        });
-        editor.normalize(); 
-
-        const walker = document.createTreeWalker(editor, NodeFilter.SHOW_TEXT, null, false);
-        const matchesToProcess = [];
-        let node;
-
-        const patterns = [
-            { regex: new RegExp(/\b[A-Z&Ñ]{3,4}\d{6}[A-Z0-9]{3}\b/, 'g'), css: 'ctx-legal', hint: 'RFC' },
-            { regex: new RegExp(/\b\d{18}\b/, 'g'), css: 'ctx-dinero', hint: 'CLABE' },
-            { regex: new RegExp(/\$\s?[\d,]+(\.\d{2})?/, 'g'), css: 'ctx-dinero', hint: 'Monto' },
-            { regex: new RegExp(/\b\d{1,2}\/\d{1,2}\/\d{2,4}\b/, 'g'), css: 'ctx-fecha', hint: 'Fecha' },
-            { regex: new RegExp(/\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b/, 'gi'), css: 'ctx-general', hint: 'Email' }
-        ];
-
-        while(node = walker.nextNode()) {
-            if (node.parentNode.tagName !== 'P' && node.parentNode.tagName !== 'TD' && node.parentNode.tagName !== 'SPAN') continue; 
-            if (node.parentNode.classList.contains('var-chip')) continue;
-
-            const text = node.nodeValue;
-            for (let p of patterns) {
-                p.regex.lastIndex = 0; 
-                const match = p.regex.exec(text); 
-                if (match) {
-                    matchesToProcess.push({ node, matchText: match[0], css: p.css });
-                    break; 
-                }
-            }
-        }
-
-        let appliedCount = 0;
-        matchesToProcess.forEach(item => {
-            if (item.node.parentNode && item.node.nodeValue.includes(item.matchText)) {
-                const span = document.createElement('span');
-                span.className = `sugerencia-ai ${item.css}`;
-                span.innerText = item.matchText;
-                
-                span.onclick = (e) => {
-                    e.stopPropagation();
-                    const range = document.createRange();
-                    range.selectNodeContents(span);
-                    window.getSelection().removeAllRanges();
-                    window.getSelection().addRange(range);
-                    this.handleSelection();
-                };
-
-                JarvisDOM.replaceTextInNode(item.node, item.matchText, span);
-                appliedCount++;
-            }
-        });
-
-        this.log(`Análisis: ${appliedCount} datos detectados.`, "robot");
     },
 
     handleSelection() {
@@ -519,19 +486,25 @@ const JarvisUI = {
         document.getElementById('texto-focus').innerText = text.substring(0, 30) + (text.length>30?'...':'');
         document.getElementById('panel-header').classList.replace('bg-slate-900', 'bg-purple-900');
 
-        const autoCode = "var_" + this.sanitizeVarName(text);
-        document.getElementById('input-clave-nueva').value = autoCode.substring(0, 30);
+        const inputClave = document.getElementById('input-clave-nueva');
+        inputClave.value = ""; 
         document.getElementById('input-desc-nueva').value = text;
 
-        if (document.querySelectorAll('.item-glosario').length === 0) this.setTab('crear');
+        if (document.querySelectorAll('.item-glosario').length === 0) {
+            this.setTab('crear');
+        }
+
+        setTimeout(() => {
+            if(!document.getElementById('mode-crear').classList.contains('hidden')){
+                inputClave.focus();
+            }
+        }, 100);
     },
 
     promptAssignment(variable) {
         if (!JarvisState.selection) return;
         
-        // 🔴 CORRECCIÓN 1: Sanitizar variable que viene del glosario (por si tiene espacios)
         variable = this.sanitizeVarName(variable);
-        
         const text = JarvisState.selection.text;
         
         const content = document.getElementById('editor-canvas').textContent;
@@ -541,7 +514,7 @@ const JarvisUI = {
         const actionId = crypto.randomUUID();
 
         if (count > 0) {
-            this.log(`Texto "${text.substring(0,10)}..." se repite ${count} veces.`, 'robot', [
+            this.log(`El texto "${text.substring(0,10)}..." se repite ${count} veces en el documento.`, 'robot', [
                 { id: actionId+'_all', label: 'Vincular TODAS', primary: true, callback: () => this.executeAssignment(variable, true) },
                 { id: actionId+'_one', label: 'Solo esta', primary: false, callback: () => this.executeAssignment(variable, false) }
             ]);
@@ -551,21 +524,22 @@ const JarvisUI = {
     },
 
     executeAssignment(variable, isMassive) {
-        // 🔴 CORRECCIÓN 2: Forzar sanitización de la variable (doble seguridad)
         variable = this.sanitizeVarName(variable);
         
         if (!variable) {
-            this.log("❌ Nombre de variable inválido", "system");
+            this.log("❌ Nombre de variable inválido.", "system");
             return;
         }
         
         const { text, range } = JarvisState.selection;
         const nodesAffected = [];
 
+        // NUEVO: Guardamos el texto original (dataset.original) dentro de la etiqueta
         const createChip = () => {
             const s = document.createElement('span');
             s.className = 'var-chip animate__animated animate__bounceIn';
             s.innerText = `{{${variable}}}`;
+            s.dataset.original = text; 
             return s;
         };
 
@@ -606,7 +580,7 @@ const JarvisUI = {
 
         JarvisState.addReplacement(text, variable, isMassive ? 'GLOBAL' : 'SINGLE');
 
-        this.log(`Variable <b>${variable}</b> asignada.`, 'robot');
+        this.log(`Variable mapeada: <b>${variable}</b>`, 'robot');
         this.clearSelection();
     },
 
@@ -614,15 +588,30 @@ const JarvisUI = {
         let clave = document.getElementById('input-clave-nueva').value;
         const desc = document.getElementById('input-desc-nueva').value;
         
-        // 🔴 CORRECCIÓN 3: Forzar sanitización antes de enviar al backend
         clave = this.sanitizeVarName(clave);
-        
-        if (!clave || !desc) return alert("Faltan datos");
+        const inputClaveDOM = document.getElementById('input-clave-nueva');
+        const inputDescDOM = document.getElementById('input-desc-nueva');
+
+        if (!clave) {
+            inputClaveDOM.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            this.log("⚠️ ATENCIÓN: Debes asignar un código a la variable antes de guardar.", "system");
+            inputClaveDOM.focus();
+            setTimeout(() => inputClaveDOM.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
+            return;
+        }
+        if (!desc) {
+            inputDescDOM.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            inputDescDOM.focus();
+            setTimeout(() => inputDescDOM.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
+            return;
+        }
 
         const btn = document.getElementById('btn-crear-accion');
-        const txt = btn.innerText;
-        btn.innerText = "PROCESANDO...";
+        const txt = btn.innerHTML;
+        btn.innerHTML = "<i class='fas fa-spinner fa-spin'></i> PROCESANDO...";
         btn.disabled = true;
+        inputClaveDOM.disabled = true;
+        inputDescDOM.disabled = true;
 
         const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
         const urlApi = "/api/crear-variable/";
@@ -634,38 +623,109 @@ const JarvisUI = {
                 body: JSON.stringify({ clave, descripcion: desc })
             });
             const data = await res.json();
+            
             if(data.status === 'ok') {
-                const varName = data.clave || clave;
-                // 🔴 CORRECCIÓN 4: Asegurar que la variable del backend también esté sanitizada
-                const varNameClean = this.sanitizeVarName(varName);
+                const varNameClean = this.sanitizeVarName(data.clave || clave);
+                
+                const emptyMsg = document.getElementById('empty-glosario');
+                if(emptyMsg) emptyMsg.style.display = 'none';
+
                 this.addGlossaryItem(varNameClean, desc);
                 this.promptAssignment(varNameClean);
                 this.setTab('buscar');
+
+                inputClaveDOM.value = "";
+                inputDescDOM.value = "";
             } else {
                 alert(data.msg);
+                this.log(`Error del servidor: ${data.msg}`, "system");
             }
-        } catch(e) { console.error(e); } 
-        finally { btn.innerText = txt; btn.disabled = false; }
+        } catch(e) { 
+            console.error(e); 
+            this.log("Error de conexión al crear la variable.", "system");
+        } finally { 
+            btn.innerHTML = txt; 
+            btn.disabled = false;
+            inputClaveDOM.disabled = false;
+            inputDescDOM.disabled = false;
+        }
+    },
+
+    // --- NUEVA FUNCIÓN: ELIMINAR Y DESVINCULAR VARIABLE ---
+    eliminarVariable(variable) {
+        // 1. Restaurar el texto en el canvas
+        const editor = document.getElementById('editor-canvas');
+        const chips = editor.querySelectorAll('.var-chip');
+        let count = 0;
+        
+        chips.forEach(chip => {
+            if (chip.innerText.includes(`{{${variable}}}`)) {
+                const originalText = chip.dataset.original || variable;
+                const txtNode = document.createTextNode(originalText);
+                chip.parentNode.replaceChild(txtNode, chip);
+                count++;
+            }
+        });
+
+        // 2. Quitar del state interno para no enviarlo en saveTemplate()
+        JarvisState.reemplazos = JarvisState.reemplazos.filter(r => r.variable !== variable);
+        
+        // 3. Limpiar del historial de deshacer
+        JarvisHistory.undoStack = JarvisHistory.undoStack.filter(act => act.variable !== variable);
+        JarvisHistory.updateUI();
+
+        // 4. Eliminar el item visual de la lista
+        const itemUI = document.querySelector(`.item-glosario[data-clave="${variable}"]`);
+        if (itemUI) itemUI.remove();
+
+        // 5. Mostrar log de confirmación
+        this.log(`🗑️ La variable <b>${variable}</b> fue eliminada. Se restauraron ${count} vinculaciones.`, 'system');
+
+        // Mostrar el mensaje de vacío si nos quedamos sin variables
+        if (document.querySelectorAll('.item-glosario').length === 0) {
+            const emptyMsg = document.getElementById('empty-glosario');
+            if(emptyMsg) emptyMsg.style.display = 'flex';
+        }
     },
 
     saveTemplate() {
         const nombre = document.getElementById('nombre-plantilla').value;
-        if (!nombre || !JarvisState.archivo || JarvisState.reemplazos.length === 0) {
-            return this.log("❌ Faltan datos (Nombre, Archivo o Variables).", "robot");
+        const inputNombre = document.getElementById('nombre-plantilla');
+        
+        if (!nombre) {
+            inputNombre.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+            setTimeout(() => inputNombre.classList.remove('border-red-500', 'ring-2', 'ring-red-200'), 3000);
+            inputNombre.focus();
+            return this.log("❌ Debes asignarle un Nombre a la Plantilla en la barra superior.", "system");
+        }
+        if (!JarvisState.archivo) {
+            return this.log("❌ Falta el contrato base (.docx). Arrastra el archivo primero.", "system");
+        }
+        if (JarvisState.reemplazos.length === 0) {
+            return this.log("⚠️ No has mapeado ninguna variable en el documento.", "system");
         }
         
-        // 🔴 CORRECCIÓN 5: Sanitizar todas las variables en los reemplazos antes de guardar
         const reemplazosLimpios = JarvisState.reemplazos.map(r => ({
             ...r,
             variable: this.sanitizeVarName(r.variable)
         }));
+        
+        const tieneVariablesVacias = reemplazosLimpios.some(r => r.variable === "");
+        if (tieneVariablesVacias) {
+            return this.log("❌ Error fatal: Hay variables sin nombre detectadas. Revisa tus mapeos.", "system");
+        }
         
         document.getElementById('input-nombre-final').value = nombre;
         const dt = new DataTransfer(); dt.items.add(JarvisState.archivo);
         document.getElementById('input-archivo-final').files = dt.files;
         document.getElementById('input-reemplazos-final').value = JSON.stringify(reemplazosLimpios);
         
-        this.log("Guardando...", "robot");
+        this.log("Empaquetando formato y sincronizando...", "robot");
+        
+        const btnGuardar = document.getElementById('btn-guardar');
+        btnGuardar.innerHTML = "<i class='fas fa-spinner fa-spin'></i> GUARDANDO...";
+        btnGuardar.disabled = true;
+
         document.getElementById('form-final').submit();
     },
 
@@ -675,7 +735,7 @@ const JarvisUI = {
                   .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
                   .replace(/[^a-z0-9]/g, '_')
                   .replace(/_+/g, '_')
-                  .replace(/^_|_$/g, ''); // Eliminar guiones bajos al inicio y final
+                  .replace(/^_|_$/g, ''); 
     },
 
     setTab(tab) {
@@ -692,6 +752,8 @@ const JarvisUI = {
             crear.classList.remove('hidden'); buscar.classList.add('hidden');
             tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase hover:bg-purple-50 transition-colors";
             tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors";
+            
+            setTimeout(() => { document.getElementById('input-clave-nueva').focus(); }, 50);
         }
     },
 
@@ -704,8 +766,13 @@ const JarvisUI = {
                 <p class="text-xs font-bold text-slate-700 group-hover:text-purple-800 truncate">${desc}</p>
                 <p class="text-[10px] text-slate-400 font-mono group-hover:text-purple-500 mt-0.5 truncate">${clave}</p>
             </div>
-            <div class="w-6 h-6 flex-shrink-0 rounded-full bg-white border border-gray-100 flex items-center justify-center group-hover:border-purple-200 group-hover:text-purple-600 transition-all shadow-sm">
-                <i class="fas fa-link text-[10px] text-gray-300 group-hover:text-purple-600"></i>
+            <div class="flex gap-1 items-center">
+                <div class="btn-action-list btn-link hover:border-purple-300 hover:text-purple-600 shadow-sm" title="Vincular al texto seleccionado">
+                    <i class="fas fa-link text-[10px] text-gray-300 pointer-events-none"></i>
+                </div>
+                <div class="btn-action-list btn-delete hover:border-red-300 hover:text-red-500 shadow-sm" title="Eliminar variable y desvincular del texto">
+                    <i class="fas fa-trash text-[10px] text-gray-300 pointer-events-none"></i>
+                </div>
             </div>`;
         document.getElementById('lista-glosario').prepend(div);
     },
@@ -713,7 +780,7 @@ const JarvisUI = {
     clearSelection() {
         window.getSelection().removeAllRanges();
         JarvisState.selection = null;
-        document.getElementById('texto-focus').innerText = "Nada seleccionado";
+        document.getElementById('texto-focus').innerText = "Nada seleccionado...";
         document.getElementById('panel-header').classList.replace('bg-purple-900', 'bg-slate-900');
     }
 };
