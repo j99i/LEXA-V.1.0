@@ -2400,21 +2400,53 @@ def reemplazar_preservando_estilo(doc, texto_original, texto_nuevo):
     if not texto_original or not texto_nuevo:
         return
 
-    for p in doc.paragraphs:
-        if texto_original in p.text:
-            for run in p.runs:
-                if texto_original in run.text:
-                    run.text = run.text.replace(texto_original, texto_nuevo)
+    # Normalizamos el texto original (quitamos espacios extra en los extremos)
+    texto_original = texto_original.strip()
+    
+    # Convertimos el texto en un "patrón inteligente" que ignore si Word puso
+    # dobles espacios, espacios invisibles (\xa0) o saltos raros entre las palabras.
+    # Ej: "TOMO 45" se vuelve "TOMO\s+45"
+    patron_busqueda = re.escape(texto_original).replace(r'\ ', r'\s+')
 
+    def procesar_parrafo(p):
+        # 1. Juntamos todo el texto del párrafo para saber si la frase existe,
+        # sin importar si Word la partió en pedacitos ocultos (runs).
+        texto_completo = "".join(run.text for run in p.runs)
+        
+        # Si la frase está en el párrafo...
+        if re.search(patron_busqueda, texto_completo, flags=re.IGNORECASE):
+            
+            # Intento A: Reemplazo perfecto. 
+            # Si la frase está completa dentro de un solo "run", la cambiamos ahí mismo.
+            reemplazado_limpio = False
+            for run in p.runs:
+                if re.search(patron_busqueda, run.text, flags=re.IGNORECASE):
+                    run.text = re.sub(patron_busqueda, texto_nuevo, run.text, flags=re.IGNORECASE)
+                    reemplazado_limpio = True
+                    break
+            
+            # Intento B: Fuerza Bruta. 
+            # Word partió la palabra (ej. run1="TOMO ", run2="45").
+            # Juntamos todo el texto, aplicamos la variable, lo metemos en el primer bloque 
+            # y vaciamos los demás para que no se duplique.
+            if not reemplazado_limpio:
+                nuevo_texto = re.sub(patron_busqueda, texto_nuevo, texto_completo, flags=re.IGNORECASE)
+                for i, run in enumerate(p.runs):
+                    if i == 0:
+                        run.text = nuevo_texto
+                    else:
+                        run.text = ""
+
+    # Escanear texto normal
+    for p in doc.paragraphs:
+        procesar_parrafo(p)
+
+    # Escanear texto dentro de tablas (que es donde suelen estar estos datos)
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 for p in cell.paragraphs:
-                    if texto_original in p.text:
-                        for run in p.runs:
-                            if texto_original in run.text:
-                                run.text = run.text.replace(texto_original, texto_nuevo)
-
+                    procesar_parrafo(p)
 @login_required
 def generar_contrato_final(request):
     if request.method == 'POST':
