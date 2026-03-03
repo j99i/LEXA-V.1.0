@@ -3,7 +3,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
 
 <style>
-    /* --- ESTÉTICA JARVIS v12.7 (Auto-Código / Descripción Manual / Ultra UX) --- */
+    /* --- ESTÉTICA JARVIS v12.8 (Full UX / Anti-Errores / Multi-Match) --- */
     .neural-bg { background-color: #0f172a; }
     
     .system-status {
@@ -34,6 +34,15 @@
     }
     @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
+    .chat-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+    .chat-btn {
+        padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 10px;
+        cursor: pointer; border: 1px solid #e2e8f0; background: #f8fafc; color: #475569;
+        transition: all 0.2s;
+    }
+    .chat-btn.primary { background: #7c3aed; color: white; border-color: #7c3aed; }
+    .chat-btn:hover { filter: brightness(0.95); transform: translateY(-1px); }
+
     .btn-toolbar { 
         font-size: 10px; font-weight: bold; display: flex; align-items: center; gap: 4px;
         color: #64748b; transition: all 0.2s; padding: 4px 8px; border-radius: 4px;
@@ -63,7 +72,7 @@
         <div class="flex gap-2">
             <input type="text" id="nombre-plantilla" placeholder="Nombre de la Plantilla..." class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-1 focus:ring-purple-500 outline-none block w-64 p-2 font-bold transition-all">
             <button id="btn-guardar" class="text-white bg-slate-900 hover:bg-black font-bold rounded-lg text-[10px] px-4 py-2 shadow-md flex items-center gap-2 transition-transform active:scale-95">
-                <i class="fas fa-save"></i> GUARDAR
+                <i class="fas fa-save"></i> GUARDAR PLANTILLA
             </button>
         </div>
     </div>
@@ -101,7 +110,7 @@
             <div class="h-[35%] bg-slate-50 rounded-2xl shadow-inner border border-gray-200 flex flex-col overflow-hidden relative">
                 <div class="p-2 px-3 bg-white border-b border-gray-100 flex justify-between items-center shadow-sm z-10">
                     <span class="font-black text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-terminal text-purple-600"></i> Terminal
+                        <i class="fas fa-terminal text-purple-600"></i> Terminal de Eventos
                     </span>
                     <button id="btn-limpiar-log" class="text-gray-300 hover:text-red-400 hover:bg-gray-50 p-1 rounded transition-colors" title="Limpiar Terminal"><i class="fas fa-eraser text-xs"></i></button>
                 </div>
@@ -122,7 +131,7 @@
 
                 <div class="flex-1 flex flex-col overflow-hidden relative">
                     <div class="flex border-b border-gray-100">
-                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors">GLOSARIO / VINCULAR</button>
+                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors">GLOSARIO DE VARIABLES</button>
                         <button id="tab-crear" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors">NUEVA VARIABLE</button>
                     </div>
 
@@ -245,18 +254,20 @@ const JarvisDOM = {
 };
 
 const JarvisState = {
-    reemplazos: [], archivo: null, selection: null,
+    reemplazos: [], archivo: null, selection: null, actionRegistry: new Map(),
     addReplacement(texto, variable, modo) { this.reemplazos.push({ texto_original: texto, variable, modo }); },
     removeReplacement(variable, texto) {
         const idx = this.reemplazos.findIndex(r => r.variable === variable && r.texto_original === texto);
         if (idx > -1) this.reemplazos.splice(idx, 1);
-    }
+    },
+    registerAction(id, callback) { this.actionRegistry.set(id, callback); },
+    triggerAction(id) { if (this.actionRegistry.has(id)) { this.actionRegistry.get(id)(); this.actionRegistry.delete(id); } }
 };
 
 const JarvisUI = {
     init() {
         this.bindEvents();
-        this.log("Sistema Mapeo 100% Manual Listo.", "system");
+        this.log("Sistema Mapeo 100% Manual Listo. Sube un documento Word.", "system");
     },
 
     bindEvents() {
@@ -315,7 +326,7 @@ const JarvisUI = {
 
         // EVENTO DEL BOTON NUCLEAR (BORRAR TODAS)
         $('btn-nuke-vars').onclick = async () => {
-            if(!confirm("🛑 ALERTA MÁXIMA 🛑\n\nEstás a punto de ELIMINAR TODAS LAS VARIABLES DE LA BASE DE DATOS del sistema.\n\nEsto no se puede recuperar. ¿Estás absolutamente seguro?")) return;
+            if(!confirm("🛑 ALERTA MÁXIMA 🛑\n\nEstás a punto de ELIMINAR TODAS LAS VARIABLES DE LA BASE DE DATOS.\n\nEsto no se puede recuperar. ¿Estás absolutamente seguro?")) return;
             
             const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
             const btn = $('btn-nuke-vars');
@@ -331,7 +342,7 @@ const JarvisUI = {
                 if(data.status === 'ok') {
                     document.querySelectorAll('.item-glosario').forEach(el => {
                         const clave = el.dataset.clave;
-                        this.desvincularVariable(clave, true); // modo silencioso
+                        this.desvincularVariable(clave, true);
                         el.remove();
                     });
                     this.log(`💣 BOOM: TODAS las variables fueron eliminadas de la Base de Datos.`, 'system');
@@ -354,11 +365,21 @@ const JarvisUI = {
         }
     },
 
-    log(msg, type='robot') {
+    log(msg, type='robot', actions=[]) {
         const log = document.getElementById('chat-log');
         const div = document.createElement('div');
         div.className = `chat-bubble border-l-${type === 'user' ? 'pink' : type === 'system' ? 'red' : 'indigo'}-500`;
         const safeMsg = JarvisSecurity.sanitizeString(msg);
+        
+        let actionsHtml = '';
+        if (actions.length > 0) {
+            actionsHtml = `<div class="chat-actions">` + 
+                actions.map(a => {
+                    JarvisState.registerAction(a.id, a.callback);
+                    return `<button class="chat-btn ${a.primary?'primary':''}" onclick="JarvisState.triggerAction('${a.id}')">${a.label}</button>`;
+                }).join('') + `</div>`;
+        }
+
         let iconType = type === 'user' ? 'user' : type === 'system' ? 'exclamation-triangle' : 'robot';
         let labelType = type === 'user' ? 'Tú' : type === 'system' ? 'SISTEMA' : 'CORPAD ASSISTANT';
 
@@ -368,6 +389,7 @@ const JarvisUI = {
                 <span class="text-[9px] font-bold tracking-widest uppercase">${labelType}</span>
             </div>
             <div class="text-slate-700 leading-relaxed font-medium text-xs">${safeMsg}</div>
+            ${actionsHtml}
         `;
         log.prepend(div);
     },
@@ -385,32 +407,48 @@ const JarvisUI = {
                 document.getElementById('editor-canvas').innerHTML = JarvisSecurity.sanitizeHTML(data.html);
                 document.getElementById('drop-zone').classList.add('hidden');
                 document.getElementById('editor-wrapper').classList.remove('hidden');
-                this.log("Documento cargado. Selecciona texto para mapear.", "robot");
+                this.log("Documento cargado. Selecciona un dato en el texto para comenzar a mapear.", "robot");
             } else throw new Error(data.msg);
         } catch (e) { this.log(`Error: ${e.message}`, 'system'); } finally { this.updateStatus(false); }
     },
 
     handleSelection() {
-        const sel = window.getSelection(); const text = sel.toString().trim();
+        const sel = window.getSelection(); 
+        let text = sel.toString().trim();
         if (!text) return;
+
+        // 🚨 ESCUDO 1: Bloquear saltos de línea (Enters) para no romper Word
+        if (text.includes('\n') || text.includes('\r')) {
+            this.clearSelection();
+            return this.log(`⚠️ <b>¡Selección Inválida!</b> Agarraste un salto de línea (Enter).<br>Word no permite reemplazar párrafos rotos. Por favor, selecciona solo los datos exactos y en una sola línea (ej. no selecciones "Estado de [enter] México").`, "system");
+        }
+
+        // 🧹 ESCUDO 2: Convertir espacios dobles o saltos ocultos a un solo espacio para que haga match
+        text = text.replace(/\s+/g, ' ');
+
+        // 🔒 ESCUDO 3: Candado de Contexto (Evita seleccionar solo "45" o "12")
+        const esSoloNumero = /^\d+$/.test(text.replace(/[.,$%\s]/g, '')); 
+        
+        if (esSoloNumero || text.length <= 2) {
+            this.clearSelection();
+            return this.log(`⚠️ <b>¡Contexto Insuficiente!</b> Seleccionaste "<b>${text}</b>".<br>Para blindar el contrato, selecciona la frase con una palabra antes o después (ej. "el día 12" o "la cantidad de $45"). Si vinculas solo un número corto, el sistema podría arruinar otras partes del documento al intentar adivinar.`, "system");
+        }
+
+        // --- Todo Seguro, Procede a Mapear ---
         JarvisState.selection = { text, range: sel.getRangeAt(0).cloneRange() };
         document.getElementById('texto-focus').innerText = text.substring(0, 30) + (text.length>30?'...':'');
         document.getElementById('panel-header').classList.replace('bg-slate-900', 'bg-purple-900');
         
-        // UX 1: Auto-generar código limitando tamaño
+        // UX: Auto-generar código
         const autoCode = "var_" + this.sanitizeVarName(text);
         const inputClave = document.getElementById('input-clave-nueva');
         const inputDesc = document.getElementById('input-desc-nueva');
         
         inputClave.value = autoCode.substring(0, 40); // 40 caracteres max
-        
-        // UX 2: Forzar descripción vacía para obligar al usuario a pensarla
-        inputDesc.value = "";
+        inputDesc.value = ""; // Forzar a escribir la descripción
 
-        // UX 3: Cambiar a la pestaña de crear automáticamente
         this.setTab('crear');
 
-        // UX 4: Foco inmediato en el input vacío para que escriban de inmediato
         setTimeout(() => {
             if(!document.getElementById('mode-crear').classList.contains('hidden')){
                 inputDesc.focus();
@@ -420,7 +458,26 @@ const JarvisUI = {
 
     promptAssignment(variable) {
         if (!JarvisState.selection) return this.log("⚠️ Selecciona un texto en el documento primero.", "system");
-        this.executeAssignment(variable, true); // Vincula todas las coincidencias directo
+        
+        variable = this.sanitizeVarName(variable);
+        const text = JarvisState.selection.text;
+        
+        // 🤖 ASISTENTE PREGUNTÓN: Contar las coincidencias exactas
+        const content = document.getElementById('editor-canvas').textContent;
+        const escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const matchCount = (content.match(new RegExp(escaped, 'gi')) || []).length;
+
+        const actionId = crypto.randomUUID();
+
+        if (matchCount > 1) {
+            this.log(`El texto "<b>${text.substring(0,15)}${text.length>15?'...':''}</b>" se repite <b>${matchCount} veces</b> en el documento.<br>¿Deseas vincular TODAS las coincidencias automáticamente?`, 'robot', [
+                { id: actionId+'_all', label: `Sí, Vincular las ${matchCount}`, primary: true, callback: () => this.executeAssignment(variable, true) },
+                { id: actionId+'_one', label: 'No, Solo la que subrayé', primary: false, callback: () => this.executeAssignment(variable, false) }
+            ]);
+        } else {
+            // Si solo hay 1, la vincula directamente para ahorrar clicks
+            this.executeAssignment(variable, false);
+        }
     },
 
     executeAssignment(variable, isMassive) {
@@ -435,7 +492,7 @@ const JarvisUI = {
             s.className = 'var-chip animate__animated animate__bounceIn';
             s.innerText = `{{${variable}}}`;
             s.dataset.original = text;
-            s.title = "Clic para DESVINCULAR este dato en específico";
+            s.title = "Clic para desvincular este dato en específico";
             s.onclick = (e) => { e.stopPropagation(); this.desvincularChipIndividual(s, variable, text); };
             return s;
         };
@@ -466,7 +523,7 @@ const JarvisUI = {
 
         JarvisHistory.pushAction({ variable, originalText: text, isMassive, nodes: nodesAffected });
         JarvisState.addReplacement(text, variable, 'GLOBAL');
-        this.log(`✅ Variable <b>${variable}</b> vinculada a ${nodesAffected.length} elementos.`, 'robot');
+        this.log(`✅ Variable <b>${variable}</b> vinculada a ${nodesAffected.length} elemento(s).`, 'robot');
         this.clearSelection();
     },
 
@@ -486,7 +543,6 @@ const JarvisUI = {
             return;
         }
 
-        // UX 5: Bloqueo fuerte si la descripción está vacía
         if (!desc.trim()) {
             inputDescDOM.classList.add('border-red-500', 'ring-2', 'ring-red-200');
             this.log("⚠️ DEBES ESCRIBIR LA DESCRIPCIÓN MANUALMENTE PARA GUARDAR.", "system");
@@ -512,7 +568,6 @@ const JarvisUI = {
                 this.addGlossaryItem(clave, desc);
                 if (JarvisState.selection) this.promptAssignment(clave);
                 
-                // UX 6: Limpiar y volver a la lista
                 this.setTab('buscar');
                 inputClaveDOM.value = "";
                 inputDescDOM.value = "";
@@ -520,7 +575,6 @@ const JarvisUI = {
         } catch(e) { console.error(e); } finally { btn.innerHTML = txt; btn.disabled = false; }
     },
 
-    // DESVINCULAR TODAS LAS DE ESE TIPO
     desvincularVariable(variable, silencioso = false) {
         const editor = document.getElementById('editor-canvas');
         const chips = editor.querySelectorAll('.var-chip');
@@ -544,19 +598,16 @@ const JarvisUI = {
         }
     },
 
-    // DESVINCULAR SOLO UN CHIP (AL HACER CLIC EN LA ETIQUETA EN EL DOCUMENTO)
     desvincularChipIndividual(chip, variable, textoOriginal) {
         const txtNode = document.createTextNode(textoOriginal);
         chip.parentNode.replaceChild(txtNode, chip);
         this.log(`🔗 Se desvinculó una ocurrencia de <b>${variable}</b>.`, 'robot');
-        // Limpiar de la lista de envíos si ya no hay más en el canvas
         const quedan = document.getElementById('editor-canvas').querySelector(`.var-chip:contains('{{${variable}}}')`);
         if(!quedan) {
             JarvisState.reemplazos = JarvisState.reemplazos.filter(r => r.variable !== variable);
         }
     },
 
-    // ELIMINAR DEFINITIVAMENTE DE LA BD
     async eliminarVariableDefinitiva(variable) {
         const token = document.querySelector('[name=csrfmiddlewaretoken]').value;
         try {
@@ -567,7 +618,7 @@ const JarvisUI = {
             });
             const data = await res.json();
             if(data.status === 'ok') {
-                this.desvincularVariable(variable, true); // Quita del texto sin hacer ruido
+                this.desvincularVariable(variable, true); 
                 const itemUI = document.querySelector(`.item-glosario[data-clave="${variable}"]`);
                 if (itemUI) itemUI.remove();
                 this.log(`🗑️ Variable <b>${variable}</b> eliminada de la Base de Datos.`, 'system');
@@ -582,7 +633,7 @@ const JarvisUI = {
 
     saveTemplate() {
         const nombre = document.getElementById('nombre-plantilla').value;
-        if (!nombre) return this.log("❌ Debes asignarle un Nombre a la Plantilla.", "system");
+        if (!nombre) return this.log("❌ Debes asignarle un Nombre a la Plantilla en la barra superior.", "system");
         if (!JarvisState.archivo) return this.log("❌ Falta el contrato base.", "system");
         if (JarvisState.reemplazos.length === 0) return this.log("⚠️ No has mapeado ninguna variable.", "system");
         
@@ -591,8 +642,8 @@ const JarvisUI = {
         document.getElementById('input-archivo-final').files = dt.files;
         document.getElementById('input-reemplazos-final').value = JSON.stringify(JarvisState.reemplazos);
         
-        this.log("Guardando...", "robot");
-        document.getElementById('btn-guardar').innerHTML = "<i class='fas fa-spinner fa-spin'></i>";
+        this.log("Guardando Plantilla y Sincronizando...", "robot");
+        document.getElementById('btn-guardar').innerHTML = "<i class='fas fa-spinner fa-spin'></i> GUARDANDO...";
         document.getElementById('btn-guardar').disabled = true;
         document.getElementById('form-final').submit();
     },
