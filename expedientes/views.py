@@ -1885,10 +1885,11 @@ def buscar_cliente_api(request):
     if len(query) < 2:
         return JsonResponse([], safe=False)
     
+    # 🌟 AQUÍ SE QUITÓ EL [:5] PARA QUE LLEGUEN TODAS LAS SUCURSALES AL MODAL
     clientes_encontrados = Cliente.objects.filter(
         Q(nombre_empresa__icontains=query) | 
         Q(nombre_contacto__icontains=query)
-    )[:5]
+    )
 
     resultados = []
     for c in clientes_encontrados:
@@ -1909,7 +1910,6 @@ def buscar_cliente_api(request):
         })
 
     return JsonResponse(resultados, safe=False)
-
 @login_required
 def generar_link_externo(request, cliente_id):
     cliente = get_object_or_404(Cliente, id=cliente_id)
