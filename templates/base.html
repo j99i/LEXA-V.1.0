@@ -290,8 +290,7 @@
                                 <a href="{% url 'detalle_cliente' t.cliente.id %}"
                                     class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-red-200">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-xs font-bold text-[#08142C] leading-tight">{{ t.titulo
-                                            }}</span>
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight">{{ t.titulo }}</span>
                                         <span
                                             class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded whitespace-nowrap ml-2 shrink-0">Vence
                                             Hoy</span>
@@ -311,10 +310,8 @@
                                 <a href="{% if e.cliente %}{% url 'detalle_cliente' e.cliente.id %}{% else %}{% url 'agenda_legal' %}{% endif %}"
                                     class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-blue-200">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ e.titulo
-                                            }}</span>
-                                        <span class="text-[9px] font-bold text-blue-500 shrink-0">{{ e.inicio|date:"d/m
-                                            H:i" }}</span>
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ e.titulo }}</span>
+                                        <span class="text-[9px] font-bold text-blue-500 shrink-0">{{ e.inicio|date:"d/m H:i" }}</span>
                                     </div>
                                     <p class="text-[9px] text-gray-500 truncate mt-1">
                                         <i
@@ -334,10 +331,8 @@
                                 <a href="{% url 'finanzas_cliente' c.cliente.id %}"
                                     class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-amber-200">
                                     <div class="flex justify-between items-center">
-                                        <span class="text-xs font-bold text-[#08142C] truncate pr-2">{{
-                                            c.cliente.nombre_empresa }}</span>
-                                        <span class="text-xs font-black text-amber-600 shrink-0">${{ c.saldo_pendiente
-                                            }}</span>
+                                        <span class="text-xs font-bold text-[#08142C] truncate pr-2">{{ c.cliente.nombre_empresa }}</span>
+                                        <span class="text-xs font-black text-amber-600 shrink-0">${{ c.saldo_pendiente }}</span>
                                     </div>
                                     <p class="text-[9px] text-gray-500 truncate mt-1"><i
                                             class="fas fa-file-invoice-dollar mr-1"></i>{{ c.concepto }}</p>
@@ -354,11 +349,9 @@
                                 <a href="{% url 'detalle_cliente' aud.solicitud__cliente__id %}"
                                     class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-cyan-300">
                                     <div class="flex justify-between items-start">
-                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{
-                                            aud.solicitud__cliente__nombre_empresa }}</span>
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ aud.solicitud__cliente__nombre_empresa }}</span>
                                         <span
-                                            class="text-[9px] font-bold text-white bg-cyan-500 px-1.5 py-0.5 rounded shrink-0">{{
-                                            aud.total_archivos }} archivo(s)</span>
+                                            class="text-[9px] font-bold text-white bg-cyan-500 px-1.5 py-0.5 rounded shrink-0">{{ aud.total_archivos }} archivo(s)</span>
                                     </div>
                                     <p class="text-[9px] text-cyan-600 font-bold mt-1"><i
                                             class="fas fa-microscope mr-1"></i>Requiere revisión</p>
@@ -374,10 +367,8 @@
                 <a href="{% url 'mi_perfil' %}"
                     class="flex items-center gap-4 group cursor-pointer border-l border-gray-200 pl-6">
                     <div class="text-right hidden md:block">
-                        <p class="text-xs font-bold text-[#08142C] group-hover:text-[#00A3FF] transition-colors">{{
-                            user.get_full_name|default:user.username }}</p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ user.get_rol_display
-                            }}</p>
+                        <p class="text-xs font-bold text-[#08142C] group-hover:text-[#00A3FF] transition-colors">{{ user.get_full_name|default:user.username }}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ user.get_rol_display }}</p>
                     </div>
                     <div
                         class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00A3FF] to-[#00E5FF] p-[2px] shadow-md overflow-hidden group-hover:scale-105 transition-transform">
