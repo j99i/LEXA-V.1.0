@@ -2834,6 +2834,7 @@ def eliminar_todas_variables_api(request):
 @requiere_permiso('access_cotizaciones')
 @transaction.atomic
 def editar_cotizacion(request, cotizacion_id):
+    # 1. Quitamos el 'prefetch_related' para evitar que Django guarde en caché los servicios viejos
     c = get_object_or_404(Cotizacion, id=cotizacion_id)
     
     if c.estado != 'borrador':
@@ -2841,22 +2842,81 @@ def editar_cotizacion(request, cotizacion_id):
         return redirect('detalle_cotizacion', cotizacion_id=c.id)
 
     if request.method == 'POST':
-        # Actualizar datos básicos de 'c' (titulo, descuentos, etc.)
+        # Actualizar datos básicos
         c.titulo = request.POST.get('titulo')
-        # ... (Actualizas todos los campos como en nueva_cotizacion)
+        c.prospecto_empresa = request.POST.get('prospecto_empresa')
+        c.prospecto_nombre = request.POST.get('prospecto_nombre')
+        c.prospecto_email = request.POST.get('prospecto_email')
+        c.prospecto_telefono = request.POST.get('prospecto_telefono')
+        c.prospecto_direccion = request.POST.get('prospecto_direccion')
+        c.prospecto_cargo = request.POST.get('prospecto_cargo')
+        
+        validez = request.POST.get('validez_hasta')
+        c.validez_hasta = validez if validez else None
+        
+        c.condiciones_pago = request.POST.get('condiciones_pago', '50_50')
+        c.tiempo_entrega = request.POST.get('tiempo_entrega', '30_dias')
+
+        # Finanzas / Impuestos (Limpiamos comas por si acaso)
+        porcentaje_str = request.POST.get('porcentaje_descuento', '0').replace(',', '')
+        try: c.porcentaje_descuento = Decimal(porcentaje_str)
+        except: c.porcentaje_descuento = Decimal('0.00')
+
+        c.aplica_iva = request.POST.get('aplica_iva') == 'on'
+        tasa_str = request.POST.get('porcentaje_iva_personalizado', '16').replace(',', '')
+        try: c.porcentaje_iva = Decimal(tasa_str)
+        except: c.porcentaje_iva = Decimal('16.00')
+
         c.save()
 
-        # Borrar los items viejos y meter los nuevos
+        # 2. Borrar los items viejos y reconstruir
         c.items.all().delete()
+
+        servicios_ids = request.POST.getlist('servicios_seleccionados')
+        cantidades = request.POST.getlist('cantidades')
+        precios = request.POST.getlist('precios_personalizados')
+        descripciones = request.POST.getlist('descripciones_personalizadas')
         
-        # ... (Aquí pegas la misma lógica que tienes en nueva_cotizacion 
-        # para recorrer los 'servicios_seleccionados' y hacer el bulk_create de ItemCotizacion)
+        items_to_create = []
+        servicios_db = {str(s.id): s for s in Servicio.objects.filter(id__in=servicios_ids)}
+
+        for i in range(len(servicios_ids)):
+            s_id = servicios_ids[i]
+            if s_id and s_id in servicios_db:
+                servicio = servicios_db[s_id]
+                cantidad_str = cantidades[i] if i < len(cantidades) else '1'
+                precio_str = precios[i] if i < len(precios) else '0'
+                desc = descripciones[i] if i < len(descripciones) else ''
+                
+                try: cantidad = int(cantidad_str)
+                except ValueError: cantidad = 1
+                    
+                # 3. IMPORTANTE: Quitar comas y espacios antes de convertir a Decimal
+                precio_str = precio_str.replace(',', '').replace(' ', '')
+                try: precio_u = Decimal(precio_str)
+                except ValueError: precio_u = Decimal('0.00')
+                
+                subtotal_calculado = Decimal(cantidad) * precio_u
+                
+                items_to_create.append(ItemCotizacion(
+                    cotizacion=c,
+                    servicio=servicio,
+                    cantidad=cantidad,
+                    precio_unitario=precio_u,
+                    subtotal=subtotal_calculado,
+                    descripcion_personalizada=desc
+                ))
         
+        if items_to_create:
+            ItemCotizacion.objects.bulk_create(items_to_create)
+            
+        # 4. LA MAGIA: Forzar a Django a refrescar la memoria desde la BD antes de calcular
+        # Así se da cuenta de que ya hay items nuevos y no suma cero
+        c.refresh_from_db()
         c.calcular_totales()
+
         messages.success(request, 'Cotización actualizada exitosamente.')
         return redirect('detalle_cotizacion', cotizacion_id=c.id)
 
     servicios = Servicio.objects.all()
-    # Tendrás que hacer un template 'cotizaciones/editar.html' (una copia de crear.html 
-    # pero rellenando los values con los datos de 'c')
-    return render(request, 'cotizaciones/editar.html', {'c': c, 'servicios': servicios})
+    return render(request, 'cotizaciones/editar_cotizacion.html', {'c': c, 'servicios': servicios})
