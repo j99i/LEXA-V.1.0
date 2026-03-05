@@ -64,7 +64,7 @@
         <div class="relative w-full md:w-72 group px-2 md:px-0 pb-2 md:pb-0">
             <i class="fas fa-search absolute left-5 md:left-3 top-1/2 -translate-y-1/2 md:-translate-y-1/2 mb-1 md:mb-0 text-gray-300 group-focus-within:text-[#A855F7] transition-colors" aria-hidden="true"></i>
             <input type="text" id="buscador-cotizaciones" placeholder="Buscar cliente o folio..." 
-                   class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#2D1B4B] focus:bg-white focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 outline-none transition-all shadow-inner focus:shadow-sm">
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#2D1B4B] focus:bg-white focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 outline-none transition-all shadow-inner focus:shadow-sm">
         </div>
     </div>
 
@@ -135,6 +135,12 @@
                                 <a href="{% url 'detalle_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-purple-50 text-[#A855F7] flex items-center justify-center hover:bg-[#A855F7] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500" title="Ver Detalles" aria-label="Ver Detalles de Cotización">
                                     <i class="fas fa-eye text-xs" aria-hidden="true"></i>
                                 </a>
+
+                                {% if c.estado == 'borrador' %}
+                                <a href="{% url 'editar_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-blue-50 text-blue-500 flex items-center justify-center hover:bg-blue-500 hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500" title="Editar Borrador" aria-label="Editar Borrador">
+                                    <i class="fas fa-pen text-xs" aria-hidden="true"></i>
+                                </a>
+                                {% endif %}
                                 
                                 <button type="button" onclick="abrirModalEliminar({{ c.id }}, '{{ c.prospecto_empresa|default:c.prospecto_nombre|escapejs }}')" 
                                         class="w-8 h-8 rounded-lg bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-red-500"
