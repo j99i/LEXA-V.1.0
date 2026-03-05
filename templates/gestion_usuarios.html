@@ -70,7 +70,7 @@
                             <div class="flex items-center gap-4">
                                 <div class="relative shrink-0">
                                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-sm border border-gray-100 transition-transform group-hover:scale-110 group-hover:rotate-3
-                                        {% if u.rol == 'admin' %}bg-gradient-to-br from-[#08142C] to-[#1E1233] text-[#C0A062]
+                                        {% if u.rol == 'admin' %}bg-gradient-to-br from-[#08142C] to-[#050D1C] text-[#C0A062]
                                         {% elif not u.is_active %}bg-gray-100 text-gray-400
                                         {% else %}bg-cyan-50 text-[#00A3FF]{% endif %}">
                                         {{ u.username|first|upper }}
@@ -91,7 +91,7 @@
                         <td class="p-6">
                             <div class="flex flex-col items-start gap-1">
                                 <span class="px-3 py-1.5 text-[10px] font-black rounded-lg uppercase tracking-widest border
-                                    {% if u.rol == 'admin' %}bg-[#08142C] text-[#C0A062] border-[#1E1233] shadow-sm
+                                    {% if u.rol == 'admin' %}bg-[#08142C] text-[#C0A062] border-[#050D1C] shadow-sm
                                     {% elif u.rol == 'analista_sr' %}bg-blue-50 text-blue-600 border-blue-100
                                     {% else %}bg-gray-50 text-gray-600 border-gray-200{% endif %}">
                                     {% if u.rol == 'admin' %}👑 {% endif %}{{ u.get_rol_display }}
