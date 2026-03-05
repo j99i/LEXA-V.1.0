@@ -113,6 +113,8 @@ urlpatterns = [
     path('expedientes/drive/subir-requisito/<int:carpeta_id>/', views.subir_archivo_requisito),
     path('api/eliminar-variable/', views.eliminar_variable_api, name='api_eliminar_variable'),
     path('api/eliminar-todas-variables/', views.eliminar_todas_variables_api, name='api_eliminar_todas_variables'),
+    path('cotizaciones/<int:cotizacion_id>/editar/', views.editar_cotizacion, name='editar_cotizacion'),
+    path('cotizaciones/<int:cotizacion_id>/editar/', views.editar_cotizacion, name='editar_cotizacion'),
 ]
 
 # ESTO REEMPLAZA TU ANTIGUO RE_PATH PARCHE PARA MEDIA:

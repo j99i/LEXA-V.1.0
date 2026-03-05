@@ -15,6 +15,7 @@
                        class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#2D1B4B] placeholder-gray-300 focus:border-[#A855F7] focus:outline-none py-2 pl-8 transition-all"
                        placeholder="Ej. Licencia 2026 - Coca Cola" autofocus>
             </div>
+            <p class="text-[10px] text-gray-400 mt-2 font-bold">💡 Si seleccionas varias sucursales, el sistema agregará automáticamente su nombre al final de este título.</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -29,7 +30,7 @@
                     
                     <div class="space-y-4">
                         <div class="relative">
-                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="input-empresa">Empresa *</label>
+                            <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="input-empresa">Empresa / Sucursales *</label>
                             <input type="text" id="input-empresa" name="prospecto_empresa" autocomplete="off" required
                                    class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B] transition-colors" 
                                    placeholder="Buscar o escribir...">
@@ -40,6 +41,8 @@
 
                             <ul id="lista-sugerencias" role="listbox" class="hidden absolute z-50 w-full bg-white border border-gray-100 rounded-xl shadow-2xl mt-1 max-h-60 overflow-y-auto custom-scrollbar"></ul>
                         </div>
+
+                        <div id="contenedor-chips-sucursales" class="flex flex-wrap gap-2 empty:hidden py-2 border-b border-gray-100"></div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_nombre">Contacto *</label>
@@ -232,6 +235,10 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
 
+    // === LÓGICA DE SUCURSALES (MULTI-SELECT) ===
+    let sucursalesSeleccionadas = [];
+    const contenedorChips = document.getElementById('contenedor-chips-sucursales');
+
     // === REFERENCIAS DOM ===
     const formCotizacion = document.getElementById('form-cotizacion');
     const contenedorItems = document.getElementById('contenedor-items');
@@ -422,6 +429,12 @@ document.addEventListener('DOMContentLoaded', () => {
             e.preventDefault();
             return false;
         }
+        
+        // Si hay sucursales seleccionadas, quitamos la validación "required" del campo empresa para que el form se envíe bien
+        if (sucursalesSeleccionadas.length > 0) {
+            inputEmpresa.removeAttribute('required');
+        }
+
         btnSubmit.disabled = true;
         btnSubmit.querySelector('.icon-normal').classList.add('hidden');
         btnSubmit.querySelector('.icon-loading').classList.remove('hidden');
@@ -470,6 +483,12 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(debounceTimer);
         const query = this.value.trim();
         indexSeleccionado = -1; 
+        
+        // Lógica: Si el usuario borra todo o hay sucursales, controlamos el atributo 'name'
+        if (query.length === 0 && sucursalesSeleccionadas.length === 0) {
+            inputEmpresa.name = "prospecto_empresa";
+            inputEmpresa.setAttribute('required', 'required');
+        }
 
         if (query.length < 2) { 
             listaSugerencias.classList.add('hidden'); 
@@ -497,7 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         // Creación segura de elementos
                         const iconDiv = document.createElement('div');
                         iconDiv.className = "bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0";
-                        iconDiv.innerHTML = '<i class="fas fa-history" aria-hidden="true"></i>'; 
+                        iconDiv.innerHTML = '<i class="fas fa-building" aria-hidden="true"></i>'; 
                         
                         const textDiv = document.createElement('div');
                         textDiv.className = "flex-1 min-w-0";
@@ -508,7 +527,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         
                         const pNombre = document.createElement('p');
                         pNombre.className = "text-xs text-gray-400 truncate";
-                        pNombre.textContent = cliente.prospecto_nombre; 
+                        pNombre.textContent = cliente.prospecto_nombre || 'Sin contacto asignado'; 
                         
                         textDiv.appendChild(pEmpresa);
                         textDiv.appendChild(pNombre);
@@ -517,12 +536,47 @@ document.addEventListener('DOMContentLoaded', () => {
                         li.appendChild(textDiv);
 
                         li.addEventListener('click', () => {
-                            inputEmpresa.value = cliente.prospecto_empresa || '';
-                            document.getElementById('prospecto_nombre').value = cliente.prospecto_nombre || '';
-                            document.getElementById('prospecto_email').value = cliente.prospecto_email || '';
-                            document.getElementById('prospecto_telefono').value = cliente.prospecto_telefono || '';
-                            document.getElementById('prospecto_cargo').value = cliente.prospecto_cargo || '';
-                            document.getElementById('prospecto_direccion').value = cliente.prospecto_direccion || '';
+                            // --- LÓGICA DE SUCURSALES (MÚLTIPLES) ---
+                            if (cliente.id) {
+                                if (!sucursalesSeleccionadas.includes(cliente.id)) {
+                                    sucursalesSeleccionadas.push(cliente.id);
+                                    
+                                    // Crear el Chip Visual manteniendo tus estilos
+                                    const chip = document.createElement('div');
+                                    chip.className = "inline-flex items-center gap-2 bg-purple-100 text-[#2D1B4B] px-3 py-1.5 rounded-xl text-sm font-bold border border-purple-200 animate__animated animate__fadeIn";
+                                    chip.innerHTML = `
+                                        <i class="fas fa-store text-[#A855F7] text-xs"></i> ${cliente.prospecto_empresa}
+                                        <button type="button" class="text-purple-400 hover:text-red-500 font-black focus:outline-none ml-1 transition-colors" aria-label="Quitar sucursal">&times;</button>
+                                        <input type="hidden" name="sucursales_seleccionadas" value="${cliente.id}">
+                                    `;
+                                    
+                                    // Lógica para remover el chip
+                                    chip.querySelector('button').onclick = function(e) {
+                                        e.stopPropagation();
+                                        sucursalesSeleccionadas = sucursalesSeleccionadas.filter(id => id !== cliente.id);
+                                        chip.remove();
+                                        if(sucursalesSeleccionadas.length === 0) {
+                                            inputEmpresa.name = "prospecto_empresa"; 
+                                            inputEmpresa.setAttribute('required', 'required');
+                                        }
+                                    };
+                                    
+                                    contenedorChips.appendChild(chip);
+                                }
+                                // Limpiar buscador para agregar más
+                                inputEmpresa.value = ''; 
+                                inputEmpresa.name = ""; // Quitamos el name para no enviar basura manual al backend
+                                inputEmpresa.removeAttribute('required');
+                                inputEmpresa.placeholder = "Buscar más sucursales...";
+                            } else {
+                                // --- LÓGICA MANUAL (UNA SOLA) ---
+                                inputEmpresa.value = cliente.prospecto_empresa || '';
+                                document.getElementById('prospecto_nombre').value = cliente.prospecto_nombre || '';
+                                document.getElementById('prospecto_email').value = cliente.prospecto_email || '';
+                                document.getElementById('prospecto_telefono').value = cliente.prospecto_telefono || '';
+                                document.getElementById('prospecto_cargo').value = cliente.prospecto_cargo || '';
+                                document.getElementById('prospecto_direccion').value = cliente.prospecto_direccion || '';
+                            }
                             listaSugerencias.classList.add('hidden');
                         });
                         

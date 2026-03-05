@@ -1093,20 +1093,17 @@ def lista_cotizaciones(request):
 @transaction.atomic
 def nueva_cotizacion(request):
     if request.method == 'POST':
-        titulo = request.POST.get('titulo')
+        titulo_base = request.POST.get('titulo')
         
-        prospecto_empresa = request.POST.get('prospecto_empresa')
-        prospecto_nombre = request.POST.get('prospecto_nombre')
-        prospecto_email = request.POST.get('prospecto_email')
-        prospecto_telefono = request.POST.get('prospecto_telefono')
-        prospecto_direccion = request.POST.get('prospecto_direccion')
-        prospecto_cargo = request.POST.get('prospecto_cargo')
+        # 1. Extraer todos los datos generales (Finanzas y Configuración)
+        prospecto_empresa_base = request.POST.get('prospecto_empresa')
+        prospecto_nombre_base = request.POST.get('prospecto_nombre')
+        prospecto_email_base = request.POST.get('prospecto_email')
+        prospecto_telefono_base = request.POST.get('prospecto_telefono')
+        prospecto_direccion_base = request.POST.get('prospecto_direccion')
+        prospecto_cargo_base = request.POST.get('prospecto_cargo')
         validez = request.POST.get('validez_hasta')
         
-        if not titulo:
-            cliente_ref = prospecto_empresa if prospecto_empresa else prospecto_nombre
-            titulo = f"Cotización para {cliente_ref}"
-
         porcentaje_str = request.POST.get('porcentaje_descuento', '0')
         try: porcentaje_descuento = Decimal(porcentaje_str)
         except: porcentaje_descuento = Decimal('0.00')
@@ -1115,79 +1112,120 @@ def nueva_cotizacion(request):
         tasa_str = request.POST.get('porcentaje_iva_personalizado', '16')
         try: tasa_iva = Decimal(tasa_str)
         except: tasa_iva = Decimal('16.00')
+        
+        condiciones_pago = request.POST.get('condiciones_pago', '50_50')
+        tiempo_entrega = request.POST.get('tiempo_entrega', '30_dias')
 
-        cotizacion = Cotizacion.objects.create(
-            titulo=titulo,
-            prospecto_empresa=prospecto_empresa,
-            prospecto_nombre=prospecto_nombre,
-            prospecto_email=prospecto_email,
-            prospecto_telefono=prospecto_telefono,
-            prospecto_direccion=prospecto_direccion,
-            prospecto_cargo=prospecto_cargo,
-            porcentaje_descuento=porcentaje_descuento,
-            validez_hasta=validez if validez else None,
-            condiciones_pago=request.POST.get('condiciones_pago', '50_50'),
-            tiempo_entrega=request.POST.get('tiempo_entrega', '30_dias'),
-            aplica_iva=aplica_iva,
-            porcentaje_iva=tasa_iva,
-            creado_por=request.user
-        )
-
+        # 2. Extraer datos de los servicios/items
         servicios_ids = request.POST.getlist('servicios_seleccionados')
         cantidades = request.POST.getlist('cantidades')
         precios = request.POST.getlist('precios_personalizados')
         descripciones = request.POST.getlist('descripciones_personalizadas')
-
-        items_to_create = []
         servicios_db = {str(s.id): s for s in Servicio.objects.filter(id__in=servicios_ids)}
 
-        # Iteración segura por índices para evitar que un array más corto rompa el guardado
-        for i in range(len(servicios_ids)):
-            s_id = servicios_ids[i]
-            
-            if s_id and s_id in servicios_db:
-                servicio = servicios_db[s_id]
-                
-                # Extracción segura con fallback a valores por defecto
-                cantidad_str = cantidades[i] if i < len(cantidades) else '1'
-                precio_str = precios[i] if i < len(precios) else '0'
-                desc = descripciones[i] if i < len(descripciones) else ''
-                
-                try: 
-                    cantidad = int(cantidad_str)
-                except ValueError: 
-                    cantidad = 1
-                    
-                try: 
-                    precio_u = Decimal(precio_str)
-                except ValueError: 
-                    precio_u = Decimal('0.00')
-                
-                # Calcular subtotal manualmente para que bulk_create lo registre
-                subtotal_calculado = Decimal(cantidad) * precio_u
-                
-                items_to_create.append(ItemCotizacion(
-                    cotizacion=cotizacion,
-                    servicio=servicio,
-                    cantidad=cantidad,
-                    precio_unitario=precio_u,
-                    subtotal=subtotal_calculado,
-                    descripcion_personalizada=desc
-                ))
+        # 3. ---> LÓGICA DE SUCURSALES MÚLTIPLES <---
+        sucursales_ids = request.POST.getlist('sucursales_seleccionadas')
         
-        # Guardar todo en bloque
-        if items_to_create:
-            ItemCotizacion.objects.bulk_create(items_to_create)
-            
-        # Recalcular totales generales de la cotización
-        cotizacion.calcular_totales()
+        # Si no seleccionaron ninguna casilla (creación manual o simple), creamos una lista con un 'None' para dar 1 sola vuelta
+        lista_iteracion = sucursales_ids if sucursales_ids else [None]
+        cotizaciones_creadas = []
 
-        messages.success(request, 'Cotización creada exitosamente.')
-        return redirect('detalle_cotizacion', cotizacion_id=cotizacion.id)
+        for suc_id in lista_iteracion:
+            # A) Definir a nombre de quién va esta cotización
+            if suc_id:
+                # Caso: Es una sucursal seleccionada del Checkbox
+                sucursal = Cliente.objects.get(id=suc_id)
+                empresa = sucursal.nombre_empresa
+                nombre = sucursal.nombre_contacto or prospecto_nombre_base
+                email = sucursal.email or prospecto_email_base
+                telefono = sucursal.telefono or prospecto_telefono_base
+                
+                # Rescatar dirección si la tiene, si no, usa la del formulario general
+                datos_extra = sucursal.datos_extra if isinstance(sucursal.datos_extra, dict) else {}
+                direccion = datos_extra.get('direccion', prospecto_direccion_base)
+                cargo = datos_extra.get('cargo', prospecto_cargo_base)
+                
+                # Ajustamos el título para saber de qué sucursal es este borrador
+                titulo = f"{titulo_base} - {empresa}" if titulo_base else f"Cotización para {empresa}"
+            else:
+                # Caso: Creación normal / manual
+                empresa = prospecto_empresa_base
+                nombre = prospecto_nombre_base
+                email = prospecto_email_base
+                telefono = prospecto_telefono_base
+                direccion = prospecto_direccion_base
+                cargo = prospecto_cargo_base
+                
+                if not titulo_base:
+                    cliente_ref = empresa if empresa else nombre
+                    titulo = f"Cotización para {cliente_ref}"
+                else:
+                    titulo = titulo_base
+
+            # B) Generar el Borrador Principal
+            cotizacion = Cotizacion.objects.create(
+                titulo=titulo,
+                prospecto_empresa=empresa,
+                prospecto_nombre=nombre,
+                prospecto_email=email,
+                prospecto_telefono=telefono,
+                prospecto_direccion=direccion,
+                prospecto_cargo=cargo,
+                porcentaje_descuento=porcentaje_descuento,
+                validez_hasta=validez if validez else None,
+                condiciones_pago=condiciones_pago,
+                tiempo_entrega=tiempo_entrega,
+                aplica_iva=aplica_iva,
+                porcentaje_iva=tasa_iva,
+                estado='borrador', # <--- Siempre nace como borrador
+                creado_por=request.user
+            )
+
+            # C) Vincularle los items a este borrador
+            items_to_create = []
+            for i in range(len(servicios_ids)):
+                s_id = servicios_ids[i]
+                if s_id and s_id in servicios_db:
+                    servicio = servicios_db[s_id]
+                    cantidad_str = cantidades[i] if i < len(cantidades) else '1'
+                    precio_str = precios[i] if i < len(precios) else '0'
+                    desc = descripciones[i] if i < len(descripciones) else ''
+                    
+                    try: cantidad = int(cantidad_str)
+                    except ValueError: cantidad = 1
+                        
+                    try: precio_u = Decimal(precio_str)
+                    except ValueError: precio_u = Decimal('0.00')
+                    
+                    subtotal_calculado = Decimal(cantidad) * precio_u
+                    
+                    items_to_create.append(ItemCotizacion(
+                        cotizacion=cotizacion,
+                        servicio=servicio,
+                        cantidad=cantidad,
+                        precio_unitario=precio_u,
+                        subtotal=subtotal_calculado,
+                        descripcion_personalizada=desc
+                    ))
+            
+            if items_to_create:
+                ItemCotizacion.objects.bulk_create(items_to_create)
+                
+            cotizacion.calcular_totales()
+            cotizaciones_creadas.append(cotizacion)
+
+        # 4. Decidir a dónde enviar al usuario
+        if len(cotizaciones_creadas) > 1:
+            # Si se crearon varias, lo mejor es llevarlo a la lista general
+            messages.success(request, f'¡Excelente! Se generaron {len(cotizaciones_creadas)} borradores independientes exitosamente.')
+            return redirect('lista_cotizaciones')
+        else:
+            # Si solo se creó una, lo llevamos al detalle como siempre
+            messages.success(request, 'Borrador de cotización creado exitosamente.')
+            return redirect('detalle_cotizacion', cotizacion_id=cotizaciones_creadas[0].id)
 
     servicios = Servicio.objects.all()
     return render(request, 'cotizaciones/crear.html', {'servicios': servicios})
-
 @login_required
 def detalle_cotizacion(request, cotizacion_id):
     c = get_object_or_404(
@@ -1265,65 +1303,36 @@ def convertir_a_cliente(request, cotizacion_id):
         return redirect('detalle_cotizacion', cotizacion_id=c.id)
     
     if c.cliente_convertido:
-        messages.warning(request, f"Esta cotización ya es un cliente.")
+        messages.warning(request, "Esta cotización ya es un cliente.")
         return redirect('detalle_cliente', cliente_id=c.cliente_convertido.id)
 
-    # Limpiar items no seleccionados
-    items_aceptados_ids = request.POST.getlist('items_seleccionados')
-    items_a_borrar = ItemCotizacion.objects.filter(cotizacion=c).exclude(id__in=items_aceptados_ids)
-    if items_a_borrar.exists():
-        items_a_borrar.delete()
-        c.calcular_totales()
-        c.refresh_from_db()
+    # 1. IDENTIFICAR O CREAR AL CLIENTE (De esta cotización específica)
+    nombre_busqueda = c.prospecto_empresa if c.prospecto_empresa else c.prospecto_nombre
+    cliente_actual = Cliente.objects.filter(nombre_empresa__iexact=nombre_busqueda).first()
+    
+    if not cliente_actual:
+        cliente_actual = Cliente.objects.create(
+            nombre_empresa=nombre_busqueda,
+            nombre_contacto=c.prospecto_nombre,
+            email=c.prospecto_email,
+            telefono=c.prospecto_telefono,
+            datos_extra={'direccion': c.prospecto_direccion, 'cargo': c.prospecto_cargo}
+        )
+        if request.user.rol != 'admin':
+            request.user.clientes_asignados.add(cliente_actual)
 
-    # ---> 1. OBTENER SUCURSALES SELECCIONADAS <---
-    sucursales_ids = request.POST.getlist('sucursales_seleccionadas')
-    clientes_afectados = list(Cliente.objects.filter(id__in=sucursales_ids))
-
-    if not clientes_afectados:
-        # Si no seleccionó ninguna (o es cliente nuevo), creamos uno normal
-        nombre_busqueda = c.prospecto_empresa if c.prospecto_empresa else c.prospecto_nombre
-        cli = Cliente.objects.filter(nombre_empresa__iexact=nombre_busqueda).first()
-        if not cli:
-            cli = Cliente.objects.create(
-                nombre_empresa=nombre_busqueda,
-                nombre_contacto=c.prospecto_nombre,
-                email=c.prospecto_email,
-                telefono=c.prospecto_telefono,
-                datos_extra={'direccion': c.prospecto_direccion, 'cargo': c.prospecto_cargo}
-            )
-            if request.user.rol != 'admin':
-                request.user.clientes_asignados.add(cli)
-        clientes_afectados.append(cli)
-
-    # El "Cliente Matriz" (al que se le cobra) será el primero de la lista
-    cliente_principal = clientes_afectados[0]
-
-    # ---> 2. FINANZAS: SE COBRA UNA SOLA VEZ (AL CLIENTE PRINCIPAL) <---
+    # 2. FINANZAS (Se le cobra solo a este cliente)
     monto_final = c.total_con_iva if c.aplica_iva else c.total
     hoy = timezone.now().date()
-    
-    dias_plazo = 15
-    if c.tiempo_entrega == '30_dias': dias_plazo = 30
-    elif c.tiempo_entrega == '60_dias': dias_plazo = 60
-    elif c.tiempo_entrega == '90_dias': dias_plazo = 90
-        
-    fecha_final_proyecto = hoy + timedelta(days=dias_plazo)
+    # ... (Aquí dejas tu misma lógica de if c.condiciones_pago == '50_50' etc, 
+    # pero usando 'cliente=cliente_actual' en vez de 'cliente_principal')
 
-    if c.condiciones_pago == '50_50':
-        mitad = monto_final / Decimal(2)
-        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"50% Anticipo - {c.titulo}", monto_total=mitad, saldo_pendiente=mitad, fecha_vencimiento=hoy, estado='pendiente')
-        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"50% Liquidación - {c.titulo}", monto_total=mitad, saldo_pendiente=mitad, fecha_vencimiento=fecha_final_proyecto, estado='pendiente')
-    elif c.condiciones_pago == '100_entrega':
-        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"Pago Contra Entrega - {c.titulo}", monto_total=monto_final, saldo_pendiente=monto_final, fecha_vencimiento=fecha_final_proyecto, estado='pendiente')
-    else: 
-        CuentaPorCobrar.objects.create(cliente=cliente_principal, cotizacion=c, concepto=f"Pago de Contado - {c.titulo}", monto_total=monto_final, saldo_pendiente=monto_final, fecha_vencimiento=hoy, estado='pendiente')
-
-
-    # ---> 3. OPERACIÓN: SE CREAN CARPETAS EN TODAS LAS SUCURSALES <---
+    # 3. CREAR CARPETAS (Solo para este cliente)
     carpetas_seleccionadas = request.POST.getlist('carpetas_seleccionadas')
+    for nombre_carpeta in carpetas_seleccionadas:
+        Carpeta.objects.get_or_create(nombre=nombre_carpeta, cliente=cliente_actual, defaults={'es_expediente': False})
     
-    # Renderizamos el PDF solo una vez en memoria
+    # Renderizar y guardar el PDF final
     html_string = render_to_string('cotizaciones/pdf_template.html', {'c': c})
     html = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri())
     pdf_content = html.write_pdf()
@@ -1331,27 +1340,20 @@ def convertir_a_cliente(request, cotizacion_id):
     nombre_safe = slugify(c.titulo or f"v1_{c.id}").replace("-", "_")
     nombre_archivo = f"Cotizacion_{c.id}_{nombre_safe}_FINAL.pdf"
 
-    for cli_sucursal in clientes_afectados:
-        # Crea solo las carpetas seleccionadas (respeta las que ya existan)
-        for nombre_carpeta in carpetas_seleccionadas:
-            Carpeta.objects.get_or_create(nombre=nombre_carpeta, cliente=cli_sucursal, defaults={'es_expediente': False})
-        
-        # Guarda el PDF en su respectiva carpeta
-        carpeta_cotizaciones, _ = Carpeta.objects.get_or_create(nombre="Cotizaciones", cliente=cli_sucursal, defaults={'es_expediente': False})
-        if not Documento.objects.filter(carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo).exists():
-            nuevo_doc = Documento(cliente=cli_sucursal, carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo, subido_por=request.user)
-            nuevo_doc.archivo.save(nombre_archivo, ContentFile(pdf_content))
-            nuevo_doc.save()
+    carpeta_cotizaciones, _ = Carpeta.objects.get_or_create(nombre="Cotizaciones", cliente=cliente_actual, defaults={'es_expediente': False})
+    
+    nuevo_doc = Documento(cliente=cliente_actual, carpeta=carpeta_cotizaciones, nombre_archivo=nombre_archivo, subido_por=request.user)
+    nuevo_doc.archivo.save(nombre_archivo, ContentFile(pdf_content))
+    nuevo_doc.save()
 
-    # 4. Finalizar cotización
+    # 4. FINALIZAR
     c.estado = 'aceptada'
-    c.cliente_convertido = cliente_principal
+    c.cliente_convertido = cliente_actual
     c.save()
 
-    registrar_bitacora(request.user, cliente_principal, 'creacion', f"Convirtió cotización corporativa para {len(clientes_afectados)} sucursales.")
-    messages.success(request, f"¡Trato corporativo cerrado! Se armaron los expedientes en {len(clientes_afectados)} sucursal(es).")
-    return redirect('detalle_cliente', cliente_id=cliente_principal.id)
-
+    registrar_bitacora(request.user, cliente_actual, 'creacion', f"Aceptó cotización y armó expediente.")
+    messages.success(request, f"¡Trato cerrado! Se armó el expediente para {cliente_actual.nombre_empresa}.")
+    return redirect('detalle_cliente', cliente_id=cliente_actual.id)
 @login_required
 def enviar_cotizacion_email(request, cotizacion_id):
     cotizacion = get_object_or_404(Cotizacion.objects.prefetch_related('items__servicio'), id=cotizacion_id)
@@ -1897,6 +1899,7 @@ def buscar_cliente_api(request):
             cargo = c.datos_extra.get('cargo', '')
 
         resultados.append({
+            'id': str(c.id),
             'prospecto_empresa': c.nombre_empresa,
             'prospecto_nombre': c.nombre_contacto,
             'prospecto_email': c.email,
@@ -2827,3 +2830,33 @@ def eliminar_todas_variables_api(request):
         except Exception as e:
             return JsonResponse({'status': 'error', 'msg': str(e)})
     return JsonResponse({'status': 'error', 'msg': 'Método no permitido'}, status=405)
+@login_required
+@requiere_permiso('access_cotizaciones')
+@transaction.atomic
+def editar_cotizacion(request, cotizacion_id):
+    c = get_object_or_404(Cotizacion, id=cotizacion_id)
+    
+    if c.estado != 'borrador':
+        messages.error(request, "Solo puedes editar cotizaciones en estado borrador.")
+        return redirect('detalle_cotizacion', cotizacion_id=c.id)
+
+    if request.method == 'POST':
+        # Actualizar datos básicos de 'c' (titulo, descuentos, etc.)
+        c.titulo = request.POST.get('titulo')
+        # ... (Actualizas todos los campos como en nueva_cotizacion)
+        c.save()
+
+        # Borrar los items viejos y meter los nuevos
+        c.items.all().delete()
+        
+        # ... (Aquí pegas la misma lógica que tienes en nueva_cotizacion 
+        # para recorrer los 'servicios_seleccionados' y hacer el bulk_create de ItemCotizacion)
+        
+        c.calcular_totales()
+        messages.success(request, 'Cotización actualizada exitosamente.')
+        return redirect('detalle_cotizacion', cotizacion_id=c.id)
+
+    servicios = Servicio.objects.all()
+    # Tendrás que hacer un template 'cotizaciones/editar.html' (una copia de crear.html 
+    # pero rellenando los values con los datos de 'c')
+    return render(request, 'cotizaciones/editar.html', {'c': c, 'servicios': servicios})
