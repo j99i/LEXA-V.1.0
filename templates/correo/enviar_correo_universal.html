@@ -3,7 +3,7 @@
 {% block content %}
 <div class="max-w-3xl mx-auto py-8 animate__animated animate__fadeIn">
     
-    <div class="bg-[#0A0A0A] p-6 rounded-t-[2.5rem] flex justify-between items-center shadow-lg relative overflow-hidden">
+    <div class="bg-[#08142C] p-6 rounded-t-[2.5rem] flex justify-between items-center shadow-lg relative overflow-hidden">
         <div class="absolute -right-4 -bottom-4 opacity-10 transform -rotate-12">
             <i class="fas 
                 {% if tipo_correo == 'cotizacion' %}fa-file-invoice-dollar
@@ -13,7 +13,7 @@
 
         <div class="flex items-center gap-4 relative z-10">
             <div class="w-12 h-12 rounded-xl flex items-center justify-center text-xl shadow-inner
-                {% if tipo_correo == 'cotizacion' %}bg-yellow-400/20 text-yellow-300
+                {% if tipo_correo == 'cotizacion' %}bg-cyan-400/20 text-cyan-300
                 {% elif tipo_correo == 'autorizaciones' %}bg-red-400/20 text-red-300
                 {% else %}bg-amber-400/20 text-amber-300{% endif %}">
                 {% if tipo_correo == 'cotizacion' %}
@@ -30,7 +30,7 @@
                     {% elif tipo_correo == 'autorizaciones' %}Enviar Autorizaciones
                     {% else %}Recordatorio de Documentos{% endif %}
                 </h2>
-                <p class="text-[10px] font-bold text-yellow-300 uppercase tracking-widest mt-0.5">{{ cliente.nombre_empresa }}</p>
+                <p class="text-[10px] font-bold text-cyan-300 uppercase tracking-widest mt-0.5">{{ cliente.nombre_empresa }}</p>
             </div>
         </div>
         <a href="{{ url_cancelar }}" class="relative z-10 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-white hover:bg-red-500 transition-all">
@@ -49,48 +49,48 @@
         <div class="p-8 space-y-6">
 
             <div class="group">
-                <label for="id_destinatario" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#D4AF37] transition-colors">Para (Email del cliente)</label>
+                <label for="id_destinatario" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#00A3FF] transition-colors">Para (Email del cliente)</label>
                 <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 group-focus-within:text-[#D4AF37] transition-colors">
+                    <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-400 group-focus-within:text-[#00A3FF] transition-colors">
                         <i class="fas fa-envelope"></i>
                     </span>
                     <input type="email" name="destinatario" id="id_destinatario" value="{{ destinatario }}" 
-                        class="w-full pl-11 p-4 bg-gray-50 rounded-2xl font-bold text-sm text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all" 
+                        class="w-full pl-11 p-4 bg-gray-50 rounded-2xl font-bold text-sm text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white focus:ring-4 focus:ring-cyan-50 outline-none transition-all" 
                         placeholder="correo@ejemplo.com" required>
                 </div>
             </div>
 
             <div class="group">
-                <label for="id_asunto" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#D4AF37] transition-colors">Asunto</label>
+                <label for="id_asunto" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#00A3FF] transition-colors">Asunto</label>
                 <input type="text" name="asunto" id="id_asunto" value="{{ asunto }}" 
-                    class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none transition-all shadow-sm" required>
+                    class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-sm text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white focus:ring-4 focus:ring-cyan-50 outline-none transition-all shadow-sm" required>
             </div>
 
             <div class="group">
-                <label for="id_mensaje" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#D4AF37] transition-colors">Mensaje</label>
+                <label for="id_mensaje" class="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 block group-focus-within:text-[#00A3FF] transition-colors">Mensaje</label>
                 <textarea name="mensaje" id="id_mensaje" rows="8" 
-                    class="w-full p-5 bg-gray-50 rounded-t-[1.5rem] text-sm text-gray-700 border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none resize-none leading-relaxed transition-all custom-scrollbar" 
+                    class="w-full p-5 bg-gray-50 rounded-t-[1.5rem] text-sm text-gray-700 border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none resize-none leading-relaxed transition-all custom-scrollbar" 
                     placeholder="Escribe el cuerpo del correo aquí..." required>{{ mensaje }}</textarea>
                 
                 <div class="bg-gray-100/80 p-5 rounded-b-[1.5rem] border-x-2 border-b-2 border-gray-100">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-[9px] font-black text-gray-400 uppercase tracking-widest">Firma Corporativa</span>
-                        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm hover:border-[#D4AF37] transition-colors">
-                            <input type="checkbox" name="usar_logo_default" checked class="accent-[#0A0A0A] w-3 h-3"> 
-                            <span class="text-[10px] font-black text-[#0A0A0A]">Incluir Logo Lexa</span>
+                        <label class="flex items-center gap-2 cursor-pointer bg-white px-3 py-1 rounded-full border border-gray-200 shadow-sm hover:border-[#00A3FF] transition-colors">
+                            <input type="checkbox" name="usar_logo_default" checked class="accent-[#08142C] w-3 h-3"> 
+                            <span class="text-[10px] font-black text-[#08142C]">Incluir Logo Lexa</span>
                         </label>
                     </div>
                     
                     <div class="flex items-start gap-4">
-                        <div class="w-12 h-12 bg-[#0A0A0A] rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0 shadow-lg">
+                        <div class="w-12 h-12 bg-[#08142C] rounded-xl flex items-center justify-center text-white text-sm font-black shrink-0 shadow-lg">
                             GC
                         </div>
                         <div class="w-full grid grid-cols-1 gap-2">
                             <input type="text" name="firma_nombre" value="{{ firma_nombre|default:'Lic. Maribel Aldana Santos' }}" 
-                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-black text-[#0A0A0A] focus:border-[#D4AF37] outline-none shadow-sm transition-all"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-xs font-black text-[#08142C] focus:border-[#00A3FF] outline-none shadow-sm transition-all"
                                 placeholder="Tu nombre y grado">
                             <input type="text" name="firma_cargo" value="{{ firma_cargo|default:'Lexa | Directora General' }}" 
-                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[10px] font-bold text-gray-500 focus:border-[#D4AF37] outline-none shadow-sm transition-all"
+                                class="w-full bg-white border border-gray-200 rounded-lg px-3 py-2 text-[10px] font-bold text-gray-500 focus:border-[#00A3FF] outline-none shadow-sm transition-all"
                                 placeholder="Tu cargo en la firma">
                         </div>
                     </div>
@@ -98,14 +98,14 @@
             </div>
 
             <div class="rounded-2xl border-2 overflow-hidden transition-all duration-300
-                {% if tipo_correo == 'cotizacion' %}border-yellow-100 bg-yellow-50/30
+                {% if tipo_correo == 'cotizacion' %}border-cyan-100 bg-cyan-50/30
                 {% elif tipo_correo == 'autorizaciones' %}border-red-100 bg-red-50/30
                 {% else %}border-amber-100 bg-amber-50/30{% endif %}">
                 
                 <div class="p-5 flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 rounded-xl flex items-center justify-center shrink-0 shadow-sm
-                            {% if tipo_correo == 'cotizacion' %}bg-yellow-100 text-yellow-500
+                            {% if tipo_correo == 'cotizacion' %}bg-cyan-100 text-cyan-500
                             {% elif tipo_correo == 'autorizaciones' %}bg-red-100 text-red-500
                             {% else %}bg-amber-100 text-amber-600{% endif %}">
                             {% if tipo_correo == 'cotizacion' %}
@@ -118,7 +118,7 @@
                         </div>
                         <div>
                             <p class="text-sm font-black 
-                                {% if tipo_correo == 'cotizacion' %}text-yellow-900
+                                {% if tipo_correo == 'cotizacion' %}text-cyan-900
                                 {% elif tipo_correo == 'autorizaciones' %}text-red-900
                                 {% else %}text-amber-900{% endif %}">
                                 {% if tipo_correo == 'cotizacion' %}Archivo PDF Adjunto
@@ -172,10 +172,10 @@
             </div>
 
             <div class="flex flex-col-reverse md:flex-row justify-end gap-4 pt-6 border-t border-gray-100">
-                <a href="{{ url_cancelar }}" class="w-full md:w-auto text-center px-8 py-4 text-gray-400 font-black uppercase tracking-widest text-[10px] hover:text-[#0A0A0A] hover:bg-gray-50 rounded-2xl transition-all">
+                <a href="{{ url_cancelar }}" class="w-full md:w-auto text-center px-8 py-4 text-gray-400 font-black uppercase tracking-widest text-[10px] hover:text-[#08142C] hover:bg-gray-50 rounded-2xl transition-all">
                     Cancelar
                 </a>
-                <button type="submit" class="w-full md:w-auto bg-[#0A0A0A] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-[#D4AF37] hover:shadow-yellow-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 group">
+                <button type="submit" class="w-full md:w-auto bg-[#08142C] text-white px-10 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] shadow-xl hover:bg-[#00A3FF] hover:shadow-cyan-200 hover:-translate-y-1 transition-all flex items-center justify-center gap-3 group">
                     <i class="fas fa-paper-plane group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform"></i>
                     <span>Enviar Notificación</span>
                 </button>

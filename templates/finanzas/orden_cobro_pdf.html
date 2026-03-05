@@ -7,7 +7,7 @@
     {% load static %}
     <style>
         @page { size: Letter; margin: 1.5cm; }
-        body { font-family: 'Helvetica', sans-serif; color: #0A0A0A; font-size: 10pt; margin: 0; }
+        body { font-family: 'Helvetica', sans-serif; color: #08142C; font-size: 10pt; margin: 0; }
 
         /* Estructura */
         .page-border { border: 1px solid #F3F4F6; border-radius: 2rem; padding: 30px; min-height: 95%; position: relative; }
@@ -15,32 +15,32 @@
         /* Header */
         .header { width: 100%; border-bottom: 2px solid #F3F4F6; padding-bottom: 20px; margin-bottom: 30px; }
         .logo-img { height: 45px; margin-bottom: 5px; }
-        .brand-name { font-size: 20pt; font-weight: 900; color: #0A0A0A; margin: 0; }
-        .doc-badge { background: #0A0A0A; color: white; padding: 5px 15px; border-radius: 1rem; font-weight: bold; font-size: 9pt; display: inline-block; text-transform: uppercase; }
+        .brand-name { font-size: 20pt; font-weight: 900; color: #08142C; margin: 0; }
+        .doc-badge { background: #08142C; color: white; padding: 5px 15px; border-radius: 1rem; font-weight: bold; font-size: 9pt; display: inline-block; text-transform: uppercase; }
 
         /* Info Grid */
         .info-table { width: 100%; margin-bottom: 30px; }
         .info-box { background: #F9FAFB; padding: 15px; border-radius: 1rem; border: 1px solid #eee; }
-        .label { font-size: 7pt; font-weight: 800; color: #D4AF37; text-transform: uppercase; display: block; margin-bottom: 4px; }
+        .label { font-size: 7pt; font-weight: 800; color: #00A3FF; text-transform: uppercase; display: block; margin-bottom: 4px; }
         .value { font-size: 10pt; font-weight: bold; display: block; }
         
         /* Resumen de Pago (La caja importante) */
-        .payment-highlight { background: #0A0A0A; color: white; border-radius: 1.5rem; padding: 25px; margin: 20px 0; text-align: center; }
+        .payment-highlight { background: #08142C; color: white; border-radius: 1.5rem; padding: 25px; margin: 20px 0; text-align: center; }
         .pay-amount { font-size: 24pt; font-weight: 900; margin: 10px 0; }
         .pay-concept { font-size: 9pt; opacity: 0.9; font-style: italic; }
 
         /* Tabla Servicios */
         table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        th { background: #F9FAFB; color: #0A0A0A; padding: 10px; text-align: left; font-size: 8pt; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #eee; }
+        th { background: #F9FAFB; color: #08142C; padding: 10px; text-align: left; font-size: 8pt; font-weight: 800; text-transform: uppercase; border-bottom: 1px solid #eee; }
         td { padding: 10px; border-bottom: 1px solid #eee; vertical-align: top; }
         
         /* Datos Bancarios */
-        .bank-section { margin-top: 30px; border: 1px dashed #D4AF37; border-radius: 1rem; padding: 20px; background: #FAF5FF; }
-        .bank-title { font-weight: bold; color: #D4AF37; margin-bottom: 10px; text-transform: uppercase; font-size: 9pt; }
+        .bank-section { margin-top: 30px; border: 1px dashed #00A3FF; border-radius: 1rem; padding: 20px; background: #FAF5FF; }
+        .bank-title { font-weight: bold; color: #00A3FF; margin-bottom: 10px; text-transform: uppercase; font-size: 9pt; }
         
         /* Totales Desglose */
         .totals-table td { text-align: right; padding: 3px 10px; font-size: 9pt; border: none; }
-        .total-final { border-top: 2px solid #0A0A0A; font-weight: 900; font-size: 12pt; padding-top: 5px; }
+        .total-final { border-top: 2px solid #08142C; font-weight: 900; font-size: 12pt; padding-top: 5px; }
 
         .footer { position: absolute; bottom: 20px; left: 30px; right: 30px; text-align: center; font-size: 8pt; color: #9CA3AF; border-top: 1px solid #eee; padding-top: 10px; }
     </style>
@@ -81,7 +81,7 @@
                 </td>
                 <td width="5%"></td>
                 <td width="40%">
-                    <div class="info-box" style="background: white; border-color: #D4AF37;">
+                    <div class="info-box" style="background: white; border-color: #00A3FF;">
                         <span class="label">Proyecto</span>
                         <span class="value">{{ c.titulo|default:cuenta.concepto }}</span>
                         <span style="font-size: 8pt; color: #777;">Cotización #{{ c.id }}</span>
@@ -144,7 +144,7 @@
                             </tr>
                         </table>
                         
-                        <div style="margin-top: 10px; font-size: 8pt; color: #D4AF37; font-style: italic;">
+                        <div style="margin-top: 10px; font-size: 8pt; color: #00A3FF; font-style: italic;">
                             * Favor de enviar comprobante al realizar su pago.
                         </div>
                     </div>
@@ -182,8 +182,8 @@
                         <tr><td colspan="2" style="border-bottom: 1px dashed #ddd; height: 10px;"></td></tr>
 
                         <tr>
-                            <td style="font-weight: bold; color: #0A0A0A; padding-top: 10px;">ESTE PAGO ({{ porcentaje_pago }}%):</td>
-                            <td style="font-weight: 900; color: #0A0A0A; font-size: 14pt; padding-top: 10px;">$ {{ monto_a_pagar|floatformat:2|intcomma }}</td>
+                            <td style="font-weight: bold; color: #08142C; padding-top: 10px;">ESTE PAGO ({{ porcentaje_pago }}%):</td>
+                            <td style="font-weight: 900; color: #08142C; font-size: 14pt; padding-top: 10px;">$ {{ monto_a_pagar|floatformat:2|intcomma }}</td>
                         </tr>
                     </table>
                 </td>

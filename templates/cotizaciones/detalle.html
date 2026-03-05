@@ -6,7 +6,7 @@
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
             <div class="flex items-center gap-3">
-                <h2 class="text-3xl font-black text-[#0A0A0A]">
+                <h2 class="text-3xl font-black text-[#08142C]">
                     {{ c.titulo }}
                 </h2>
                 
@@ -32,7 +32,7 @@
                 <i class="fas fa-user-check"></i> CERRAR TRATO
             </button>
             {% else %}
-            <a href="{% url 'detalle_cliente' c.cliente_convertido.id %}" class="bg-[#0A0A0A] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-[#D4AF37] transition-all">
+            <a href="{% url 'detalle_cliente' c.cliente_convertido.id %}" class="bg-[#08142C] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg flex items-center gap-2 hover:bg-[#00A3FF] transition-all">
                 <i class="fas fa-folder-open"></i> VER EXPEDIENTE
             </a>
             {% endif %}
@@ -46,11 +46,11 @@
             <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 flex justify-between items-center">
                 <div>
                     <p class="text-xs font-bold text-gray-400 uppercase">Monto Final</p>
-                    <p class="text-3xl font-black text-[#0A0A0A]">${{ c.total_con_iva|default:c.total|floatformat:2|intcomma }}</p>
+                    <p class="text-3xl font-black text-[#08142C]">${{ c.total_con_iva|default:c.total|floatformat:2|intcomma }}</p>
                     
                     {% if c.porcentaje_descuento > 0 %}
                         <div class="flex items-center gap-2 mt-1">
-                            <span class="bg-yellow-100 text-[#D4AF37] text-[10px] font-bold px-2 py-0.5 rounded">
+                            <span class="bg-cyan-100 text-[#00A3FF] text-[10px] font-bold px-2 py-0.5 rounded">
                                 -{{ c.porcentaje_descuento|floatformat:0 }}% DCTO
                             </span>
                             <span class="text-xs text-gray-400 line-through">${{ c.subtotal|floatformat:2|intcomma }}</span>
@@ -66,7 +66,7 @@
             </div>
 
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="font-bold text-[#0A0A0A] mb-4">Detalle de Servicios</h3>
+                <h3 class="font-bold text-[#08142C] mb-4">Detalle de Servicios</h3>
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="text-xs text-gray-400 border-b border-gray-100">
@@ -79,13 +79,13 @@
                         {% for item in c.items.all %}
                         <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
                             <td class="py-4 pr-4">
-                                <p class="font-bold text-[#0A0A0A]">{{ item.servicio.nombre }}</p>
+                                <p class="font-bold text-[#08142C]">{{ item.servicio.nombre }}</p>
                                 <p class="text-xs text-gray-500 mt-1 leading-relaxed">
                                     {{ item.descripcion_personalizada|default:item.servicio.descripcion }}
                                 </p>
                             </td>
                             <td class="py-4 text-center font-bold text-gray-600">{{ item.cantidad }}</td>
-                            <td class="py-4 text-right font-bold text-[#0A0A0A]">${{ item.subtotal|floatformat:2|intcomma }}</td>
+                            <td class="py-4 text-right font-bold text-[#08142C]">${{ item.subtotal|floatformat:2|intcomma }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -96,7 +96,7 @@
         <div class="space-y-6">
             
             <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm text-center">
-                <h3 class="font-bold text-[#0A0A0A] mb-2">Enviar Propuesta</h3>
+                <h3 class="font-bold text-[#08142C] mb-2">Enviar Propuesta</h3>
                 <p class="text-xs text-gray-400 mb-6">Seleccione un canal para redactar el mensaje.</p>
 
                 <button type="button" data-modal-target="modal-whatsapp" class="btn-abrir-modal w-full bg-[#25D366] hover:bg-[#1DA851] text-white font-bold py-4 rounded-xl shadow-lg mb-4 flex items-center justify-center gap-3 transition-all transform hover:-translate-y-1">
@@ -107,7 +107,7 @@
                     </div>
                 </button>
 
-                <button type="button" data-modal-target="modal-email" class="btn-abrir-modal w-full bg-[#0A0A0A] hover:bg-[#1A1A1A] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 transition-all transform hover:-translate-y-1">
+                <button type="button" data-modal-target="modal-email" class="btn-abrir-modal w-full bg-[#08142C] hover:bg-[#0F295E] text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-3 transition-all transform hover:-translate-y-1">
                     <i class="fas fa-envelope text-xl"></i>
                     <div class="text-left leading-tight">
                         <span class="block text-[10px] opacity-80 uppercase">Enviar por</span>
@@ -117,7 +117,7 @@
             </div>
             
             <div class="bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm">
-                <h3 class="font-bold text-[#0A0A0A] mb-4 text-sm uppercase">Condiciones Comerciales</h3>
+                <h3 class="font-bold text-[#08142C] mb-4 text-sm uppercase">Condiciones Comerciales</h3>
                 <div class="space-y-3 text-sm">
                     <div>
                         <span class="block text-xs text-gray-400">Tiempo de Gestión</span>
@@ -166,7 +166,7 @@
 <div id="modal-email" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 z-50 hidden flex items-center justify-center bg-black/60 backdrop-blur-sm animate__animated animate__fadeIn">
     <div class="modal-content bg-white w-full max-w-lg rounded-[2rem] shadow-2xl overflow-hidden m-4">
         
-        <div class="bg-[#0A0A0A] p-4 flex justify-between items-center text-white">
+        <div class="bg-[#08142C] p-4 flex justify-between items-center text-white">
             <h3 class="font-bold flex items-center gap-2"><i class="fas fa-envelope"></i> Redactar Correo</h3>
             <button type="button" class="btn-cerrar-modal hover:bg-white/20 rounded-full w-8 h-8 flex items-center justify-center transition-colors" aria-label="Cerrar modal"><i class="fas fa-times"></i></button>
         </div>
@@ -176,32 +176,32 @@
             <div class="p-6 space-y-4">
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Asunto</label>
-                    <input type="text" name="asunto" value="Propuesta: {{ c.titulo }}" required class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm border border-gray-200 focus:border-[#D4AF37] outline-none">
+                    <input type="text" name="asunto" value="Propuesta: {{ c.titulo }}" required class="w-full p-3 bg-gray-50 rounded-xl font-bold text-sm border border-gray-200 focus:border-[#00A3FF] outline-none">
                 </div>
                 
                 <div>
                     <label class="text-[10px] font-bold text-gray-400 uppercase mb-1">Mensaje</label>
-                    <textarea name="mensaje" rows="5" required class="w-full p-3 bg-gray-50 rounded-t-xl text-sm text-gray-700 border border-gray-200 focus:border-[#D4AF37] outline-none resize-none">Estimado/a {{ c.prospecto_nombre }},&#10;&#10;Adjunto a este correo encontrará la propuesta detallada para el proyecto: {{ c.titulo }}.&#10;&#10;Quedo a su entera disposición para cualquier duda.</textarea>
+                    <textarea name="mensaje" rows="5" required class="w-full p-3 bg-gray-50 rounded-t-xl text-sm text-gray-700 border border-gray-200 focus:border-[#00A3FF] outline-none resize-none">Estimado/a {{ c.prospecto_nombre }},&#10;&#10;Adjunto a este correo encontrará la propuesta detallada para el proyecto: {{ c.titulo }}.&#10;&#10;Quedo a su entera disposición para cualquier duda.</textarea>
                     
                     <div class="bg-gray-100 p-4 rounded-b-xl border-x border-b border-gray-200">
                         <div class="flex justify-between items-center mb-3">
                             <span class="text-[9px] font-bold text-gray-400 uppercase">Configurar Firma</span>
                             <label class="flex items-center gap-2 cursor-pointer bg-white px-2 py-1 rounded border border-gray-200">
-                                <input type="checkbox" name="usar_logo_default" checked class="accent-[#0A0A0A]"> 
-                                <span class="text-[10px] font-bold text-[#0A0A0A]">Incluir Logo</span>
+                                <input type="checkbox" name="usar_logo_default" checked class="accent-[#08142C]"> 
+                                <span class="text-[10px] font-bold text-[#08142C]">Incluir Logo</span>
                             </label>
                         </div>
                         
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-[#0A0A0A] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
+                            <div class="w-10 h-10 bg-[#08142C] rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0 shadow-sm">
                                 GC
                             </div>
                             
                             <div class="w-full space-y-2">
                                 <input type="text" name="firma_nombre" value="Lic. Maribel Aldana Santos" 
-                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[11px] font-bold text-[#0A0A0A] placeholder-gray-400 focus:border-[#D4AF37] outline-none shadow-sm" placeholder="Nombre Completo" required>
+                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[11px] font-bold text-[#08142C] placeholder-gray-400 focus:border-[#00A3FF] outline-none shadow-sm" placeholder="Nombre Completo" required>
                                 <input type="text" name="firma_cargo" value="Lexa | Directora General" 
-                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[10px] text-gray-500 placeholder-gray-400 focus:border-[#D4AF37] outline-none shadow-sm" placeholder="Cargo / Puesto" required>
+                                       class="w-full bg-white border border-gray-300 rounded px-2 py-1.5 text-[10px] text-gray-500 placeholder-gray-400 focus:border-[#00A3FF] outline-none shadow-sm" placeholder="Cargo / Puesto" required>
                             </div>
                         </div>
                     </div>
@@ -211,7 +211,7 @@
                     <i class="fas fa-paperclip"></i> <span>Se adjuntará: <strong>Cotizacion_{{ c.id }}.pdf</strong></span>
                 </div>
 
-                <button type="submit" class="btn-submit-loader w-full bg-[#0A0A0A] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#D4AF37] transition-all flex justify-center items-center gap-2">
+                <button type="submit" class="btn-submit-loader w-full bg-[#08142C] text-white font-bold py-3 rounded-xl shadow-lg hover:bg-[#00A3FF] transition-all flex justify-center items-center gap-2">
                     <span class="texto-btn">ENVIAR CORREO</span> <i class="fas fa-paper-plane icono-btn"></i>
                 </button>
             </div>
@@ -239,7 +239,7 @@
                         <label class="flex items-center gap-3 cursor-pointer hover:bg-gray-100 p-2 rounded-lg transition-colors">
                             <input type="checkbox" name="items_seleccionados" value="{{ item.id }}" checked class="w-5 h-5 text-green-500 rounded focus:ring-green-500 border-gray-300 accent-green-500">
                             <div class="text-sm">
-                                <span class="font-bold text-[#0A0A0A] block">{{ item.servicio.nombre }}</span>
+                                <span class="font-bold text-[#08142C] block">{{ item.servicio.nombre }}</span>
                                 <span class="text-xs text-gray-500">${{ item.subtotal|floatformat:2|intcomma }}</span>
                             </div>
                         </label>
@@ -250,15 +250,15 @@
                 <div>
                     <label class="block text-xs font-bold text-gray-400 uppercase mb-3">2. Carpetas a Generar</label>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-2">
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CARPETA ADMINISTRATIVA" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Administrativa</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE FUNCIONAMIENTO" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Lic. Funcionamiento</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Prog. Esp. Protección Civil</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL MUNICIPAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Protección Civil Mpal.</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL ESTATAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Protección Civil Estatal</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="MEDIO AMBIENTE" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Medio Ambiente</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="REGISTRO AMBIENTAL ESTATAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Reg. Ambiental Estatal</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CEDULA DE ZONIFICACIÓN" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Cédula Zonificación</span></label>
-                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE USO DE SUELO" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#0A0A0A]">Lic. Uso de Suelo</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CARPETA ADMINISTRATIVA" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Administrativa</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE FUNCIONAMIENTO" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Lic. Funcionamiento</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROGRAMA ESPECIFICO DE PROTECCIÓN CIVIL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Prog. Esp. Protección Civil</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL MUNICIPAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Protección Civil Mpal.</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="PROTECCIÓN CIVIL ESTATAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Protección Civil Estatal</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="MEDIO AMBIENTE" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Medio Ambiente</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="REGISTRO AMBIENTAL ESTATAL" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Reg. Ambiental Estatal</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="CEDULA DE ZONIFICACIÓN" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Cédula Zonificación</span></label>
+                        <label class="flex items-center gap-3 cursor-pointer p-2 hover:bg-gray-50 rounded-lg"><input type="checkbox" name="carpetas_seleccionadas" value="LICENCIA DE USO DE SUELO" checked class="w-4 h-4 text-green-500 rounded accent-green-500"><span class="text-[11px] font-bold text-[#08142C]">Lic. Uso de Suelo</span></label>
                     </div>
                 </div>
 

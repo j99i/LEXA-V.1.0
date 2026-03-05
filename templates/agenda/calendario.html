@@ -8,8 +8,8 @@
     
     <div class="w-full md:w-80 flex-shrink-0 flex flex-col gap-6">
         
-        <button onclick="openModal('modal-evento')" class="bg-[#0A0A0A] text-white p-5 rounded-[1.5rem] shadow-xl hover:bg-[#D4AF37] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-4 w-full group">
-            <div class="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center text-white group-hover:bg-white group-hover:text-[#D4AF37] transition-all shadow-inner">
+        <button onclick="openModal('modal-evento')" class="bg-[#08142C] text-white p-5 rounded-[1.5rem] shadow-xl hover:bg-[#00A3FF] transition-all transform hover:-translate-y-1 flex items-center justify-center gap-4 w-full group">
+            <div class="bg-white/20 w-10 h-10 rounded-xl flex items-center justify-center text-white group-hover:bg-white group-hover:text-[#00A3FF] transition-all shadow-inner">
                 <i class="fas fa-calendar-plus text-lg"></i>
             </div>
             <span class="font-black tracking-[0.1em] text-xs uppercase">Agendar Evento</span>
@@ -26,7 +26,7 @@
                     <div class="absolute left-0 top-0 bottom-0 w-1 bg-red-500 rounded-full group-hover:w-1.5 transition-all"></div>
                     
                     <p class="text-[10px] font-black text-red-500 mb-1 uppercase tracking-tighter">{{ aud.inicio|date:"d M — H:i" }} hrs</p>
-                    <p class="text-sm font-black text-[#0A0A0A] leading-tight group-hover:text-[#D4AF37] transition-colors">{{ aud.titulo }}</p>
+                    <p class="text-sm font-black text-[#08142C] leading-tight group-hover:text-[#00A3FF] transition-colors">{{ aud.titulo }}</p>
                     <p class="text-[11px] font-bold text-gray-400 mt-1 flex items-center gap-1">
                         <i class="fas fa-building text-[9px]"></i> {{ aud.cliente.nombre_empresa|default:"Sin cliente" }}
                     </p>
@@ -64,11 +64,11 @@
         </button>
         
         <div class="flex items-center gap-4 mb-6">
-            <div class="w-12 h-12 bg-yellow-50 text-[#D4AF37] rounded-2xl flex items-center justify-center text-xl">
+            <div class="w-12 h-12 bg-cyan-50 text-[#00A3FF] rounded-2xl flex items-center justify-center text-xl">
                 <i class="fas fa-calendar-check"></i>
             </div>
             <div>
-                <h3 class="text-2xl font-black text-[#0A0A0A] font-serif leading-tight">Nuevo Evento</h3>
+                <h3 class="text-2xl font-black text-[#08142C] font-serif leading-tight">Nuevo Evento</h3>
                 <p class="text-[10px] text-gray-400 uppercase tracking-[0.2em] font-bold">Agenda Corporativa</p>
             </div>
         </div>
@@ -78,24 +78,24 @@
             
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Asunto / Título</label>
-                <input type="text" name="titulo" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all" placeholder="Ej. Audiencia Inicial..." required>
+                <input type="text" name="titulo" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all" placeholder="Ej. Audiencia Inicial..." required>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Fecha</label>
-                    <input type="date" name="fecha" id="input-fecha" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all" required>
+                    <input type="date" name="fecha" id="input-fecha" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all" required>
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Hora</label>
-                    <input type="time" name="hora" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all" required>
+                    <input type="time" name="hora" class="w-full p-4 bg-gray-50 rounded-2xl font-bold text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all" required>
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Categoría</label>
-                    <select name="tipo" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all cursor-pointer">
+                    <select name="tipo" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all cursor-pointer">
                         <option value="audiencia">🔴 Audiencia</option>
                         <option value="vencimiento">🟠 Vencimiento</option>
                         <option value="reunion" selected>🔵 Reunión</option>
@@ -105,7 +105,7 @@
                 </div>
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Cliente Vinculado</label>
-                    <select name="cliente_id" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all cursor-pointer">
+                    <select name="cliente_id" class="w-full p-4 bg-gray-50 rounded-2xl font-black text-xs text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all cursor-pointer">
                         <option value="">-- Personal --</option>
                         {% for c in clientes %}
                         <option value="{{ c.id }}">{{ c.nombre_empresa }}</option>
@@ -116,10 +116,10 @@
 
             <div>
                 <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Notas / Descripción</label>
-                <textarea name="descripcion" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl font-medium text-[#0A0A0A] border-2 border-transparent focus:border-[#D4AF37] focus:bg-white outline-none transition-all resize-none" placeholder="Opcional..."></textarea>
+                <textarea name="descripcion" rows="2" class="w-full p-4 bg-gray-50 rounded-2xl font-medium text-[#08142C] border-2 border-transparent focus:border-[#00A3FF] focus:bg-white outline-none transition-all resize-none" placeholder="Opcional..."></textarea>
             </div>
 
-            <button type="submit" class="w-full bg-[#0A0A0A] text-white py-4 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#D4AF37] transition-all transform hover:-translate-y-1">
+            <button type="submit" class="w-full bg-[#08142C] text-white py-4 rounded-2xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#00A3FF] transition-all transform hover:-translate-y-1">
                 Confirmar Registro
             </button>
         </form>
@@ -132,19 +132,19 @@
             <i class="fas fa-times text-xl"></i>
         </button>
         
-        <div id="detalle-header" class="mb-6 border-l-4 border-[#D4AF37] pl-5">
+        <div id="detalle-header" class="mb-6 border-l-4 border-[#00A3FF] pl-5">
             <p id="det-tipo" class="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 mb-1">TIPO</p>
-            <h3 id="det-titulo" class="text-2xl font-black text-[#0A0A0A] font-serif leading-tight">Título</h3>
+            <h3 id="det-titulo" class="text-2xl font-black text-[#08142C] font-serif leading-tight">Título</h3>
         </div>
 
         <div class="space-y-4 mb-8">
-            <div class="flex items-center gap-4 text-sm text-[#0A0A0A]">
+            <div class="flex items-center gap-4 text-sm text-[#08142C]">
                 <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shadow-inner">
                     <i class="fas fa-clock"></i>
                 </div>
                 <span id="det-fecha" class="font-black text-xs uppercase tracking-wider">Fecha y Hora</span>
             </div>
-            <div class="flex items-center gap-4 text-sm text-[#0A0A0A]">
+            <div class="flex items-center gap-4 text-sm text-[#08142C]">
                 <div class="w-9 h-9 rounded-xl bg-gray-50 flex items-center justify-center text-gray-400 shadow-inner">
                     <i class="fas fa-briefcase"></i>
                 </div>
@@ -369,14 +369,14 @@
     :root {
         --fc-border-color: #f3f4f6;
         --fc-today-bg-color: #f8fafc;
-        --fc-button-bg-color: #0A0A0A;
-        --fc-button-border-color: #0A0A0A;
-        --fc-button-hover-bg-color: #D4AF37;
-        --fc-button-active-bg-color: #D4AF37;
+        --fc-button-bg-color: #08142C;
+        --fc-button-border-color: #08142C;
+        --fc-button-hover-bg-color: #00A3FF;
+        --fc-button-active-bg-color: #00A3FF;
     }
     
     .fc { font-family: 'Lato', sans-serif; }
-    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #0A0A0A; font-size: 1.5rem; text-transform: capitalize; }
+    .fc .fc-toolbar-title { font-family: 'Playfair Display', serif; font-weight: 900; color: #08142C; font-size: 1.5rem; text-transform: capitalize; }
     
     .fc .fc-button { 
         text-transform: uppercase; 
@@ -404,8 +404,8 @@
     .fc-event-tramite, .tramite { background-color: #10b981 !important; }
 
     .fc-daygrid-day-top { flex-direction: row !important; padding: 5px; }
-    .fc-daygrid-day-number { font-weight: 900; color: #0A0A0A; font-size: 0.8rem; text-decoration: none !important; }
-    .fc-daygrid-day-number:hover { color: #D4AF37; }
+    .fc-daygrid-day-number { font-weight: 900; color: #08142C; font-size: 0.8rem; text-decoration: none !important; }
+    .fc-daygrid-day-number:hover { color: #00A3FF; }
     
     .fc-col-header-cell { background-color: #fafafa; padding: 10px 0 !important; border-bottom: 2px solid #f3f4f6 !important; }
     .fc-col-header-cell-cushion { color: #9CA3AF !important; font-size: 10px !important; font-weight: 900 !important; text-transform: uppercase; letter-spacing: 1px; text-decoration: none !important; }

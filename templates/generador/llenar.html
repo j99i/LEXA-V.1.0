@@ -3,15 +3,15 @@
 <div class="max-w-5xl mx-auto animate__animated animate__fadeInUp">
     <div class="bg-white rounded-[2.5rem] shadow-xl overflow-hidden border border-gray-100">
         
-        <div class="bg-gradient-to-r from-[#0A0A0A] to-[#1E1233] p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
+        <div class="bg-gradient-to-r from-[#08142C] to-[#1E1233] p-8 text-white flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden">
             <i class="fas fa-file-word absolute -right-4 -bottom-4 text-7xl text-white/5 pointer-events-none transform -rotate-12" aria-hidden="true"></i>
             
             <div class="relative z-10">
                 <h2 class="text-2xl font-black font-serif tracking-wide">Homologación de Datos</h2>
-                <p class="text-yellow-200 text-sm mt-1">Plantilla seleccionada: <b class="text-white">{{ plantilla.nombre }}</b></p>
+                <p class="text-cyan-200 text-sm mt-1">Plantilla seleccionada: <b class="text-white">{{ plantilla.nombre }}</b></p>
             </div>
             
-            <button type="button" onclick="openGlosarioModal()" class="relative z-10 text-[#D4AF37] bg-white/5 border border-[#D4AF37]/30 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase hover:bg-[#D4AF37] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50">
+            <button type="button" onclick="openGlosarioModal()" class="relative z-10 text-[#00A3FF] bg-white/5 border border-[#00A3FF]/30 px-5 py-2.5 rounded-xl text-xs font-black tracking-widest uppercase hover:bg-[#00A3FF] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-[#00A3FF]/50">
                 <i class="fas fa-book mr-2" aria-hidden="true"></i> Ver Glosario
             </button>
         </div>
@@ -20,13 +20,13 @@
             {% csrf_token %}
             <input type="hidden" name="plantilla_id" value="{{ plantilla.id }}">
 
-            <div class="mb-10 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200 group focus-within:border-[#D4AF37]/50 transition-colors">
-                <label for="nombre_salida" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-[#D4AF37] transition-colors">
+            <div class="mb-10 bg-gray-50 p-6 rounded-[1.5rem] border border-gray-200 group focus-within:border-[#00A3FF]/50 transition-colors">
+                <label for="nombre_salida" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1 group-focus-within:text-[#00A3FF] transition-colors">
                     Nombre del Archivo Final
                 </label>
-                <div class="flex items-stretch shadow-sm rounded-xl overflow-hidden focus-within:ring-4 focus-within:ring-[#D4AF37]/10 transition-all">
-                    <input type="text" id="nombre_salida" name="nombre_archivo_salida" value="{{ nombre_sugerido|default:'' }}" placeholder="Ej. Contrato_Prestacion_Servicios" class="w-full p-4 bg-white border-y-2 border-l-2 border-gray-200 rounded-l-xl font-bold text-[#0A0A0A] outline-none focus:border-[#D4AF37] focus:border-r-0 transition-colors m-0" required>
-                    <span class="bg-gray-100 text-gray-400 font-black px-4 flex items-center justify-center border-y-2 border-r-2 border-gray-200 rounded-r-xl select-none group-focus-within:border-[#D4AF37] group-focus-within:bg-yellow-50 group-focus-within:text-[#D4AF37] transition-colors">
+                <div class="flex items-stretch shadow-sm rounded-xl overflow-hidden focus-within:ring-4 focus-within:ring-[#00A3FF]/10 transition-all">
+                    <input type="text" id="nombre_salida" name="nombre_archivo_salida" value="{{ nombre_sugerido|default:'' }}" placeholder="Ej. Contrato_Prestacion_Servicios" class="w-full p-4 bg-white border-y-2 border-l-2 border-gray-200 rounded-l-xl font-bold text-[#08142C] outline-none focus:border-[#00A3FF] focus:border-r-0 transition-colors m-0" required>
+                    <span class="bg-gray-100 text-gray-400 font-black px-4 flex items-center justify-center border-y-2 border-r-2 border-gray-200 rounded-r-xl select-none group-focus-within:border-[#00A3FF] group-focus-within:bg-cyan-50 group-focus-within:text-[#00A3FF] transition-colors">
                         .docx
                     </span>
                 </div>
@@ -34,8 +34,8 @@
 
             <div class="space-y-6">
                 <div class="flex items-center justify-between border-b border-gray-100 pb-3">
-                    <h3 class="font-black text-[#0A0A0A] text-lg font-serif">Variables del Documento</h3>
-                    <span class="bg-yellow-100 text-yellow-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                    <h3 class="font-black text-[#08142C] text-lg font-serif">Variables del Documento</h3>
+                    <span class="bg-cyan-100 text-cyan-700 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
                         {{ variables|length }} Detectadas
                     </span>
                 </div>
@@ -67,7 +67,7 @@
                         <div class="md:w-2/3 w-full">
                             <div class="relative group">
                                 <input type="{{ var.tipo|default:'text' }}" id="var_{{ forloop.counter }}" name="{{ var.clave }}" value="{{ var.valor|default:'' }}" 
-                                    class="w-full p-4 bg-white border-2 border-transparent focus:border-[#D4AF37] rounded-xl outline-none font-bold text-[#0A0A0A] shadow-sm focus:ring-4 focus:ring-[#D4AF37]/10 transition-all
+                                    class="w-full p-4 bg-white border-2 border-transparent focus:border-[#00A3FF] rounded-xl outline-none font-bold text-[#08142C] shadow-sm focus:ring-4 focus:ring-[#00A3FF]/10 transition-all
                                     {% if not var.en_glosario %}focus:border-orange-400 focus:ring-orange-400/10{% endif %}" required>
                                 
                                 {% if var.valor %}
@@ -89,8 +89,8 @@
 
             <div class="mt-10 flex justify-end pt-6 border-t border-gray-100">
                 <button type="submit" id="btn-submit" class="bg-[#1A2238] hover:bg-[#2C3E50] text-white px-8 py-4 rounded-xl font-black shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 flex items-center gap-3 focus:outline-none focus:ring-4 focus:ring-[#1A2238]/30">
-                    <i class="fas fa-magic text-[#D4AF37] icon-normal"></i>
-                    <i class="fas fa-circle-notch fa-spin hidden icon-loading text-[#D4AF37]"></i>
+                    <i class="fas fa-magic text-[#00A3FF] icon-normal"></i>
+                    <i class="fas fa-circle-notch fa-spin hidden icon-loading text-[#00A3FF]"></i>
                     <span class="tracking-widest uppercase text-xs btn-text">Generar Documento</span>
                 </button>
             </div>
@@ -106,32 +106,32 @@
         </button>
 
         <div class="flex items-center gap-3 mb-2">
-            <div class="w-10 h-10 bg-yellow-50 text-[#D4AF37] rounded-full flex items-center justify-center">
+            <div class="w-10 h-10 bg-cyan-50 text-[#00A3FF] rounded-full flex items-center justify-center">
                 <i class="fas fa-book-open text-lg"></i>
             </div>
-            <h3 class="font-black text-2xl text-[#0A0A0A] font-serif">Glosario Manual</h3>
+            <h3 class="font-black text-2xl text-[#08142C] font-serif">Glosario Manual</h3>
         </div>
         
         <p class="text-sm text-gray-500 mb-6 leading-relaxed">Si usas variables que guardaste en el diseñador, el sistema recordará lo que escribiste aquí para futuros contratos del mismo cliente.</p>
         
         <div class="h-72 overflow-y-auto bg-gray-50 p-4 rounded-[1.5rem] border border-gray-100 space-y-2 custom-scrollbar shadow-inner">
-            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-yellow-200 transition-colors">
-                <span class="font-mono font-bold text-sm text-[#D4AF37] bg-yellow-50 px-2 py-0.5 rounded">&#123;&#123; var_nombre_empresa &#125;&#125;</span>
+            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-cyan-200 transition-colors">
+                <span class="font-mono font-bold text-sm text-[#00A3FF] bg-cyan-50 px-2 py-0.5 rounded">&#123;&#123; var_nombre_empresa &#125;&#125;</span>
                 <span class="text-xs font-bold text-gray-500 uppercase">Nombre del Cliente</span>
             </div>
             
-            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-yellow-200 transition-colors">
-                <span class="font-mono font-bold text-sm text-[#D4AF37] bg-yellow-50 px-2 py-0.5 rounded">&#123;&#123; var_fecha_firma &#125;&#125;</span>
+            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-cyan-200 transition-colors">
+                <span class="font-mono font-bold text-sm text-[#00A3FF] bg-cyan-50 px-2 py-0.5 rounded">&#123;&#123; var_fecha_firma &#125;&#125;</span>
                 <span class="text-xs font-bold text-gray-500 uppercase">Fecha de Contrato</span>
             </div>
             
-            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-yellow-200 transition-colors">
-                <span class="font-mono font-bold text-sm text-[#D4AF37] bg-yellow-50 px-2 py-0.5 rounded">&#123;&#123; var_telefono &#125;&#125;</span>
+            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-cyan-200 transition-colors">
+                <span class="font-mono font-bold text-sm text-[#00A3FF] bg-cyan-50 px-2 py-0.5 rounded">&#123;&#123; var_telefono &#125;&#125;</span>
                 <span class="text-xs font-bold text-gray-500 uppercase">Teléfono Contacto</span>
             </div>
             
-            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-yellow-200 transition-colors">
-                <span class="font-mono font-bold text-sm text-[#D4AF37] bg-yellow-50 px-2 py-0.5 rounded">&#123;&#123; var_rfc_cliente &#125;&#125;</span>
+            <div class="flex items-center justify-between p-3 bg-white rounded-xl shadow-sm border border-gray-100 hover:border-cyan-200 transition-colors">
+                <span class="font-mono font-bold text-sm text-[#00A3FF] bg-cyan-50 px-2 py-0.5 rounded">&#123;&#123; var_rfc_cliente &#125;&#125;</span>
                 <span class="text-xs font-bold text-gray-500 uppercase">RFC Registrado</span>
             </div>
         </div>

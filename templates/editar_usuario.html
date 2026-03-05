@@ -3,10 +3,10 @@
 <div class="max-w-6xl mx-auto animate__animated animate__fadeIn">
     
     <div class="flex justify-between items-center mb-6">
-        <h2 class="text-3xl font-black text-[#0A0A0A]">
-            Gestionar Usuario: <span class="text-[#D4AF37]">{{ u.username }}</span>
+        <h2 class="text-3xl font-black text-[#08142C]">
+            Gestionar Usuario: <span class="text-[#00A3FF]">{{ u.username }}</span>
         </h2>
-        <a href="{% url 'gestion_usuarios' %}" class="text-gray-500 font-bold hover:text-[#0A0A0A]">
+        <a href="{% url 'gestion_usuarios' %}" class="text-gray-500 font-bold hover:text-[#08142C]">
             <i class="fas fa-arrow-left"></i> Volver a la lista
         </a>
     </div>
@@ -15,7 +15,7 @@
         {% csrf_token %}
 
         <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-            <h3 class="text-lg font-bold text-[#0A0A0A] mb-4 border-b pb-2">
+            <h3 class="text-lg font-bold text-[#08142C] mb-4 border-b pb-2">
                 <i class="fas fa-id-card mr-2"></i> Perfil y Rol
             </h3>
             
@@ -26,14 +26,14 @@
                 <div><label class="label-form">Teléfono</label><input type="text" name="telefono" value="{{ u.telefono|default:'' }}" class="input-form"></div>
             </div>
 
-            <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-100">
-                <label class="label-form text-yellow-800 mb-2">Rol del Sistema</label>
-                <select name="rol" id="rol_selector" class="w-full p-3 bg-white rounded-xl font-bold text-[#0A0A0A] border border-yellow-200 outline-none" onchange="actualizarVistaPermisos()">
+            <div class="bg-cyan-50 p-4 rounded-xl border border-cyan-100">
+                <label class="label-form text-cyan-800 mb-2">Rol del Sistema</label>
+                <select name="rol" id="rol_selector" class="w-full p-3 bg-white rounded-xl font-bold text-[#08142C] border border-cyan-200 outline-none" onchange="actualizarVistaPermisos()">
                     <option value="admin" {% if u.rol == 'admin' %}selected{% endif %}>👑 Administrador Master (Acceso Total)</option>
                     <option value="analista_sr" {% if u.rol == 'analista_sr' %}selected{% endif %}>👨‍⚖️ Abogado Senior</option>
                     <option value="analista_jr" {% if u.rol == 'analista_jr' %}selected{% endif %}>📝 Abogado Junior / Pasante</option>
                 </select>
-                <p class="text-xs text-yellow-600 mt-2">
+                <p class="text-xs text-cyan-600 mt-2">
                     * Si seleccionas "Administrador Master", el usuario tendrá acceso a TODO automáticamente.
                 </p>
             </div>
@@ -54,7 +54,7 @@
         <div id="panel-permisos" class="grid grid-cols-1 lg:grid-cols-2 gap-8 transition-all duration-300">
             
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#D4AF37] mb-4">
+                <h3 class="text-lg font-bold text-[#00A3FF] mb-4">
                     <i class="fas fa-cubes mr-2"></i> Módulos Permitidos
                 </h3>
                 <p class="text-xs text-gray-400 mb-4">Marca qué herramientas puede usar este usuario:</p>
@@ -92,7 +92,7 @@
             </div>
 
             <div class="bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
-                <h3 class="text-lg font-bold text-[#0A0A0A] mb-4">
+                <h3 class="text-lg font-bold text-[#08142C] mb-4">
                     <i class="fas fa-key mr-2"></i> Permisos de Acción
                 </h3>
                 <div class="space-y-3">
@@ -119,17 +119,17 @@
 
             <div class="lg:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-gray-100">
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-bold text-[#0A0A0A]"><i class="fas fa-briefcase mr-2"></i> Clientes Visibles</h3>
-                    <button type="button" onclick="seleccionarTodos()" class="text-xs font-bold text-[#D4AF37] hover:underline">Seleccionar Todos</button>
+                    <h3 class="text-lg font-bold text-[#08142C]"><i class="fas fa-briefcase mr-2"></i> Clientes Visibles</h3>
+                    <button type="button" onclick="seleccionarTodos()" class="text-xs font-bold text-[#00A3FF] hover:underline">Seleccionar Todos</button>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-3 max-h-64 overflow-y-auto custom-scrollbar p-2 border border-gray-100 rounded-xl bg-gray-50">
                     {% for cliente in clientes %}
-                    <label class="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all border border-transparent hover:border-[#D4AF37]">
-                        <input type="checkbox" name="clientes_asignados" value="{{ cliente.id }}" class="cliente-check w-5 h-5 text-[#0A0A0A] rounded" 
+                    <label class="flex items-center gap-3 p-3 bg-white rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-all border border-transparent hover:border-[#00A3FF]">
+                        <input type="checkbox" name="clientes_asignados" value="{{ cliente.id }}" class="cliente-check w-5 h-5 text-[#08142C] rounded" 
                             {% if cliente in u.clientes_asignados.all %}checked{% endif %}>
                         <div>
-                            <span class="block text-xs font-bold text-[#0A0A0A]">{{ cliente.nombre_empresa }}</span>
+                            <span class="block text-xs font-bold text-[#08142C]">{{ cliente.nombre_empresa }}</span>
                             <span class="block text-[10px] text-gray-400">{{ cliente.nombre_contacto }}</span>
                         </div>
                     </label>
@@ -149,7 +149,7 @@
             {% else %}
             <div></div> {% endif %}
 
-            <button type="submit" class="bg-[#0A0A0A] text-white px-10 py-4 rounded-xl font-black shadow-lg hover:bg-[#D4AF37] transition-all hover:-translate-y-1">
+            <button type="submit" class="bg-[#08142C] text-white px-10 py-4 rounded-xl font-black shadow-lg hover:bg-[#00A3FF] transition-all hover:-translate-y-1">
                 GUARDAR CAMBIOS
             </button>
         </div>
@@ -159,10 +159,10 @@
 <style>
     .label-form { display: block; font-size: 0.75rem; font-weight: 700; color: #9CA3AF; text-transform: uppercase; margin-bottom: 0.5rem; }
     .input-form { width: 100%; padding: 0.75rem; background-color: #F9FAFB; border-radius: 0.75rem; font-weight: 700; color: #1F2937; border: 1px solid transparent; outline: none; }
-    .input-form:focus { border-color: #D4AF37; background-color: #fff; }
+    .input-form:focus { border-color: #00A3FF; background-color: #fff; }
     .check-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 12px; cursor: pointer; transition: background 0.2s; border: 1px solid #f3f4f6; }
     .check-item:hover { background-color: #F3F4F6; border-color: #e5e7eb; }
-    .check-item input { width: 18px; height: 18px; accent-color: #D4AF37; cursor: pointer; }
+    .check-item input { width: 18px; height: 18px; accent-color: #00A3FF; cursor: pointer; }
     .check-item span { font-weight: 700; font-size: 0.85rem; color: #374151; }
 </style>
 

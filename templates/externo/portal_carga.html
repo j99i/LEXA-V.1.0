@@ -16,7 +16,7 @@
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', sans-serif;
-            background-color: #0A0A0A;
+            background-color: #08142C;
             background-image: 
                 linear-gradient(135deg, rgba(45, 27, 75, 0.92) 0%, rgba(30, 64, 175, 0.85) 100%),
                 url("{% static 'img/logo.png' %}");
@@ -26,12 +26,12 @@
             background-attachment: fixed; 
         }
 
-        .brand-text { color: #0A0A0A; }
-        .accent-bg { background-color: #D4AF37; }
+        .brand-text { color: #08142C; }
+        .accent-bg { background-color: #00A3FF; }
         
-        .btn-primary { background: #0A0A0A; transition: all 0.3s; }
+        .btn-primary { background: #08142C; transition: all 0.3s; }
         .btn-primary:hover { 
-            background: #D4AF37; 
+            background: #00A3FF; 
             transform: translateY(-2px); 
             box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); 
         }
@@ -43,7 +43,7 @@
             transition: all 0.3s ease; 
         }
         .file-drop-zone:hover, .file-drop-zone.dragover { 
-            border-color: #D4AF37; 
+            border-color: #00A3FF; 
             background-color: #faf5ff; 
             transform: scale(1.02);
         }
@@ -62,7 +62,7 @@
 
     <div class="w-full max-w-lg glass-card rounded-[2.5rem] shadow-2xl overflow-hidden relative animate__animated animate__fadeInUp">
         
-        <div class="h-1.5 w-full bg-gradient-to-r from-[#0A0A0A] via-[#D4AF37] to-blue-500"></div>
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#08142C] via-[#00A3FF] to-blue-500"></div>
 
         <div class="p-6 md:p-10">
             
@@ -75,7 +75,7 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-[#0A0A0A] leading-none">{{ cliente.nombre_empresa }}</h2>
+                    <h2 class="text-xl font-bold text-[#08142C] leading-none">{{ cliente.nombre_empresa }}</h2>
                     <p class="text-xs text-gray-500 font-medium mt-1">Portal de Documentación</p>
                     <div class="flex items-center gap-1.5 mt-1.5">
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
@@ -98,7 +98,7 @@
             <div class="animate__animated animate__fadeIn">
                 
                 <div class="text-center mb-6">
-                    <h1 class="text-lg md:text-xl font-black text-[#0A0A0A] leading-tight">
+                    <h1 class="text-lg md:text-xl font-black text-[#08142C] leading-tight">
                         <span class="text-gray-400 font-bold block text-xs mb-1 uppercase tracking-widest">Siguiente requisito:</span>
                         {{ documento_actual }}
                     </h1>
@@ -112,23 +112,23 @@
                         <input type="file" name="archivo" id="fileInput" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="previewFile(this.files)">
                         
                         <div id="drop-content" class="text-center p-4 transition-all duration-300 group-hover:-translate-y-1">
-                            <div class="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 text-gray-300 group-hover:text-[#D4AF37] group-hover:shadow-md transition-all">
+                            <div class="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 text-gray-300 group-hover:text-[#00A3FF] group-hover:shadow-md transition-all">
                                 <i class="fas fa-cloud-upload-alt text-2xl"></i>
                             </div>
                             <p class="text-sm font-bold text-gray-600">Toca o arrastra aquí tu archivo</p>
                             <p class="text-[10px] text-gray-400 mt-1 font-bold">PDF o Imagen (Máx 10MB)</p>
                         </div>
 
-                        <div id="file-preview" class="hidden absolute inset-0 bg-yellow-50 flex-col items-center justify-center w-full h-full border-2 border-[#D4AF37]">
-                            <i id="preview-icon" class="fas fa-file-pdf text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn"></i>
-                            <p id="filename" class="text-xs font-black text-[#0A0A0A] px-6 truncate w-full text-center"></p>
+                        <div id="file-preview" class="hidden absolute inset-0 bg-cyan-50 flex-col items-center justify-center w-full h-full border-2 border-[#00A3FF]">
+                            <i id="preview-icon" class="fas fa-file-pdf text-5xl text-[#00A3FF] mb-2 animate__animated animate__bounceIn"></i>
+                            <p id="filename" class="text-xs font-black text-[#08142C] px-6 truncate w-full text-center"></p>
                             <div class="mt-2 text-[10px] bg-green-100 border border-green-200 text-green-700 px-3 py-1 rounded-full font-black uppercase tracking-wider shadow-sm">
                                 <i class="fas fa-check mr-1"></i> Archivo listo
                             </div>
                         </div>
                     </label>
 
-                    <button type="submit" id="btn-enviar" class="w-full btn-primary text-white font-black py-4 rounded-xl shadow-xl shadow-yellow-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xs tracking-widest uppercase transition-all" disabled>
+                    <button type="submit" id="btn-enviar" class="w-full btn-primary text-white font-black py-4 rounded-xl shadow-xl shadow-cyan-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xs tracking-widest uppercase transition-all" disabled>
                         <span>ENVIAR DOCUMENTO</span> <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
@@ -136,7 +136,7 @@
                 {% if faltantes_count > 1 %}
                 <div class="mt-6 text-center">
                     <p class="text-[10px] text-gray-500 font-bold bg-gray-50 inline-block px-4 py-2 rounded-xl shadow-inner border border-gray-100">
-                        <i class="fas fa-tasks mr-1 text-[#D4AF37]"></i> Faltan <strong class="text-[#0A0A0A]">{{ faltantes_count|add:"-1" }}</strong> documentos más en la lista.
+                        <i class="fas fa-tasks mr-1 text-[#00A3FF]"></i> Faltan <strong class="text-[#08142C]">{{ faltantes_count|add:"-1" }}</strong> documentos más en la lista.
                     </p>
                 </div>
                 {% endif %}
@@ -151,7 +151,7 @@
                     </div>
                 </div>
                 
-                <h2 class="text-3xl font-black text-[#0A0A0A] mb-2 font-serif">¡Todo Completo!</h2>
+                <h2 class="text-3xl font-black text-[#08142C] mb-2 font-serif">¡Todo Completo!</h2>
                 <p class="text-sm text-gray-500 max-w-xs mx-auto mb-8 leading-relaxed font-medium">
                     Hemos recibido toda tu documentación correctamente. Nuestro equipo legal iniciará la revisión.
                 </p>
@@ -278,9 +278,9 @@
 
                 // Cambiar icono según el tipo de archivo
                 if(file.type.includes('image')) {
-                    icon.className = 'fas fa-file-image text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn';
+                    icon.className = 'fas fa-file-image text-5xl text-[#00A3FF] mb-2 animate__animated animate__bounceIn';
                 } else {
-                    icon.className = 'fas fa-file-pdf text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn';
+                    icon.className = 'fas fa-file-pdf text-5xl text-[#00A3FF] mb-2 animate__animated animate__bounceIn';
                 }
 
                 content.classList.add('hidden');

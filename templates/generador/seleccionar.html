@@ -4,16 +4,16 @@
     
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-            <h2 class="text-3xl font-black text-[#0A0A0A] font-serif">Biblioteca de Formatos</h2>
-            <p class="text-gray-500 text-sm mt-1">Cliente actual: <b class="text-[#0A0A0A] bg-yellow-50 px-2 py-0.5 rounded-md">{{ cliente.nombre_empresa|default:"Cliente no asignado" }}</b></p>
+            <h2 class="text-3xl font-black text-[#08142C] font-serif">Biblioteca de Formatos</h2>
+            <p class="text-gray-500 text-sm mt-1">Cliente actual: <b class="text-[#08142C] bg-cyan-50 px-2 py-0.5 rounded-md">{{ cliente.nombre_empresa|default:"Cliente no asignado" }}</b></p>
         </div>
         
         {% if user.rol == 'admin' %}
         <div class="flex gap-3 w-full md:w-auto">
-            <a href="{% url 'diseñador_plantillas' %}" class="flex-1 md:flex-none justify-center bg-white border border-gray-200 text-gray-600 px-5 py-3.5 rounded-xl font-black text-[10px] tracking-widest shadow-sm hover:bg-gray-50 hover:text-[#0A0A0A] hover:border-gray-300 flex items-center transition-all">
+            <a href="{% url 'diseñador_plantillas' %}" class="flex-1 md:flex-none justify-center bg-white border border-gray-200 text-gray-600 px-5 py-3.5 rounded-xl font-black text-[10px] tracking-widest shadow-sm hover:bg-gray-50 hover:text-[#08142C] hover:border-gray-300 flex items-center transition-all">
                 <i class="fas fa-pen-nib mr-2" aria-hidden="true"></i> DISEÑADOR
             </a>
-            <button type="button" onclick="openPlantillaModal()" class="flex-1 md:flex-none justify-center bg-[#0A0A0A] text-white px-5 py-3.5 rounded-xl font-black text-[10px] tracking-widest shadow-lg shadow-yellow-900/20 hover:bg-[#D4AF37] hover:shadow-yellow-500/30 transition-all flex items-center focus:ring-4 focus:ring-yellow-300 focus:outline-none">
+            <button type="button" onclick="openPlantillaModal()" class="flex-1 md:flex-none justify-center bg-[#08142C] text-white px-5 py-3.5 rounded-xl font-black text-[10px] tracking-widest shadow-lg shadow-cyan-900/20 hover:bg-[#00A3FF] hover:shadow-cyan-500/30 transition-all flex items-center focus:ring-4 focus:ring-cyan-300 focus:outline-none">
                 <i class="fas fa-cloud-upload-alt mr-2" aria-hidden="true"></i> SUBIR DOCX
             </button>
         </div>
@@ -26,18 +26,18 @@
             
             <form method="GET" action="" class="flex-1 h-full form-seleccionar-plantilla">
                 <input type="hidden" name="plantilla_id" value="{{ p.id }}">
-                <button type="submit" class="w-full text-left bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-yellow-100/50 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col justify-between relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#D4AF37]/30 btn-plantilla">
+                <button type="submit" class="w-full text-left bg-white p-6 rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-xl hover:shadow-cyan-100/50 hover:-translate-y-1 transition-all duration-300 h-full flex flex-col justify-between relative overflow-hidden focus:outline-none focus:ring-4 focus:ring-[#00A3FF]/30 btn-plantilla">
                     
                     <div class="absolute -bottom-4 -right-4 p-4 opacity-[0.03] group-hover:opacity-[0.06] group-hover:scale-110 transition-all duration-500 pointer-events-none">
-                        <i class="fas fa-file-word text-9xl text-[#0A0A0A]" aria-hidden="true"></i>
+                        <i class="fas fa-file-word text-9xl text-[#08142C]" aria-hidden="true"></i>
                     </div>
 
                     <div class="relative z-10 flex-1">
-                        <div class="w-12 h-12 bg-yellow-50 rounded-[1rem] flex items-center justify-center mb-5 text-[#D4AF37] group-hover:bg-[#0A0A0A] group-hover:text-white transition-colors duration-300 shadow-inner">
+                        <div class="w-12 h-12 bg-cyan-50 rounded-[1rem] flex items-center justify-center mb-5 text-[#00A3FF] group-hover:bg-[#08142C] group-hover:text-white transition-colors duration-300 shadow-inner">
                             <i class="fas fa-file-word text-2xl" aria-hidden="true"></i>
                         </div>
                         
-                        <h3 class="font-black text-[#0A0A0A] text-lg leading-tight mb-2 group-hover:text-[#D4AF37] transition-colors line-clamp-3" title="{{ p.nombre }}">
+                        <h3 class="font-black text-[#08142C] text-lg leading-tight mb-2 group-hover:text-[#00A3FF] transition-colors line-clamp-3" title="{{ p.nombre }}">
                             {{ p.nombre|default:"Documento sin nombre" }}
                         </h3>
                     </div>
@@ -46,7 +46,7 @@
                         <p class="text-[9px] text-gray-400 uppercase font-black tracking-widest" title="Fecha de subida">
                             {{ p.fecha_subida|date:"d M y"|default:"-" }}
                         </p>
-                        <div class="flex items-center text-[#D4AF37] font-black text-[10px] uppercase tracking-widest group-hover:translate-x-1 transition-transform container-usar">
+                        <div class="flex items-center text-[#00A3FF] font-black text-[10px] uppercase tracking-widest group-hover:translate-x-1 transition-transform container-usar">
                             <span class="texto-usar">USAR</span> 
                             <i class="fas fa-arrow-right ml-1.5 icon-arrow"></i>
                             <i class="fas fa-circle-notch fa-spin ml-1.5 hidden icon-loading"></i>
@@ -73,7 +73,7 @@
             <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
                 <i class="fas fa-folder-open text-3xl text-gray-300" aria-hidden="true"></i>
             </div>
-            <p class="font-black text-xl text-[#0A0A0A] font-serif">Biblioteca Vacía</p>
+            <p class="font-black text-xl text-[#08142C] font-serif">Biblioteca Vacía</p>
             <p class="text-sm mt-2 max-w-md mx-auto px-4">No hay formatos .docx disponibles para este cliente. Sube una plantilla para empezar a generar documentos.</p>
         </div>
         {% endfor %}
@@ -87,11 +87,11 @@
             </button>
             
             <div class="flex items-center gap-4 mb-2">
-                <div class="w-12 h-12 bg-yellow-50 text-[#D4AF37] rounded-xl flex items-center justify-center">
+                <div class="w-12 h-12 bg-cyan-50 text-[#00A3FF] rounded-xl flex items-center justify-center">
                     <i class="fas fa-file-word text-xl" aria-hidden="true"></i>
                 </div>
                 <div>
-                    <h3 class="text-xl font-black text-[#0A0A0A] font-serif leading-tight">Nueva Plantilla</h3>
+                    <h3 class="text-xl font-black text-[#08142C] font-serif leading-tight">Nueva Plantilla</h3>
                     <p class="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Subir documento Word base</p>
                 </div>
             </div>
@@ -100,23 +100,23 @@
                 {% csrf_token %}
                 
                 <div class="group">
-                    <label for="nombre_plantilla" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 group-focus-within:text-[#D4AF37] transition-colors">Nombre Identificador</label>
-                    <input type="text" id="nombre_plantilla" name="nombre" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-[#0A0A0A] border-2 border-transparent outline-none focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-[#D4AF37]/10 transition-all shadow-sm" placeholder="Ej. Contrato Laboral 2026" required autofocus>
+                    <label for="nombre_plantilla" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1 group-focus-within:text-[#00A3FF] transition-colors">Nombre Identificador</label>
+                    <input type="text" id="nombre_plantilla" name="nombre" class="w-full p-4 bg-gray-50 rounded-xl font-bold text-[#08142C] border-2 border-transparent outline-none focus:bg-white focus:border-[#00A3FF] focus:ring-4 focus:ring-[#00A3FF]/10 transition-all shadow-sm" placeholder="Ej. Contrato Laboral 2026" required autofocus>
                 </div>
 
                 <div>
                     <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1.5 ml-1">Archivo Word (.docx)</label>
                     <div class="relative overflow-hidden">
                         <input type="file" id="archivo_docx" name="archivo" accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
-                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-[#D4AF37] file:text-white hover:file:bg-[#9333ea] file:transition-colors file:cursor-pointer bg-gray-50 rounded-xl border-2 border-transparent hover:border-gray-200 transition-colors p-1" required>
+                            class="block w-full text-sm text-gray-500 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-[10px] file:font-black file:uppercase file:tracking-widest file:bg-[#00A3FF] file:text-white hover:file:bg-[#9333ea] file:transition-colors file:cursor-pointer bg-gray-50 rounded-xl border-2 border-transparent hover:border-gray-200 transition-colors p-1" required>
                     </div>
                     <p class="text-[9px] text-gray-400 mt-2 ml-1 flex items-center gap-1">
-                        <i class="fas fa-info-circle text-[#D4AF37]"></i> Asegúrate de incluir las llaves &#123;&#123; variable &#125;&#125; en el texto.
+                        <i class="fas fa-info-circle text-[#00A3FF]"></i> Asegúrate de incluir las llaves &#123;&#123; variable &#125;&#125; en el texto.
                     </p>
                 </div>
 
                 <div class="pt-4 border-t border-gray-100">
-                    <button type="submit" id="btn-subir" class="w-full bg-[#0A0A0A] text-white py-4 rounded-xl font-black hover:bg-[#D4AF37] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest text-[11px] flex justify-center items-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0">
+                    <button type="submit" id="btn-subir" class="w-full bg-[#08142C] text-white py-4 rounded-xl font-black hover:bg-[#00A3FF] shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all uppercase tracking-widest text-[11px] flex justify-center items-center gap-2 group disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:translate-y-0">
                         <i class="fas fa-cloud-upload-alt text-lg group-hover:animate-bounce icon-normal"></i>
                         <i class="fas fa-circle-notch fa-spin text-lg hidden icon-loading"></i>
                         <span class="btn-text">Subir Documento</span>
@@ -144,7 +144,7 @@
             }
 
             // Cambiar estado visual
-            btn.classList.add('pointer-events-none', 'opacity-80', 'ring-4', 'ring-[#D4AF37]/30');
+            btn.classList.add('pointer-events-none', 'opacity-80', 'ring-4', 'ring-[#00A3FF]/30');
             arrowIcon.classList.add('hidden');
             loadingIcon.classList.remove('hidden');
             textUsar.innerText = 'CARGANDO';

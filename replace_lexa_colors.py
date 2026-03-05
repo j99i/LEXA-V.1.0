@@ -29,19 +29,11 @@ def main():
     base_dir = r"c:\Users\jorte\OneDrive\Escritorio\AppLegal_Cloud"
     
     replacements = {
-        "Lexa": "Lexa",
-        "LEXA": "LEXA",
-        "Lexa Assistant": "Lexa Assistant",
-        "lexa": "lexa",
-        "LEXA": "LEXA",
-        "Lexa": "Lexa",
-        "lexa": "lexa",
-        
         # Colors
-        "#08142C": "#08142C",
-        "#00A3FF": "#00A3FF",
-        "#007BCC": "#007BCC", # A darker shade of gold for hover states replacing purple hover
-        "#0F295E": "#0F295E",
+        "#08142C": "#08142C", # Deep Black to Navy Blue
+        "#00A3FF": "#00A3FF", # Gold to Bright Cyan
+        "#007BCC": "#007BCC", # Darker Gold to Darker Cyan
+        "#0F295E": "#0F295E", # Dark Gray to Lighter Navy Blue
         
         # Tailwind classes
         "bg-cyan-50": "bg-cyan-50",

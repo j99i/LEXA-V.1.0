@@ -20,14 +20,14 @@
         }
     </style>
 </head>
-<body class="min-h-screen w-full bg-[#0A0A0A] flex items-center justify-center p-4 relative overflow-hidden">
+<body class="min-h-screen w-full bg-[#08142C] flex items-center justify-center p-4 relative overflow-hidden">
     
     <div class="absolute inset-0 bg-pattern"></div>
-    <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#D4AF37] rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
+    <div class="absolute -top-40 -right-40 w-96 h-96 bg-[#00A3FF] rounded-full mix-blend-overlay filter blur-[100px] opacity-20 animate-pulse"></div>
     
     <div class="bg-white w-full max-w-md rounded-[2.5rem] shadow-2xl overflow-hidden relative z-10 animate__animated animate__zoomIn">
         
-        <div class="h-2 w-full bg-gradient-to-r from-[#0A0A0A] via-[#D4AF37] to-[#0A0A0A]"></div>
+        <div class="h-2 w-full bg-gradient-to-r from-[#08142C] via-[#00A3FF] to-[#08142C]"></div>
         
         <div class="p-10 text-center">
             
@@ -38,30 +38,30 @@
                 </div>
             </div>
             
-            <h2 class="text-3xl font-black text-[#0A0A0A] font-serif mb-2">¡Solicitud Recibida!</h2>
+            <h2 class="text-3xl font-black text-[#08142C] font-serif mb-2">¡Solicitud Recibida!</h2>
             
-            <p class="text-[#D4AF37] font-bold text-xs tracking-widest uppercase mb-6">
+            <p class="text-[#00A3FF] font-bold text-xs tracking-widest uppercase mb-6">
                 Ref: {% if request.user.id %}ID-{{ request.user.id }}{% else %}REG-PROCESS{% endif %}
             </p>
             
             <div class="bg-gray-50 rounded-2xl p-6 mb-8 border border-gray-100">
                 <p class="text-gray-600 text-sm leading-relaxed">
-                    Tu información ha sido enviada. Tu cuenta se encuentra actualmente <strong class="text-[#0A0A0A]">Pendiente de Aprobación</strong>.
+                    Tu información ha sido enviada. Tu cuenta se encuentra actualmente <strong class="text-[#08142C]">Pendiente de Aprobación</strong>.
                 </p>
                 <div class="w-full h-[1px] bg-gray-200 my-4"></div>
                 <div class="text-left space-y-3">
                     <div class="flex items-start gap-3">
-                        <i class="fas fa-info-circle text-[#D4AF37] mt-1"></i>
+                        <i class="fas fa-info-circle text-[#00A3FF] mt-1"></i>
                         <p class="text-xs text-gray-500">Revisaremos tu perfil en un lapso de 24 a 48 horas hábiles.</p>
                     </div>
                     <div class="flex items-start gap-3">
-                        <i class="fas fa-envelope-open-text text-[#D4AF37] mt-1"></i>
+                        <i class="fas fa-envelope-open-text text-[#00A3FF] mt-1"></i>
                         <p class="text-xs text-gray-500">Recibirás un correo electrónico cuando el acceso sea concedido.</p>
                     </div>
                 </div>
             </div>
             
-            <a href="{% url 'login' %}" class="block w-full bg-[#0A0A0A] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#D4AF37] hover:text-white transition-all duration-300 transform hover:-translate-y-1">
+            <a href="{% url 'login' %}" class="block w-full bg-[#08142C] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#00A3FF] hover:text-white transition-all duration-300 transform hover:-translate-y-1">
                 <i class="fas fa-chevron-left mr-2 text-[10px]"></i> Volver al Inicio
             </a>
             

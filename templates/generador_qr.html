@@ -4,11 +4,11 @@
 <div class="max-w-6xl mx-auto animate__animated animate__fadeIn px-4 pb-10">
 
     <div class="mb-8 flex items-center gap-5 no-print">
-        <div class="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-[#0A0A0A] to-[#1E1233] flex items-center justify-center text-[#C0A062] text-3xl shadow-lg border-4 border-white shrink-0">
+        <div class="w-16 h-16 rounded-[1.5rem] bg-gradient-to-br from-[#08142C] to-[#1E1233] flex items-center justify-center text-[#C0A062] text-3xl shadow-lg border-4 border-white shrink-0">
             <i class="fas fa-qrcode" aria-hidden="true"></i>
         </div>
         <div>
-            <h2 class="text-3xl font-black text-[#0A0A0A] font-serif tracking-tight">Identidad QR</h2>
+            <h2 class="text-3xl font-black text-[#08142C] font-serif tracking-tight">Identidad QR</h2>
             <p class="text-gray-500 font-bold mt-1">Vincula documentos físicos con evidencias digitales de forma segura.</p>
         </div>
     </div>
@@ -17,9 +17,9 @@
         
         <div class="lg:col-span-4 no-print">
             <div class="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-sm border border-gray-100 h-full relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-50 rounded-full blur-3xl opacity-60 -mr-10 -mt-10"></div>
+                <div class="absolute top-0 right-0 w-32 h-32 bg-cyan-50 rounded-full blur-3xl opacity-60 -mr-10 -mt-10"></div>
                 
-                <h3 class="text-lg font-black text-[#0A0A0A] mb-6 flex items-center gap-2 relative z-10">
+                <h3 class="text-lg font-black text-[#08142C] mb-6 flex items-center gap-2 relative z-10">
                     <i class="fas fa-sliders-h text-[#C0A062]" aria-hidden="true"></i> Configuración
                 </h3>
 
@@ -29,9 +29,9 @@
                     <div class="mb-6">
                         <label for="id_data" class="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 ml-1">Contenido o Enlace Final</label>
                         <div class="relative group">
-                            <i class="fas fa-link absolute left-4 top-4 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
+                            <i class="fas fa-link absolute left-4 top-4 text-gray-300 group-focus-within:text-[#00A3FF] transition-colors" aria-hidden="true"></i>
                             <textarea id="id_data" name="data" rows="5" 
-                                class="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 focus:border-[#D4AF37] focus:bg-white focus:ring-4 focus:ring-yellow-50 outline-none text-[#0A0A0A] font-bold text-sm resize-none transition-all placeholder-gray-300 shadow-inner" 
+                                class="w-full pl-11 pr-4 py-3 bg-gray-50 rounded-2xl border border-gray-200 focus:border-[#00A3FF] focus:bg-white focus:ring-4 focus:ring-cyan-50 outline-none text-[#08142C] font-bold text-sm resize-none transition-all placeholder-gray-300 shadow-inner" 
                                 placeholder="https://portal.applegal.com/..." required>{{ data_input|default:"" }}</textarea>
                         </div>
                         <p class="text-[10px] text-gray-400 font-bold mt-2 ml-1"><i class="fas fa-info-circle mr-1" aria-hidden="true"></i> El logo de la empresa se agregará automáticamente al centro.</p>
@@ -40,21 +40,21 @@
                     <div class="grid grid-cols-2 gap-4 mb-8">
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Color Puntos</label>
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200 group hover:border-[#D4AF37] transition-colors cursor-pointer" onclick="document.getElementById('color_fill').click()">
-                                <input type="color" id="color_fill" name="color_fill" value="{{ color_fill|default:'#0A0A0A' }}" class="w-6 h-6 rounded cursor-pointer border-none bg-transparent outline-none p-0">
-                                <i class="fas fa-palette text-gray-300 group-hover:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200 group hover:border-[#00A3FF] transition-colors cursor-pointer" onclick="document.getElementById('color_fill').click()">
+                                <input type="color" id="color_fill" name="color_fill" value="{{ color_fill|default:'#08142C' }}" class="w-6 h-6 rounded cursor-pointer border-none bg-transparent outline-none p-0">
+                                <i class="fas fa-palette text-gray-300 group-hover:text-[#00A3FF] transition-colors" aria-hidden="true"></i>
                             </div>
                         </div>
                         <div class="space-y-2">
                             <label class="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Color Fondo</label>
-                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200 group hover:border-[#D4AF37] transition-colors cursor-pointer" onclick="document.getElementById('color_back').click()">
+                            <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl border border-gray-200 group hover:border-[#00A3FF] transition-colors cursor-pointer" onclick="document.getElementById('color_back').click()">
                                 <input type="color" id="color_back" name="color_back" value="{{ color_back|default:'#ffffff' }}" class="w-6 h-6 rounded cursor-pointer border-none bg-transparent outline-none p-0">
-                                <i class="fas fa-fill-drip text-gray-300 group-hover:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
+                                <i class="fas fa-fill-drip text-gray-300 group-hover:text-[#00A3FF] transition-colors" aria-hidden="true"></i>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" id="genBtn" class="w-full bg-[#1A2238] hover:bg-[#0A0A0A] text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg transition-transform transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-gray-300 flex items-center justify-center gap-3 disabled:opacity-75 disabled:transform-none disabled:cursor-not-allowed">
+                    <button type="submit" id="genBtn" class="w-full bg-[#1A2238] hover:bg-[#08142C] text-white py-4 rounded-2xl font-black text-xs tracking-widest uppercase shadow-lg transition-transform transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-gray-300 flex items-center justify-center gap-3 disabled:opacity-75 disabled:transform-none disabled:cursor-not-allowed">
                         <i id="genIcon" class="fas fa-wand-magic-sparkles text-[#C0A062] text-lg" aria-hidden="true"></i> 
                         <span id="genText">Generar Código QR</span>
                     </button>
@@ -69,10 +69,10 @@
                     <div class="print-area flex flex-col items-center w-full max-w-sm mx-auto z-10 relative">
                         
                         <div class="relative group animate__animated animate__zoomIn w-full">
-                            <div class="absolute -inset-4 bg-gradient-to-tr from-[#D4AF37] to-[#C0A062] rounded-[3rem] opacity-20 blur-2xl transition-opacity duration-500 no-print"></div>
+                            <div class="absolute -inset-4 bg-gradient-to-tr from-[#00A3FF] to-[#C0A062] rounded-[3rem] opacity-20 blur-2xl transition-opacity duration-500 no-print"></div>
                             
                             <div class="bg-white p-8 rounded-[2.5rem] shadow-xl border border-gray-100 relative text-center">
-                                <span class="bg-[#0A0A0A] text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full absolute -top-3 left-1/2 transform -translate-x-1/2 shadow-md print-text-black border print:border-black">
+                                <span class="bg-[#08142C] text-white text-[9px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full absolute -top-3 left-1/2 transform -translate-x-1/2 shadow-md print-text-black border print:border-black">
                                     ESCANEAR PARA VERIFICAR
                                 </span>
                                 
@@ -87,10 +87,10 @@
                     </div>
 
                     <div class="flex flex-wrap justify-center gap-4 mt-12 no-print relative z-10">
-                        <a href="{{ qr_url }}" download="QR_Identidad.png" class="bg-white text-[#0A0A0A] hover:text-[#D4AF37] border border-gray-200 hover:border-[#D4AF37] px-6 py-3 rounded-xl font-black text-xs tracking-widest uppercase shadow-sm transition-all flex items-center gap-2 focus:outline-none">
+                        <a href="{{ qr_url }}" download="QR_Identidad.png" class="bg-white text-[#08142C] hover:text-[#00A3FF] border border-gray-200 hover:border-[#00A3FF] px-6 py-3 rounded-xl font-black text-xs tracking-widest uppercase shadow-sm transition-all flex items-center gap-2 focus:outline-none">
                             <i class="fas fa-download" aria-hidden="true"></i> PNG
                         </a>
-                        <button type="button" onclick="window.print()" class="bg-[#0A0A0A] hover:bg-[#1E1233] text-white px-8 py-3 rounded-xl font-black text-xs tracking-widest uppercase shadow-lg transition-transform hover:-translate-y-1 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-yellow-300">
+                        <button type="button" onclick="window.print()" class="bg-[#08142C] hover:bg-[#1E1233] text-white px-8 py-3 rounded-xl font-black text-xs tracking-widest uppercase shadow-lg transition-transform hover:-translate-y-1 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-cyan-300">
                             <i class="fas fa-print" aria-hidden="true"></i> Imprimir Etiqueta
                         </button>
                     </div>
@@ -100,12 +100,12 @@
                         <div class="w-32 h-32 bg-white rounded-[2rem] shadow-sm flex items-center justify-center mx-auto mb-6 border border-gray-100">
                             <i class="fas fa-qrcode text-6xl text-gray-200" aria-hidden="true"></i>
                         </div>
-                        <h3 class="text-xl font-black text-[#0A0A0A] font-serif mb-2">Esperando Datos...</h3>
+                        <h3 class="text-xl font-black text-[#08142C] font-serif mb-2">Esperando Datos...</h3>
                         <p class="text-sm text-gray-400 max-w-xs mx-auto font-medium">Ingresa el enlace y selecciona los colores en el panel para previsualizar el código QR.</p>
                     </div>
                 {% endif %}
 
-                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-[#D4AF37] rounded-full blur-[100px] opacity-10 pointer-events-none no-print"></div>
+                <div class="absolute top-0 right-0 -mt-10 -mr-10 w-64 h-64 bg-[#00A3FF] rounded-full blur-[100px] opacity-10 pointer-events-none no-print"></div>
                 <div class="absolute bottom-0 left-0 -mb-10 -ml-10 w-64 h-64 bg-blue-400 rounded-full blur-[100px] opacity-10 pointer-events-none no-print"></div>
             </div>
         </div>

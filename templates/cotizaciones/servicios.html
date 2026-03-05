@@ -8,10 +8,10 @@
     
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-            <h2 class="text-3xl font-black text-[#0A0A0A] font-serif">Catálogo de Servicios</h2>
+            <h2 class="text-3xl font-black text-[#08142C] font-serif">Catálogo de Servicios</h2>
             <p class="text-gray-500 text-sm">Define tus servicios y sus especificaciones técnicas fijas.</p>
         </div>
-        <button type="button" onclick="abrirModalServicio()" class="bg-[#0A0A0A] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#D4AF37] transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-yellow-500">
+        <button type="button" onclick="abrirModalServicio()" class="bg-[#08142C] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#00A3FF] transition-all flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-cyan-500">
             <i class="fas fa-plus" aria-hidden="true"></i> NUEVO SERVICIO
         </button>
     </div>
@@ -19,16 +19,16 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for s in servicios %}
         <div class="bg-white rounded-[2rem] p-6 shadow-sm border border-gray-100 hover:shadow-md transition-all group relative overflow-hidden flex flex-col h-full">
-            <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#D4AF37] opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div class="absolute left-0 top-0 bottom-0 w-2 bg-[#00A3FF] opacity-0 group-hover:opacity-100 transition-opacity"></div>
             
             <div class="flex justify-between items-start mb-4">
-                <div class="w-12 h-12 bg-yellow-50 rounded-xl flex items-center justify-center text-[#0A0A0A] shrink-0">
+                <div class="w-12 h-12 bg-cyan-50 rounded-xl flex items-center justify-center text-[#08142C] shrink-0">
                     <i class="fas fa-balance-scale text-xl" aria-hidden="true"></i>
                 </div>
                 
                 <div class="flex gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity">
                     <button type="button" 
-                            class="btn-editar text-gray-400 hover:text-[#0A0A0A] p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
+                            class="btn-editar text-gray-400 hover:text-[#08142C] p-2 hover:bg-gray-100 rounded-lg transition-colors focus:outline-none"
                             data-id="{{ s.id }}" 
                             data-nombre="{{ s.nombre|default:'' }}" 
                             data-precio="{{ s.precio_base|default:'0' }}" 
@@ -46,7 +46,7 @@
                 </div>
             </div>
             
-            <h3 class="font-black text-lg text-[#0A0A0A] mb-2 flex-1">{{ s.nombre|default:"Servicio Sin Nombre" }}</h3>
+            <h3 class="font-black text-lg text-[#08142C] mb-2 flex-1">{{ s.nombre|default:"Servicio Sin Nombre" }}</h3>
             
             {{ s.campos_dinamicos|json_script:s.id }}
             
@@ -58,7 +58,7 @@
                         Sin especificaciones
                     {% endif %}
                 </span>
-                <span class="text-xl font-black text-[#D4AF37]">${{ s.precio_base|default:0|floatformat:2 }}</span>
+                <span class="text-xl font-black text-[#00A3FF]">${{ s.precio_base|default:0|floatformat:2 }}</span>
             </div>
         </div>
         {% empty %}
@@ -70,24 +70,24 @@
     </div>
 </div>
 
-<div id="modal-servicio" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 bg-[#0A0A0A]/80 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
+<div id="modal-servicio" role="dialog" aria-modal="true" class="modal-backdrop fixed inset-0 bg-[#08142C]/80 hidden items-center justify-center z-50 backdrop-blur-sm animate__animated animate__fadeIn">
     <div class="modal-content bg-white p-6 md:p-8 rounded-[2rem] w-full max-w-2xl m-4 shadow-2xl relative overflow-y-auto max-h-[90vh]">
         
         <button type="button" onclick="cerrarModalServicio()" class="absolute top-6 right-6 text-gray-400 hover:text-red-500 transition-colors focus:outline-none">
             <i class="fas fa-times text-xl" aria-hidden="true"></i>
         </button>
         
-        <h3 id="modal-titulo" class="text-2xl font-black text-[#0A0A0A] mb-6">Configurar Servicio</h3>
+        <h3 id="modal-titulo" class="text-2xl font-black text-[#08142C] mb-6">Configurar Servicio</h3>
         
         <form action="{% url 'guardar_servicio' %}" method="POST" id="form-servicio">
             {% csrf_token %}
             <input type="hidden" name="servicio_id" id="input-id">
             
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                <input type="text" name="nombre" id="input-nombre" placeholder="Nombre del Servicio" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#D4AF37] outline-none transition-colors" required>
-                <input type="number" name="precio" id="input-precio" step="0.01" min="0" placeholder="Honorarios Base" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#D4AF37] outline-none transition-colors" required>
+                <input type="text" name="nombre" id="input-nombre" placeholder="Nombre del Servicio" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#00A3FF] outline-none transition-colors" required>
+                <input type="number" name="precio" id="input-precio" step="0.01" min="0" placeholder="Honorarios Base" class="w-full p-4 bg-gray-50 rounded-xl font-bold border-2 border-transparent focus:border-[#00A3FF] outline-none transition-colors" required>
             </div>
-            <textarea name="descripcion" id="input-descripcion" rows="2" placeholder="Descripción general..." class="w-full p-4 bg-gray-50 rounded-xl text-sm mb-6 border-2 border-transparent focus:border-[#D4AF37] outline-none transition-colors"></textarea>
+            <textarea name="descripcion" id="input-descripcion" rows="2" placeholder="Descripción general..." class="w-full p-4 bg-gray-50 rounded-xl text-sm mb-6 border-2 border-transparent focus:border-[#00A3FF] outline-none transition-colors"></textarea>
 
             <div class="border-2 border-dashed border-gray-300 rounded-[1.5rem] p-4 md:p-6 mb-6 relative bg-gray-50">
                 <h4 class="text-xs font-black text-gray-500 uppercase mb-4 flex items-center gap-2">
@@ -95,11 +95,11 @@
                 </h4>
                 
                 <div class="flex flex-col sm:flex-row gap-2 mb-4 items-stretch sm:items-center">
-                    <input type="text" id="temp-nombre" placeholder="Característica (Ej. Marca)" class="w-full sm:w-1/3 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#D4AF37] transition-colors">
+                    <input type="text" id="temp-nombre" placeholder="Característica (Ej. Marca)" class="w-full sm:w-1/3 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#00A3FF] transition-colors">
                     
-                    <input type="text" id="temp-valor" placeholder="Valor / Detalle (Ej. Castrol)" class="w-full sm:flex-1 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#D4AF37] transition-colors">
+                    <input type="text" id="temp-valor" placeholder="Valor / Detalle (Ej. Castrol)" class="w-full sm:flex-1 p-3 bg-white border border-gray-200 rounded-xl font-bold text-sm outline-none focus:border-[#00A3FF] transition-colors">
                     
-                    <button type="button" onclick="confirmarCampo()" class="w-full sm:w-auto bg-[#D4AF37] text-white px-5 py-3 rounded-xl font-bold text-[10px] uppercase shadow-md hover:bg-[#9333ea] transition-all">
+                    <button type="button" onclick="confirmarCampo()" class="w-full sm:w-auto bg-[#00A3FF] text-white px-5 py-3 rounded-xl font-bold text-[10px] uppercase shadow-md hover:bg-[#9333ea] transition-all">
                         AGREGAR
                     </button>
                 </div>
@@ -111,7 +111,7 @@
                 </p>
             </div>
 
-            <button type="submit" class="btn-guardar w-full bg-[#0A0A0A] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#D4AF37] transition-all flex justify-center items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
+            <button type="submit" class="btn-guardar w-full bg-[#08142C] text-white py-4 rounded-xl font-black text-sm tracking-widest shadow-lg hover:bg-[#00A3FF] transition-all flex justify-center items-center gap-2 disabled:opacity-75 disabled:cursor-not-allowed">
                 <span class="texto-btn">GUARDAR SERVICIO</span>
                 <i class="fas fa-spinner fa-spin icono-btn hidden" aria-hidden="true"></i>
             </button>
@@ -124,9 +124,9 @@
         <div class="w-16 h-16 bg-red-100 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4">
             <i class="fas fa-exclamation-triangle text-3xl" aria-hidden="true"></i>
         </div>
-        <h3 class="text-xl font-black text-[#0A0A0A] mb-2">¿Eliminar Servicio?</h3>
+        <h3 class="text-xl font-black text-[#08142C] mb-2">¿Eliminar Servicio?</h3>
         <p class="text-sm text-gray-500 mb-6">
-            Estás a punto de eliminar <strong id="modal-eliminar-nombre" class="text-[#0A0A0A]"></strong>.<br>
+            Estás a punto de eliminar <strong id="modal-eliminar-nombre" class="text-[#08142C]"></strong>.<br>
             <span class="text-red-500 font-bold mt-2 block">Esta acción es irreversible.</span>
         </p>
         <form id="form-eliminar" method="POST" action="">
@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         spanNombre.textContent = finalNombre + ':';
 
         const spanValor = document.createElement('span');
-        spanValor.className = "text-sm font-bold text-[#0A0A0A] flex-1 truncate";
+        spanValor.className = "text-sm font-bold text-[#08142C] flex-1 truncate";
         spanValor.title = finalValor;
         spanValor.textContent = finalValor;
 
