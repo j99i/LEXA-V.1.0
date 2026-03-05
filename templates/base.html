@@ -1,62 +1,132 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexa | Plataforma</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700;900&display=swap"
+        rel="stylesheet">
     <style>
         :root {
-            --sidebar-dark: #08142C; 
+            --sidebar-dark: #08142C;
             --sidebar-darker: #1E1233;
             --sidebar-header: #37225A;
             --accent-purple: #00A3FF;
             --accent-purple-light: #C084FC;
         }
-        body { font-family: 'Lato', sans-serif; background-color: #F3F4F6; }
-        h1, h2, h3, h4, .brand-font { font-family: 'Playfair Display', serif; }
-        .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--accent-purple); border-radius: 10px; }
-        
-        /* --- SIDEBAR --- */
-        #sidebar { width: 4.5rem; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; }
-        @media (hover: hover) {
-            #sidebar:hover { width: 17rem; }
-            #sidebar:hover .logo-collapsed { display: none; }
-            #sidebar:hover .logo-expanded { display: flex; opacity: 1; transition: opacity 0.3s ease-in; }
-            #sidebar:hover .nav-text { opacity: 1; transform: translateX(0); pointer-events: auto; transition-delay: 0.1s; }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background-color: #F3F4F6;
         }
-        
-        .logo-collapsed { display: flex; }
-        .logo-expanded { display: none; opacity: 0; }
-        .nav-text { opacity: 0; transform: translateX(-10px); transition: all 0.3s ease; white-space: nowrap; pointer-events: none; }
-        
-        .sidebar-gradient { background: linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-darker) 100%); }
-        .bg-sidebar-header { background-color: var(--sidebar-header); }
+
+        h1,
+        h2,
+        h3,
+        h4,
+        .brand-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: var(--accent-purple);
+            border-radius: 10px;
+        }
+
+        /* --- SIDEBAR --- */
+        #sidebar {
+            width: 4.5rem;
+            transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        @media (hover: hover) {
+            #sidebar:hover {
+                width: 17rem;
+            }
+
+            #sidebar:hover .logo-collapsed {
+                display: none;
+            }
+
+            #sidebar:hover .logo-expanded {
+                display: flex;
+                opacity: 1;
+                transition: opacity 0.3s ease-in;
+            }
+
+            #sidebar:hover .nav-text {
+                opacity: 1;
+                transform: translateX(0);
+                pointer-events: auto;
+                transition-delay: 0.1s;
+            }
+        }
+
+        .logo-collapsed {
+            display: flex;
+        }
+
+        .logo-expanded {
+            display: none;
+            opacity: 0;
+        }
+
+        .nav-text {
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            pointer-events: none;
+        }
+
+        .sidebar-gradient {
+            background: linear-gradient(180deg, var(--sidebar-dark) 0%, var(--sidebar-darker) 100%);
+        }
+
+        .bg-sidebar-header {
+            background-color: var(--sidebar-header);
+        }
     </style>
 </head>
+
 <body class="flex h-screen overflow-hidden">
 
-    <aside id="sidebar" class="fixed inset-y-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col group border-r border-white/5">
-        
+    <aside id="sidebar"
+        class="fixed inset-y-0 left-0 sidebar-gradient text-white shadow-2xl z-50 flex flex-col group border-r border-white/5">
+
         <div class="h-24 flex items-center justify-center border-b border-white/10 shrink-0 bg-sidebar-header relative">
             <div class="w-full h-full flex items-center justify-center px-2">
-                
+
                 <div class="logo-collapsed justify-center items-center w-full">
-                    <img src="{% static 'img/logo.png' %}" class="w-10 h-10 object-cover bg-white rounded-full p-0.5 shadow-lg" alt="Logo">
+                    <img src="{% static 'img/logo.png' %}"
+                        class="w-10 h-10 object-cover bg-white rounded-full p-0.5 shadow-lg" alt="Logo">
                 </div>
 
                 <div class="logo-expanded items-center gap-4 absolute left-6 w-full pr-4">
-                    <img src="{% static 'img/logo.png' %}" class="w-12 h-12 object-cover bg-white rounded-full p-0.5 shadow-xl shrink-0" alt="Logo">
-                    
+                    <img src="{% static 'img/logo.png' %}"
+                        class="w-12 h-12 object-cover bg-white rounded-full p-0.5 shadow-xl shrink-0" alt="Logo">
+
                     <div class="flex flex-col justify-center">
-                        <span class="text-[9px] font-bold text-[#00A3FF] tracking-[0.2em] uppercase leading-tight">GESTIONES</span>
-                        <span class="text-xl font-black text-white brand-font tracking-wide leading-none mt-0.5">LEXA</span>
+                        <span
+                            class="text-[9px] font-bold text-[#00A3FF] tracking-[0.2em] uppercase leading-tight">CRM</span>
+                        <span
+                            class="text-xl font-black text-white brand-font tracking-wide leading-none mt-0.5">LEXA</span>
                     </div>
                 </div>
 
@@ -64,69 +134,93 @@
         </div>
 
         <nav class="flex-1 overflow-y-auto custom-scrollbar py-6 space-y-1">
-            
-            <a href="{% url 'dashboard' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if request.path == '/' %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-th-large text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+
+            <a href="{% url 'dashboard' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if request.path == '/' %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-th-large text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Panel General</span>
-                {% if request.path == '/' %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if request.path == '/' %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif
+                %}
             </a>
 
             {% if user.access_agenda %}
-            <a href="{% url 'agenda_legal' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'agenda' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-calendar-alt text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            <a href="{% url 'agenda_legal' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'agenda' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-calendar-alt text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Agenda</span>
-                {% if 'agenda' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'agenda' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{%
+                endif %}
             </a>
             {% endif %}
 
             {% if user.access_cotizaciones %}
-            <a href="{% url 'lista_cotizaciones' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'cotizaciones' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-file-invoice-dollar text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            <a href="{% url 'lista_cotizaciones' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'cotizaciones' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-file-invoice-dollar text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Cotizaciones</span>
-                {% if 'cotizaciones' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'cotizaciones' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]">
+                </div>{% endif %}
             </a>
             {% endif %}
 
             {% if user.access_finanzas %}
-            <a href="{% url 'panel_finanzas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'finanzas' in request.path and 'gastos' not in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-wallet text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            <a href="{% url 'panel_finanzas' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'finanzas' in request.path and 'gastos' not in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-wallet text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Finanzas</span>
-                {% if 'finanzas' in request.path and 'gastos' not in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'finanzas' in request.path and 'gastos' not in request.path %}<div
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
             </a>
 
-            <a href="{% url 'modulo_gastos' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'gastos' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-receipt text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            <a href="{% url 'modulo_gastos' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'gastos' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-receipt text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Gastos (XML)</span>
-                {% if 'gastos' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'gastos' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{%
+                endif %}
             </a>
             {% endif %}
 
             {% if user.access_disenador %}
-            <a href="{% url 'diseñador_plantillas' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/disenador' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-pen-nib text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            <a href="{% url 'diseñador_plantillas' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/disenador' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-pen-nib text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Diseñador</span>
-                {% if 'herramientas/disenador' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'herramientas/disenador' in request.path %}<div
+                    class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
             </a>
             {% endif %}
 
-          {% if user.access_qr %}
-            <a href="{% url 'generador_qr' %}" class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/qr' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
-                <i class="fas fa-qrcode text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
+            {% if user.access_qr %}
+            <a href="{% url 'generador_qr' %}"
+                class="flex items-center px-6 py-3.5 hover:bg-white/10 transition-colors relative group/item {% if 'herramientas/qr' in request.path %}text-[#00A3FF] bg-white/5{% else %}text-gray-400{% endif %}">
+                <i
+                    class="fas fa-qrcode text-lg w-6 text-center shrink-0 group-hover/item:text-[#00A3FF] transition-colors"></i>
                 <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Generador QR</span>
-                {% if 'herramientas/qr' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]"></div>{% endif %}
+                {% if 'herramientas/qr' in request.path %}<div class="absolute left-0 top-0 bottom-0 w-1 bg-[#00A3FF]">
+                </div>{% endif %}
             </a>
             {% endif %}
-            
+
             {% if user.access_cotizaciones %}
             <div class="mt-8 pt-4 border-t border-white/5 space-y-2">
-                <p class="px-6 text-[9px] font-black text-gray-500 uppercase tracking-widest nav-text mb-2">Acciones Rápidas</p>
-                
-                <a href="{% url 'gestion_servicios' %}" class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative group/btn text-gray-400 hover:text-white">
+                <p class="px-6 text-[9px] font-black text-gray-500 uppercase tracking-widest nav-text mb-2">Acciones
+                    Rápidas</p>
+
+                <a href="{% url 'gestion_servicios' %}"
+                    class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative group/btn text-gray-400 hover:text-white">
                     <i class="fas fa-list-ul text-lg w-6 text-center shrink-0"></i>
                     <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Catálogo</span>
                 </a>
-                
-                <a href="{% url 'nueva_cotizacion' %}" class="mx-4 mt-2 flex items-center justify-center px-2 py-2.5 rounded-md bg-[#00A3FF] hover:bg-[#007BCC] text-white transition-colors group/btn shadow-sm">
+
+                <a href="{% url 'nueva_cotizacion' %}"
+                    class="mx-4 mt-2 flex items-center justify-center px-2 py-2.5 rounded-md bg-[#00A3FF] hover:bg-[#007BCC] text-white transition-colors group/btn shadow-sm">
                     <i class="fas fa-plus-circle text-sm shrink-0"></i>
                     <span class="nav-text ml-3 text-[10px] font-black tracking-widest uppercase">Nueva Cotización</span>
                 </a>
@@ -135,26 +229,28 @@
 
             {% if user.rol == 'admin' %}
             <div class="mt-4 pt-4 border-t border-white/5">
-                <a href="{% url 'gestion_usuarios' %}" class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative text-gray-400 hover:text-white">
+                <a href="{% url 'gestion_usuarios' %}"
+                    class="flex items-center px-6 py-3 hover:bg-white/10 transition-colors relative text-gray-400 hover:text-white">
                     <i class="fas fa-users-cog text-lg w-6 text-center shrink-0"></i>
                     <span class="nav-text ml-4 text-xs font-bold tracking-widest uppercase">Usuarios</span>
                 </a>
             </div>
             {% endif %}
         </nav>
-        
+
         <div class="p-4 border-t border-white/5 bg-sidebar-header">
-             <div class="flex items-center justify-center">
+            <div class="flex items-center justify-center">
                 <span class="text-[9px] text-gray-500 nav-text">Lexa &copy; 2026</span>
-             </div>
+            </div>
         </div>
     </aside>
 
     <div class="flex-1 ml-[4.5rem] flex flex-col h-screen overflow-hidden bg-[#F3F4F6] transition-all duration-300">
-        
+
         <header class="h-16 bg-white shadow-sm flex items-center justify-between px-8 relative z-40 shrink-0">
             <div>
-                <h2 class="text-xl font-black text-[#08142C] brand-font tracking-wide">{% block titulo_pagina %}Panel de Control{% endblock %}</h2>
+                <h2 class="text-xl font-black text-[#08142C] brand-font tracking-wide">{% block titulo_pagina %}Panel de
+                    Control{% endblock %}</h2>
                 <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                     {{ now|date:"l, d F Y" }}
@@ -162,105 +258,134 @@
             </div>
 
             <div class="flex items-center gap-6">
-                
+
                 <div class="relative">
-                    <button id="btn-notificaciones" onclick="toggleNotificaciones(event)" aria-expanded="false" class="relative p-2 text-gray-400 hover:text-[#00A3FF] transition-colors focus:outline-none group">
+                    <button id="btn-notificaciones" onclick="toggleNotificaciones(event)" aria-expanded="false"
+                        class="relative p-2 text-gray-400 hover:text-[#00A3FF] transition-colors focus:outline-none group">
                         <i class="fas fa-bell text-xl group-hover:animate-swing"></i>
                         {% if total_notif > 0 %}
-                        <span class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce border border-white">
+                        <span
+                            class="absolute top-0 right-0 w-4 h-4 bg-red-500 text-white text-[9px] font-black rounded-full flex items-center justify-center animate-bounce border border-white">
                             {{ total_notif }}
                         </span>
                         {% endif %}
                     </button>
 
-                    <div id="panel-notificaciones" class="hidden absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate__animated animate__fadeIn z-50 origin-top-right">
+                    <div id="panel-notificaciones"
+                        class="hidden absolute right-0 mt-3 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate__animated animate__fadeIn z-50 origin-top-right">
                         <div class="bg-[#08142C] p-3 border-b border-gray-100 flex justify-between items-center">
                             <h3 class="text-xs font-bold text-white uppercase tracking-widest">Recordatorios</h3>
                             <span class="text-[10px] text-[#00A3FF]">Hoy y Urgentes</span>
                         </div>
-                        
+
                         <div class="max-h-80 overflow-y-auto custom-scrollbar">
                             {% if total_notif == 0 %}
-                                <div class="p-6 text-center text-gray-400">
-                                    <i class="fas fa-check-circle text-3xl mb-2 text-green-100"></i>
-                                    <p class="text-xs font-bold">Todo al día.</p>
-                                </div>
+                            <div class="p-6 text-center text-gray-400">
+                                <i class="fas fa-check-circle text-3xl mb-2 text-green-100"></i>
+                                <p class="text-xs font-bold">Todo al día.</p>
+                            </div>
                             {% else %}
-                                
-                                {% if notif_tareas %}
-                                <div class="p-2 bg-red-50/50">
-                                    <p class="text-[10px] font-black text-red-400 uppercase px-2 mb-1">Tareas Críticas</p>
-                                    {% for t in notif_tareas %}
-                                    <a href="{% url 'detalle_cliente' t.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-red-200">
-                                        <div class="flex justify-between items-start">
-                                            <span class="text-xs font-bold text-[#08142C] leading-tight">{{ t.titulo }}</span>
-                                            <span class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded whitespace-nowrap ml-2 shrink-0">Vence Hoy</span>
-                                        </div>
-                                        <p class="text-[9px] text-gray-500 truncate mt-1"><i class="fas fa-building mr-1"></i>{{ t.cliente.nombre_empresa }}</p>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
 
-                                {% if notif_eventos %}
-                                <div class="p-2 bg-blue-50/50 border-t border-gray-100">
-                                    <p class="text-[10px] font-black text-blue-400 uppercase px-2 mb-1">Vencimientos y Agenda</p>
-                                    {% for e in notif_eventos %}
-                                    <a href="{% if e.cliente %}{% url 'detalle_cliente' e.cliente.id %}{% else %}{% url 'agenda_legal' %}{% endif %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-blue-200">
-                                        <div class="flex justify-between items-start">
-                                            <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ e.titulo }}</span>
-                                            <span class="text-[9px] font-bold text-blue-500 shrink-0">{{ e.inicio|date:"d/m H:i" }}</span>
-                                        </div>
-                                        <p class="text-[9px] text-gray-500 truncate mt-1">
-                                            <i class="fas {% if e.cliente %}fa-folder-open{% else %}fa-calendar-alt{% endif %} mr-1"></i>
-                                            {{ e.cliente.nombre_empresa|default:"Ver en agenda general" }}
-                                        </p>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
+                            {% if notif_tareas %}
+                            <div class="p-2 bg-red-50/50">
+                                <p class="text-[10px] font-black text-red-400 uppercase px-2 mb-1">Tareas Críticas</p>
+                                {% for t in notif_tareas %}
+                                <a href="{% url 'detalle_cliente' t.cliente.id %}"
+                                    class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-red-200">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight">{{ t.titulo
+                                            }}</span>
+                                        <span
+                                            class="text-[9px] font-bold text-red-500 bg-red-100 px-1 rounded whitespace-nowrap ml-2 shrink-0">Vence
+                                            Hoy</span>
+                                    </div>
+                                    <p class="text-[9px] text-gray-500 truncate mt-1"><i
+                                            class="fas fa-building mr-1"></i>{{ t.cliente.nombre_empresa }}</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
 
-                                {% if notif_cobros %}
-                                <div class="p-2 bg-amber-50/50 border-t border-gray-100">
-                                    <p class="text-[10px] font-black text-amber-500 uppercase px-2 mb-1">Cobranza (3 días)</p>
-                                    {% for c in notif_cobros %}
-                                    <a href="{% url 'finanzas_cliente' c.cliente.id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-amber-200">
-                                        <div class="flex justify-between items-center">
-                                            <span class="text-xs font-bold text-[#08142C] truncate pr-2">{{ c.cliente.nombre_empresa }}</span>
-                                            <span class="text-xs font-black text-amber-600 shrink-0">${{ c.saldo_pendiente }}</span>
-                                        </div>
-                                        <p class="text-[9px] text-gray-500 truncate mt-1"><i class="fas fa-file-invoice-dollar mr-1"></i>{{ c.concepto }}</p>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
+                            {% if notif_eventos %}
+                            <div class="p-2 bg-blue-50/50 border-t border-gray-100">
+                                <p class="text-[10px] font-black text-blue-400 uppercase px-2 mb-1">Vencimientos y
+                                    Agenda</p>
+                                {% for e in notif_eventos %}
+                                <a href="{% if e.cliente %}{% url 'detalle_cliente' e.cliente.id %}{% else %}{% url 'agenda_legal' %}{% endif %}"
+                                    class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-blue-200">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ e.titulo
+                                            }}</span>
+                                        <span class="text-[9px] font-bold text-blue-500 shrink-0">{{ e.inicio|date:"d/m
+                                            H:i" }}</span>
+                                    </div>
+                                    <p class="text-[9px] text-gray-500 truncate mt-1">
+                                        <i
+                                            class="fas {% if e.cliente %}fa-folder-open{% else %}fa-calendar-alt{% endif %} mr-1"></i>
+                                        {{ e.cliente.nombre_empresa|default:"Ver en agenda general" }}
+                                    </p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
 
-                                {% if notif_auditorias %}
-                                <div class="p-2 bg-cyan-50/50 border-t border-gray-100">
-                                    <p class="text-[10px] font-black text-cyan-500 uppercase px-2 mb-1">Auditoría Pendiente</p>
-                                    {% for aud in notif_auditorias %}
-                                    <a href="{% url 'detalle_cliente' aud.solicitud__cliente__id %}" class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-cyan-300">
-                                        <div class="flex justify-between items-start">
-                                            <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{ aud.solicitud__cliente__nombre_empresa }}</span>
-                                            <span class="text-[9px] font-bold text-white bg-cyan-500 px-1.5 py-0.5 rounded shrink-0">{{ aud.total_archivos }} archivo(s)</span>
-                                        </div>
-                                        <p class="text-[9px] text-cyan-600 font-bold mt-1"><i class="fas fa-microscope mr-1"></i>Requiere revisión</p>
-                                    </a>
-                                    {% endfor %}
-                                </div>
-                                {% endif %}
-                                {% endif %}
+                            {% if notif_cobros %}
+                            <div class="p-2 bg-amber-50/50 border-t border-gray-100">
+                                <p class="text-[10px] font-black text-amber-500 uppercase px-2 mb-1">Cobranza (3 días)
+                                </p>
+                                {% for c in notif_cobros %}
+                                <a href="{% url 'finanzas_cliente' c.cliente.id %}"
+                                    class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-amber-200">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-xs font-bold text-[#08142C] truncate pr-2">{{
+                                            c.cliente.nombre_empresa }}</span>
+                                        <span class="text-xs font-black text-amber-600 shrink-0">${{ c.saldo_pendiente
+                                            }}</span>
+                                    </div>
+                                    <p class="text-[9px] text-gray-500 truncate mt-1"><i
+                                            class="fas fa-file-invoice-dollar mr-1"></i>{{ c.concepto }}</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+
+                            {% if notif_auditorias %}
+                            <div class="p-2 bg-cyan-50/50 border-t border-gray-100">
+                                <p class="text-[10px] font-black text-cyan-500 uppercase px-2 mb-1">Auditoría Pendiente
+                                </p>
+                                {% for aud in notif_auditorias %}
+                                <a href="{% url 'detalle_cliente' aud.solicitud__cliente__id %}"
+                                    class="block p-2 hover:bg-white rounded-lg transition-colors mb-1 shadow-sm border border-transparent hover:border-cyan-300">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-bold text-[#08142C] leading-tight pr-2">{{
+                                            aud.solicitud__cliente__nombre_empresa }}</span>
+                                        <span
+                                            class="text-[9px] font-bold text-white bg-cyan-500 px-1.5 py-0.5 rounded shrink-0">{{
+                                            aud.total_archivos }} archivo(s)</span>
+                                    </div>
+                                    <p class="text-[9px] text-cyan-600 font-bold mt-1"><i
+                                            class="fas fa-microscope mr-1"></i>Requiere revisión</p>
+                                </a>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% endif %}
                         </div>
                     </div>
-                    </div>
+                </div>
 
-                <a href="{% url 'mi_perfil' %}" class="flex items-center gap-4 group cursor-pointer border-l border-gray-200 pl-6">
+                <a href="{% url 'mi_perfil' %}"
+                    class="flex items-center gap-4 group cursor-pointer border-l border-gray-200 pl-6">
                     <div class="text-right hidden md:block">
-                        <p class="text-xs font-bold text-[#08142C] group-hover:text-[#00A3FF] transition-colors">{{ user.get_full_name|default:user.username }}</p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ user.get_rol_display }}</p>
+                        <p class="text-xs font-bold text-[#08142C] group-hover:text-[#00A3FF] transition-colors">{{
+                            user.get_full_name|default:user.username }}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">{{ user.get_rol_display
+                            }}</p>
                     </div>
-                    <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00A3FF] to-[#C084FC] p-[2px] shadow-md overflow-hidden group-hover:scale-105 transition-transform">
-                        <div class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
+                    <div
+                        class="w-10 h-10 rounded-full bg-gradient-to-tr from-[#00A3FF] to-[#C084FC] p-[2px] shadow-md overflow-hidden group-hover:scale-105 transition-transform">
+                        <div
+                            class="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden">
                             {% if user.avatar %}
                             <img src="{{ user.avatar.url }}" class="w-full h-full object-cover">
                             {% else %}
@@ -269,8 +394,10 @@
                         </div>
                     </div>
                 </a>
-                
-                <a href="{% url 'logout' %}" class="ml-2 text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50" title="Cerrar Sesión">
+
+                <a href="{% url 'logout' %}"
+                    class="ml-2 text-gray-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50"
+                    title="Cerrar Sesión">
                     <i class="fas fa-power-off text-sm"></i>
                 </a>
             </div>
@@ -278,24 +405,27 @@
 
         <main class="flex-1 overflow-x-hidden overflow-y-auto custom-scrollbar p-6 md:p-10 relative">
             <div class="absolute top-10 right-10 opacity-[0.03] pointer-events-none">
-                 <img src="{% static 'img/logo.png' %}" class="w-96 grayscale rounded-full">
+                <img src="{% static 'img/logo.png' %}" class="w-96 grayscale rounded-full">
             </div>
 
             {% if messages %}
-            <div id="contenedor-alertas" class="mb-6 space-y-2 max-w-4xl mx-auto relative z-10 flex flex-col items-center">
+            <div id="contenedor-alertas"
+                class="mb-6 space-y-2 max-w-4xl mx-auto relative z-10 flex flex-col items-center">
                 {% for message in messages %}
                 <div class="toast-message w-full p-3 rounded-lg shadow-sm border-l-4 flex items-center gap-3 backdrop-blur-sm animate__animated animate__fadeInDown
                     {% if message.tags == 'success' %}bg-green-50/90 border-green-500 text-green-800
                     {% elif message.tags == 'error' %}bg-red-50/90 border-red-500 text-red-800 is-error
                     {% else %}bg-blue-50/90 border-blue-500 text-blue-800{% endif %}">
-                    <i class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} text-sm"></i>
+                    <i
+                        class="fas {% if message.tags == 'success' %}fa-check-circle{% elif message.tags == 'error' %}fa-exclamation-triangle{% else %}fa-info-circle{% endif %} text-sm"></i>
                     <span class="font-bold text-xs flex-1">{{ message }}</span>
-                    <button onclick="this.parentElement.remove()" class="text-current opacity-50 hover:opacity-100"><i class="fas fa-times"></i></button>
+                    <button onclick="this.parentElement.remove()" class="text-current opacity-50 hover:opacity-100"><i
+                            class="fas fa-times"></i></button>
                 </div>
                 {% endfor %}
             </div>
             {% endif %}
-            
+
             <div class="relative z-10">
                 {% block content %}
                 {% endblock %}
@@ -309,8 +439,8 @@
         const panelNotif = document.getElementById('panel-notificaciones');
 
         function toggleNotificaciones(e) {
-            if (e) e.stopPropagation(); 
-            
+            if (e) e.stopPropagation();
+
             const isHidden = panelNotif.classList.contains('hidden');
             if (isHidden) {
                 panelNotif.classList.remove('hidden', 'animate__fadeOut');
@@ -326,7 +456,7 @@
                 panelNotif.classList.remove('animate__fadeIn');
                 panelNotif.classList.add('animate__fadeOut');
                 btnNotif.setAttribute('aria-expanded', 'false');
-                setTimeout(() => panelNotif.classList.add('hidden'), 200); 
+                setTimeout(() => panelNotif.classList.add('hidden'), 200);
             }
         }
 
@@ -348,8 +478,8 @@
                 setTimeout(() => {
                     toast.classList.remove('animate__fadeInDown');
                     toast.classList.add('animate__fadeOutUp');
-                    setTimeout(() => toast.remove(), 800); 
-                }, 5000); 
+                    setTimeout(() => toast.remove(), 800);
+                }, 5000);
             });
         });
 
@@ -357,21 +487,21 @@
         // 3. PROTECTOR GLOBAL DE FORMULARIOS
         document.addEventListener("DOMContentLoaded", () => {
             document.querySelectorAll('form').forEach(form => {
-                form.addEventListener('submit', function(e) {
-                    if (!this.checkValidity()) return; 
+                form.addEventListener('submit', function (e) {
+                    if (!this.checkValidity()) return;
 
                     const submitBtn = this.querySelector('button[type="submit"]');
-                    if(submitBtn && !submitBtn.dataset.processed) {
-                        submitBtn.dataset.processed = "true"; 
+                    if (submitBtn && !submitBtn.dataset.processed) {
+                        submitBtn.dataset.processed = "true";
                         submitBtn.disabled = true;
-                        
+
                         const currentWidth = submitBtn.offsetWidth;
                         submitBtn.style.minWidth = currentWidth + 'px';
 
                         const originalText = submitBtn.innerHTML;
                         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Procesando...';
                         submitBtn.classList.add('opacity-70', 'cursor-not-allowed');
-                        
+
                         setTimeout(() => {
                             if (submitBtn) {
                                 submitBtn.disabled = false;
@@ -379,11 +509,12 @@
                                 submitBtn.classList.remove('opacity-70', 'cursor-not-allowed');
                                 delete submitBtn.dataset.processed;
                             }
-                        }, 10000); 
+                        }, 10000);
                     }
                 });
             });
         });
     </script>
 </body>
+
 </html>
