@@ -267,7 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // === LÓGICA DE SUCURSALES (MULTI-SELECT & MODAL) ===
     let sucursalesSeleccionadas = [];
-    let clientesBusquedaActual = []; // Guarda la data de la API
+    let clientesBusquedaActual = []; // Guarda la data de la API (las 40 sucursales)
     const contenedorChips = document.getElementById('contenedor-chips-sucursales');
     
     // Modal Elementos
@@ -309,7 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // === CÁLCULOS Y EVENTOS DE FILAS (SIN CAMBIOS) ===
+    // === CÁLCULOS Y EVENTOS DE FILAS ===
     contenedorItems.addEventListener('click', (e) => {
         if (e.target.closest('.btn-eliminar-item')) {
             const fila = e.target.closest('.item-fila');
@@ -555,13 +555,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch(`/api/buscar-cliente/?q=${encodeURIComponent(query)}`);
                 if (!response.ok) throw new Error('Error de red');
                 
+                // Carga todo (ej. 40 sucursales) en memoria para el Modal
                 clientesBusquedaActual = await response.json();
                 listaSugerencias.innerHTML = '';
                 
                 if (clientesBusquedaActual.length > 0) {
                     listaSugerencias.classList.remove('hidden');
 
-                    // LÓGICA CLAVE: Si hay más de 1, mostrar el botón gigante del Modal
+                    // 1. EL BOTÓN GIGANTE (Muestra el total real)
                     if (clientesBusquedaActual.length > 1) {
                         const liMasivo = document.createElement('li');
                         liMasivo.className = "p-4 bg-gradient-to-r from-[#2D1B4B] to-[#A855F7] text-white hover:opacity-90 cursor-pointer flex items-center gap-4 transition-all sticky top-0 z-10 shadow-lg";
@@ -577,13 +578,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         `;
                         liMasivo.addEventListener('click', () => {
                             listaSugerencias.classList.add('hidden');
-                            abrirModalSucursales();
+                            abrirModalSucursales(); // Abre el modal con TODAS las opciones
                         });
                         listaSugerencias.appendChild(liMasivo);
                     }
 
-                    // Renderizar las opciones individuales debajo (por si solo quiere 1)
-                    clientesBusquedaActual.forEach(cliente => {
+                    // 2. RECORTAR A 5 PARA EL DROPDOWN (Visualización rápida)
+                    const opcionesDropdown = clientesBusquedaActual.slice(0, 5);
+
+                    // Renderizar las 5 opciones individuales
+                    opcionesDropdown.forEach(cliente => {
                         const li = document.createElement('li');
                         li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 transition-colors";
                         
@@ -605,7 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (cliente.id) {
                                 agregarChipSucursal(cliente);
                             } else {
-                                // Lógica manual
+                                // Lógica manual si no hay ID
                                 inputEmpresa.value = cliente.prospecto_empresa || '';
                                 document.getElementById('prospecto_nombre').value = cliente.prospecto_nombre || '';
                                 document.getElementById('prospecto_email').value = cliente.prospecto_email || '';
@@ -617,6 +621,19 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                         listaSugerencias.appendChild(li);
                     });
+
+                    // 3. AVISO VISUAL SI HAY MÁS OCULTAS
+                    if (clientesBusquedaActual.length > 5) {
+                        const liExtra = document.createElement('li');
+                        liExtra.className = "p-2 text-center text-[10px] text-gray-400 font-bold bg-gray-50 border-t border-gray-100 uppercase tracking-widest cursor-pointer hover:bg-gray-100 transition-colors";
+                        liExtra.textContent = `+ ${clientesBusquedaActual.length - 5} sucursales ocultas. Usa la Selección Múltiple.`;
+                        liExtra.addEventListener('click', () => {
+                            listaSugerencias.classList.add('hidden');
+                            abrirModalSucursales();
+                        });
+                        listaSugerencias.appendChild(liExtra);
+                    }
+
                 } else { 
                     listaSugerencias.classList.add('hidden'); 
                 }
