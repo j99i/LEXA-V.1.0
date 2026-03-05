@@ -10,13 +10,13 @@
         <i class="fas fa-coins absolute -right-4 -bottom-6 text-8xl text-gray-50 pointer-events-none transform -rotate-12" aria-hidden="true"></i>
 
         <div class="relative z-10 w-full lg:w-auto flex-1">
-            <h2 class="text-3xl font-black text-[#2D1B4B] font-serif">Cartera de Clientes</h2>
+            <h2 class="text-3xl font-black text-[#0A0A0A] font-serif">Cartera de Clientes</h2>
             <p class="text-sm text-gray-400 font-bold mt-1">Selecciona un cliente para ver sus proyectos y gestionar cobros.</p>
             
             <div class="relative mt-4 max-w-md group">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
                 <input type="text" id="buscadorClientes" aria-label="Buscar cliente" placeholder="Buscar por nombre o contacto..." autocomplete="off"
-                    class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#2D1B4B] focus:outline-none focus:bg-white focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 transition-all shadow-sm">
+                    class="w-full pl-11 pr-4 py-3 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#0A0A0A] focus:outline-none focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-yellow-50 transition-all shadow-sm">
             </div>
         </div>
         
@@ -34,7 +34,7 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="gridClientes">
         {% for item in clientes %}
         
-        <div class="cliente-card block group bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-xl hover:border-[#A855F7]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
+        <div class="cliente-card block group bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 hover:shadow-xl hover:border-[#D4AF37]/30 hover:-translate-y-1 transition-all duration-300 cursor-pointer relative overflow-hidden"
              data-search="{{ item.obj.nombre_empresa|default:''|lower }} {{ item.obj.nombre_contacto|default:''|lower }}"
              onclick="if(!event.target.closest('.btn-accion-evitar')) window.location.href='{% url 'finanzas_cliente' item.obj.id %}'">
             
@@ -49,7 +49,7 @@
             {% endif %}
 
             <div class="flex justify-between items-start mb-5 pl-3">
-                <div class="w-12 h-12 rounded-[1rem] bg-[#2D1B4B] text-white flex items-center justify-center font-black text-xl shadow-md group-hover:bg-[#A855F7] transition-colors duration-300 overflow-hidden shrink-0">
+                <div class="w-12 h-12 rounded-[1rem] bg-[#0A0A0A] text-white flex items-center justify-center font-black text-xl shadow-md group-hover:bg-[#D4AF37] transition-colors duration-300 overflow-hidden shrink-0">
                     {% if item.obj.logo %}
                         <img src="{{ item.obj.logo.url }}" alt="Logo {{ item.obj.nombre_empresa }}" class="w-full h-full object-cover">
                     {% else %}
@@ -70,7 +70,7 @@
             </div>
 
             <div class="pl-3 mb-5 min-w-0 pr-2">
-                <h3 class="font-black text-[#2D1B4B] text-xl leading-tight mb-1 truncate" title="{{ item.obj.nombre_empresa|default:'Cliente Sin Nombre' }}">
+                <h3 class="font-black text-[#0A0A0A] text-xl leading-tight mb-1 truncate" title="{{ item.obj.nombre_empresa|default:'Cliente Sin Nombre' }}">
                     {{ item.obj.nombre_empresa|default:"Cliente Sin Nombre" }}
                 </h3>
                 <p class="text-xs text-gray-400 font-bold truncate flex items-center gap-1" title="{{ item.obj.nombre_contacto|default:'Sin contacto registrado' }}">
@@ -93,7 +93,7 @@
                 </div>
             </div>
             
-            <div class="absolute right-4 bottom-4 text-gray-200 group-hover:text-[#A855F7] group-hover:translate-x-1 transition-all duration-300">
+            <div class="absolute right-4 bottom-4 text-gray-200 group-hover:text-[#D4AF37] group-hover:translate-x-1 transition-all duration-300">
                 <i class="fas fa-chevron-right" aria-hidden="true"></i>
             </div>
         </div>
@@ -102,7 +102,7 @@
             <div class="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4 border border-gray-100">
                 <i class="fas fa-folder-open text-3xl text-gray-300" aria-hidden="true"></i>
             </div>
-            <p class="font-black text-xl text-[#2D1B4B] font-serif">Sin Clientes Activos</p>
+            <p class="font-black text-xl text-[#0A0A0A] font-serif">Sin Clientes Activos</p>
             <p class="text-sm mt-2 max-w-md mx-auto">No hay clientes registrados en el sistema de finanzas. Dirígete a la sección de clientes para agregar uno nuevo.</p>
         </div>
         {% endfor %}
@@ -112,7 +112,7 @@
         <div class="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400 border border-gray-200">
             <i class="fas fa-search-minus text-2xl" aria-hidden="true"></i>
         </div>
-        <h3 class="text-lg font-black text-[#2D1B4B]">No se encontraron clientes</h3>
+        <h3 class="text-lg font-black text-[#0A0A0A]">No se encontraron clientes</h3>
         <p class="text-gray-500 text-sm mt-1">Intenta con otro término de búsqueda.</p>
     </div>
 
@@ -125,10 +125,10 @@
             <i class="fas fa-user-times text-3xl" aria-hidden="true"></i>
         </div>
         
-        <h3 id="modal-eliminar-title" class="text-xl font-black text-[#2D1B4B] mb-2">¿Eliminar Cliente?</h3>
+        <h3 id="modal-eliminar-title" class="text-xl font-black text-[#0A0A0A] mb-2">¿Eliminar Cliente?</h3>
         <p class="text-sm text-gray-500 mb-6 px-2">
             Estás a punto de borrar a <br>
-            <strong id="modal-eliminar-nombre" class="text-[#2D1B4B] text-base"></strong>.<br>
+            <strong id="modal-eliminar-nombre" class="text-[#0A0A0A] text-base"></strong>.<br>
             <span class="text-red-500 font-bold mt-2 block leading-snug">Se borrarán todas sus cotizaciones, finanzas y documentos. Esta acción es irreversible.</span>
         </p>
 

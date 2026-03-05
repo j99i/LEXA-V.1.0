@@ -10,9 +10,9 @@
         <div class="mb-8">
             <label class="block text-xs font-bold text-gray-400 uppercase mb-2" for="titulo">Nombre del Proyecto *</label>
             <div class="relative group">
-                <i class="fas fa-pen absolute left-0 top-3 text-gray-300 group-hover:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+                <i class="fas fa-pen absolute left-0 top-3 text-gray-300 group-hover:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
                 <input type="text" name="titulo" id="titulo" required
-                       class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#2D1B4B] placeholder-gray-300 focus:border-[#A855F7] focus:outline-none py-2 pl-8 transition-all"
+                       class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#0A0A0A] placeholder-gray-300 focus:border-[#D4AF37] focus:outline-none py-2 pl-8 transition-all"
                        placeholder="Ej. Licencia 2026 - Coca Cola" autofocus>
             </div>
             <p class="text-[10px] text-gray-400 mt-2 font-bold">💡 Si seleccionas varias sucursales, el sistema agregará automáticamente su nombre al final de este título.</p>
@@ -23,19 +23,19 @@
             <div class="lg:col-span-1 space-y-6">
                 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative overflow-visible z-20">
-                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#2D1B4B] to-[#A855F7]"></div>
-                    <h3 class="text-lg font-bold text-[#2D1B4B] mb-6 flex items-center gap-2">
-                        <i class="fas fa-user-tie text-[#A855F7]" aria-hidden="true"></i> Datos del Cliente
+                    <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[#0A0A0A] to-[#D4AF37]"></div>
+                    <h3 class="text-lg font-bold text-[#0A0A0A] mb-6 flex items-center gap-2">
+                        <i class="fas fa-user-tie text-[#D4AF37]" aria-hidden="true"></i> Datos del Cliente
                     </h3>
                     
                     <div class="space-y-4">
                         <div class="relative">
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="input-empresa">Empresa / Sucursales *</label>
                             <input type="text" id="input-empresa" name="prospecto_empresa" autocomplete="off" required
-                                   class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B] transition-colors shadow-sm" 
+                                   class="w-full p-3 pr-10 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none font-bold text-[#0A0A0A] transition-colors shadow-sm" 
                                    placeholder="Buscar o escribir...">
                             
-                            <div id="spinner-busqueda" class="hidden absolute right-3 top-9 text-[#A855F7] animate-spin">
+                            <div id="spinner-busqueda" class="hidden absolute right-3 top-9 text-[#D4AF37] animate-spin">
                                 <i class="fas fa-circle-notch" aria-hidden="true"></i>
                             </div>
 
@@ -46,38 +46,38 @@
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_nombre">Contacto *</label>
-                            <input type="text" name="prospecto_nombre" id="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none font-bold text-[#2D1B4B] transition-colors">
+                            <input type="text" name="prospecto_nombre" id="prospecto_nombre" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none font-bold text-[#0A0A0A] transition-colors">
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_cargo">Cargo *</label>
-                            <input type="text" name="prospecto_cargo" id="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-gray-600 transition-colors">
+                            <input type="text" name="prospecto_cargo" id="prospecto_cargo" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none text-gray-600 transition-colors">
                         </div>
 
                         <div class="grid grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_email">Email *</label>
-                                <input type="email" name="prospecto_email" id="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm transition-colors">
+                                <input type="email" name="prospecto_email" id="prospecto_email" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none text-sm transition-colors">
                             </div>
                              <div>
                                <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_telefono">Teléfono</label>
-                               <input type="text" name="prospecto_telefono" id="prospecto_telefono" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm transition-colors">
+                               <input type="text" name="prospecto_telefono" id="prospecto_telefono" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none text-sm transition-colors">
                            </div>
                         </div>
 
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="prospecto_direccion">Dirección Fiscal *</label>
-                            <textarea name="prospecto_direccion" id="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#A855F7] outline-none text-sm resize-none transition-colors"></textarea>
+                            <textarea name="prospecto_direccion" id="prospecto_direccion" rows="3" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-[#D4AF37] outline-none text-sm resize-none transition-colors"></textarea>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 z-10 relative">
-                     <h3 class="text-sm font-bold text-[#2D1B4B] mb-4">Condiciones Comerciales</h3>
+                     <h3 class="text-sm font-bold text-[#0A0A0A] mb-4">Condiciones Comerciales</h3>
                      <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="tiempo_entrega">Tiempo de Gestión</label>
-                            <select name="tiempo_entrega" id="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors cursor-pointer">
+                            <select name="tiempo_entrega" id="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#0A0A0A] outline-none focus:border-[#D4AF37] transition-colors cursor-pointer">
                                 <option value="30_dias">30 Días Hábiles</option>
                                 <option value="60_dias">60 Días Hábiles</option>
                                 <option value="90_dias">90 Días Hábiles</option>
@@ -86,7 +86,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1" for="condiciones_pago">Condiciones de Pago</label>
-                            <select name="condiciones_pago" id="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-[#A855F7] transition-colors cursor-pointer">
+                            <select name="condiciones_pago" id="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#0A0A0A] outline-none focus:border-[#D4AF37] transition-colors cursor-pointer">
                                 <option value="50_50">50% Anticipo - 50% Final</option>
                                 <option value="100_entrega">100% Contra Entrega</option>
                                 <option value="contado">Pago de Contado</option>
@@ -100,10 +100,10 @@
             <div class="lg:col-span-2 space-y-6 z-10 relative">
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-[#2D1B4B] flex items-center gap-2">
-                            <i class="fas fa-list-ul text-[#A855F7]" aria-hidden="true"></i> Conceptos
+                        <h3 class="text-lg font-bold text-[#0A0A0A] flex items-center gap-2">
+                            <i class="fas fa-list-ul text-[#D4AF37]" aria-hidden="true"></i> Conceptos
                         </h3>
-                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md active:scale-95">
+                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md active:scale-95">
                             + AGREGAR
                         </button>
                     </div>
@@ -123,11 +123,11 @@
                             </div>
                             
                             <div class="w-full max-w-xs flex justify-between items-center">
-                                <span class="text-xs font-bold text-[#A855F7] uppercase">Descuento (%):</span>
+                                <span class="text-xs font-bold text-[#D4AF37] uppercase">Descuento (%):</span>
                                 <div class="relative w-24">
                                     <input type="number" name="porcentaje_descuento" id="input-porcentaje" value="0" step="0.1" min="0" max="100" 
-                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#A855F7] rounded-lg text-sm font-black text-[#A855F7] outline-none transition-colors">
-                                    <span class="absolute right-2 top-1.5 text-[#A855F7] font-bold">%</span>
+                                           class="w-full p-1.5 pr-6 text-right bg-white border border-[#D4AF37] rounded-lg text-sm font-black text-[#D4AF37] outline-none transition-colors">
+                                    <span class="absolute right-2 top-1.5 text-[#D4AF37] font-bold">%</span>
                                 </div>
                             </div>
 
@@ -140,7 +140,7 @@
                                 <div class="flex justify-between items-center mb-2">
                                     <label class="flex items-center gap-2 cursor-pointer">
                                         <input type="checkbox" name="aplica_iva" id="check-iva" 
-                                               class="w-4 h-4 text-[#A855F7] rounded focus:ring-purple-500 border-gray-300 accent-[#A855F7]">
+                                               class="w-4 h-4 text-[#D4AF37] rounded focus:ring-yellow-500 border-gray-300 accent-[#D4AF37]">
                                         <span class="text-xs font-bold text-gray-500 uppercase">¿Aplicar I.V.A.?</span>
                                     </label>
                                 </div>
@@ -149,7 +149,7 @@
                                     <span class="text-[10px] font-bold text-gray-400 uppercase">Tasa:</span>
                                     <div class="relative w-20">
                                         <input type="number" name="porcentaje_iva_personalizado" id="input-tasa-iva" value="16" step="1" min="0"
-                                               class="w-full p-1 pr-6 text-right bg-gray-50 border border-gray-200 rounded text-sm font-bold text-gray-600 outline-none focus:border-[#A855F7]">
+                                               class="w-full p-1 pr-6 text-right bg-gray-50 border border-gray-200 rounded text-sm font-bold text-gray-600 outline-none focus:border-[#D4AF37]">
                                         <span class="absolute right-2 top-1 text-gray-400 text-xs">%</span>
                                     </div>
                                 </div>
@@ -160,9 +160,9 @@
                                 <span class="text-lg font-bold text-gray-500" id="lbl-iva">$0.00</span>
                             </div>
 
-                            <div class="w-full max-w-xs flex justify-between items-center border-t-2 border-[#2D1B4B] pt-4 mt-2">
-                                <span class="text-sm font-black text-[#2D1B4B] uppercase">TOTAL FINAL:</span>
-                                <span class="text-3xl font-black text-[#2D1B4B]" id="lbl-total">$0.00</span>
+                            <div class="w-full max-w-xs flex justify-between items-center border-t-2 border-[#0A0A0A] pt-4 mt-2">
+                                <span class="text-sm font-black text-[#0A0A0A] uppercase">TOTAL FINAL:</span>
+                                <span class="text-3xl font-black text-[#0A0A0A]" id="lbl-total">$0.00</span>
                             </div>
                             
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest" id="texto-impuestos">
@@ -178,7 +178,7 @@
             <a href="{% url 'lista_cotizaciones' %}" class="px-6 py-3 bg-gray-100 text-gray-500 rounded-xl font-bold hover:bg-gray-200 transition-colors focus:outline-none">
                 Cancelar
             </a>
-            <button type="submit" id="btn-submit" class="px-10 py-3 bg-[#A855F7] text-white rounded-xl font-bold hover:bg-[#9333EA] shadow-lg transition-all hover:scale-105 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-purple-300 disabled:opacity-75 disabled:transform-none disabled:cursor-not-allowed">
+            <button type="submit" id="btn-submit" class="px-10 py-3 bg-[#D4AF37] text-white rounded-xl font-bold hover:bg-[#B8962E] shadow-lg transition-all hover:scale-105 flex items-center gap-2 focus:outline-none focus:ring-4 focus:ring-yellow-300 disabled:opacity-75 disabled:transform-none disabled:cursor-not-allowed">
                 <i class="fas fa-save icon-normal" aria-hidden="true"></i> 
                 <i class="fas fa-circle-notch fa-spin hidden icon-loading" aria-hidden="true"></i>
                 <span class="btn-text">GUARDAR COTIZACIÓN</span>
@@ -188,13 +188,13 @@
     </form>
 </div>
 
-<div id="modal-sucursales" class="hidden fixed inset-0 z-[60] bg-[#2D1B4B]/80 backdrop-blur-md flex items-center justify-center p-4">
+<div id="modal-sucursales" class="hidden fixed inset-0 z-[60] bg-[#0A0A0A]/80 backdrop-blur-md flex items-center justify-center p-4">
     <div class="bg-white rounded-[2rem] w-full max-w-3xl overflow-hidden shadow-2xl animate__animated animate__zoomIn animate__faster flex flex-col max-h-[90vh]">
         
         <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-gray-50">
             <div>
-                <h3 class="text-xl font-black text-[#2D1B4B] flex items-center gap-2">
-                    <i class="fas fa-building text-[#A855F7]"></i> Seleccionar Sucursales
+                <h3 class="text-xl font-black text-[#0A0A0A] flex items-center gap-2">
+                    <i class="fas fa-building text-[#D4AF37]"></i> Seleccionar Sucursales
                 </h3>
                 <p class="text-xs text-gray-500 mt-1">Elige las ubicaciones a las que deseas aplicarles esta cotización.</p>
             </div>
@@ -206,10 +206,10 @@
         <div class="p-6 flex-1 overflow-hidden flex flex-col gap-4 bg-white">
             <div class="flex justify-between items-center pb-2 border-b border-gray-100">
                 <label class="flex items-center gap-2 cursor-pointer group">
-                    <input type="checkbox" id="check-todas-sucursales" class="w-5 h-5 rounded border-gray-300 text-[#A855F7] focus:ring-[#A855F7] transition-all cursor-pointer">
-                    <span class="text-sm font-bold text-gray-600 group-hover:text-[#A855F7] transition-colors">Seleccionar Todas</span>
+                    <input type="checkbox" id="check-todas-sucursales" class="w-5 h-5 rounded border-gray-300 text-[#D4AF37] focus:ring-[#D4AF37] transition-all cursor-pointer">
+                    <span class="text-sm font-bold text-gray-600 group-hover:text-[#D4AF37] transition-colors">Seleccionar Todas</span>
                 </label>
-                <span id="contador-seleccion" class="text-xs font-bold text-purple-600 bg-purple-100 px-3 py-1 rounded-full">0 seleccionadas</span>
+                <span id="contador-seleccion" class="text-xs font-bold text-yellow-600 bg-yellow-100 px-3 py-1 rounded-full">0 seleccionadas</span>
             </div>
 
             <div id="lista-checkboxes-sucursales" class="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto custom-scrollbar pr-2 pb-4">
@@ -218,7 +218,7 @@
 
         <div class="p-6 bg-gray-50 border-t border-gray-100 flex justify-end gap-3">
             <button type="button" id="btn-cancelar-modal" class="px-6 py-2.5 text-gray-500 font-bold bg-white border border-gray-200 rounded-xl hover:bg-gray-100 transition-colors">Cancelar</button>
-            <button type="button" id="btn-confirmar-sucursales" class="px-8 py-2.5 bg-[#A855F7] text-white font-bold rounded-xl hover:bg-[#9333EA] transition-all shadow-md active:scale-95">Aplicar Selección</button>
+            <button type="button" id="btn-confirmar-sucursales" class="px-8 py-2.5 bg-[#D4AF37] text-white font-bold rounded-xl hover:bg-[#B8962E] transition-all shadow-md active:scale-95">Aplicar Selección</button>
         </div>
     </div>
 </div>
@@ -232,25 +232,25 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="md:col-span-6">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] outline-none select-servicio cursor-pointer focus:border-[#A855F7] transition-colors">
+                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#0A0A0A] outline-none select-servicio cursor-pointer focus:border-[#D4AF37] transition-colors">
                     <option value="">-- Seleccionar --</option>
                     {% for s in servicios %}
                     <option value="{{ s.id }}" data-precio="{{ s.precio_base|default:0 }}" data-desc="{{ s.descripcion|escapejs }}">{{ s.nombre }}</option>
                     {% endfor %}
                 </select>
-                <textarea name="descripciones_personalizadas" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-xs text-gray-500 txt-desc resize-none outline-none transition-colors" placeholder="Descripción..."></textarea>
+                <textarea name="descripciones_personalizadas" rows="2" class="w-full mt-2 p-2 bg-gray-50 rounded-xl border border-transparent focus:border-[#D4AF37] text-xs text-gray-500 txt-desc resize-none outline-none transition-colors" placeholder="Descripción..."></textarea>
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cant. *</label>
-                <input type="number" name="cantidades" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-center input-cant outline-none transition-colors">
+                <input type="number" name="cantidades" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#D4AF37] text-sm font-black text-center input-cant outline-none transition-colors">
             </div>
             <div class="md:col-span-2">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Precio Unit. *</label>
-                <input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#A855F7] text-sm font-black text-right input-precio outline-none transition-colors">
+                <input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-[#D4AF37] text-sm font-black text-right input-precio outline-none transition-colors">
             </div>
             <div class="md:col-span-2 text-right pt-6">
                 <span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span>
-                <span class="text-sm font-black text-[#2D1B4B] lbl-subtotal-fila truncate block" title="$0.00">$0.00</span>
+                <span class="text-sm font-black text-[#0A0A0A] lbl-subtotal-fila truncate block" title="$0.00">$0.00</span>
             </div>
         </div>
     </div>
@@ -430,10 +430,10 @@ document.addEventListener('DOMContentLoaded', () => {
         sucursalesSeleccionadas.push(cliente.id);
         const chip = document.createElement('div');
         chip.id = `chip-suc-${cliente.id}`;
-        chip.className = "inline-flex items-center gap-2 bg-purple-100 text-[#2D1B4B] px-3 py-1.5 rounded-xl text-sm font-bold border border-purple-200 animate__animated animate__zoomIn animate__faster";
+        chip.className = "inline-flex items-center gap-2 bg-yellow-100 text-[#0A0A0A] px-3 py-1.5 rounded-xl text-sm font-bold border border-yellow-200 animate__animated animate__zoomIn animate__faster";
         chip.innerHTML = `
-            <i class="fas fa-store text-[#A855F7] text-xs"></i> ${cliente.prospecto_empresa}
-            <button type="button" class="text-purple-400 hover:text-red-500 font-black focus:outline-none ml-1" aria-label="Quitar">&times;</button>
+            <i class="fas fa-store text-[#D4AF37] text-xs"></i> ${cliente.prospecto_empresa}
+            <button type="button" class="text-yellow-400 hover:text-red-500 font-black focus:outline-none ml-1" aria-label="Quitar">&times;</button>
             <input type="hidden" name="sucursales_seleccionadas" value="${cliente.id}">
         `;
         
@@ -471,11 +471,11 @@ document.addEventListener('DOMContentLoaded', () => {
         clientesBusquedaActual.forEach(cliente => {
             const isChecked = sucursalesSeleccionadas.includes(cliente.id);
             const div = document.createElement('div');
-            div.className = `flex items-start p-3 border rounded-xl transition-colors cursor-pointer ${isChecked ? 'bg-purple-50 border-[#A855F7]' : 'border-gray-100 hover:bg-gray-50'}`;
+            div.className = `flex items-start p-3 border rounded-xl transition-colors cursor-pointer ${isChecked ? 'bg-yellow-50 border-[#D4AF37]' : 'border-gray-100 hover:bg-gray-50'}`;
             
             div.innerHTML = `
                 <div class="flex items-center h-5">
-                    <input id="chk-mod-${cliente.id}" type="checkbox" value="${cliente.id}" class="w-5 h-5 text-[#A855F7] bg-gray-100 border-gray-300 rounded focus:ring-[#A855F7] chk-sucursal" ${isChecked ? 'checked' : ''}>
+                    <input id="chk-mod-${cliente.id}" type="checkbox" value="${cliente.id}" class="w-5 h-5 text-[#D4AF37] bg-gray-100 border-gray-300 rounded focus:ring-[#D4AF37] chk-sucursal" ${isChecked ? 'checked' : ''}>
                 </div>
                 <div class="ml-3 text-sm flex-1">
                     <label for="chk-mod-${cliente.id}" class="font-bold text-gray-900 cursor-pointer block">${cliente.prospecto_empresa}</label>
@@ -486,7 +486,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Efecto visual al checar/deschecar en el modal
             const checkbox = div.querySelector('input');
             checkbox.addEventListener('change', () => {
-                div.className = `flex items-start p-3 border rounded-xl transition-colors cursor-pointer ${checkbox.checked ? 'bg-purple-50 border-[#A855F7]' : 'border-gray-100 hover:bg-gray-50'}`;
+                div.className = `flex items-start p-3 border rounded-xl transition-colors cursor-pointer ${checkbox.checked ? 'bg-yellow-50 border-[#D4AF37]' : 'border-gray-100 hover:bg-gray-50'}`;
                 actualizarContadorModal();
             });
 
@@ -565,16 +565,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // 1. EL BOTÓN GIGANTE (Muestra el total real)
                     if (clientesBusquedaActual.length > 1) {
                         const liMasivo = document.createElement('li');
-                        liMasivo.className = "p-4 bg-gradient-to-r from-[#2D1B4B] to-[#A855F7] text-white hover:opacity-90 cursor-pointer flex items-center gap-4 transition-all sticky top-0 z-10 shadow-lg";
+                        liMasivo.className = "p-4 bg-gradient-to-r from-[#0A0A0A] to-[#D4AF37] text-white hover:opacity-90 cursor-pointer flex items-center gap-4 transition-all sticky top-0 z-10 shadow-lg";
                         liMasivo.innerHTML = `
                             <div class="bg-white/20 w-10 h-10 rounded-full flex items-center justify-center text-white shrink-0 shadow-inner">
                                 <i class="fas fa-layer-group text-lg"></i>
                             </div>
                             <div class="flex-1">
                                 <p class="text-sm font-black uppercase tracking-wide">Selección Múltiple</p>
-                                <p class="text-xs text-purple-200">Encontramos <b>${clientesBusquedaActual.length} sucursales</b>. Clic aquí para elegir.</p>
+                                <p class="text-xs text-yellow-200">Encontramos <b>${clientesBusquedaActual.length} sucursales</b>. Clic aquí para elegir.</p>
                             </div>
-                            <i class="fas fa-chevron-right text-purple-300"></i>
+                            <i class="fas fa-chevron-right text-yellow-300"></i>
                         `;
                         liMasivo.addEventListener('click', () => {
                             listaSugerencias.classList.add('hidden');
@@ -589,16 +589,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     // Renderizar las 5 opciones individuales
                     opcionesDropdown.forEach(cliente => {
                         const li = document.createElement('li');
-                        li.className = "p-3 hover:bg-purple-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 transition-colors";
+                        li.className = "p-3 hover:bg-yellow-50 cursor-pointer border-b border-gray-50 flex items-center gap-3 transition-colors";
                         
                         const iconDiv = document.createElement('div');
-                        iconDiv.className = "bg-purple-100 text-[#A855F7] w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0";
+                        iconDiv.className = "bg-yellow-100 text-[#D4AF37] w-6 h-6 rounded-full flex items-center justify-center text-xs shrink-0";
                         iconDiv.innerHTML = '<i class="fas fa-building"></i>'; 
                         
                         const textDiv = document.createElement('div');
                         textDiv.className = "flex-1 min-w-0";
                         textDiv.innerHTML = `
-                            <p class="text-sm font-bold text-[#2D1B4B] truncate">${cliente.prospecto_empresa}</p>
+                            <p class="text-sm font-bold text-[#0A0A0A] truncate">${cliente.prospecto_empresa}</p>
                             <p class="text-xs text-gray-400 truncate">${cliente.prospecto_nombre || 'Sin contacto'}</p>
                         `;
                         

@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Notificación Gestiones Corpad</title>
+    <title>Notificación Lexa</title>
     <style type="text/css">
         /* Reseteos específicos para evitar que los clientes de correo cambien tamaños */
         body, table, td, a { -webkit-text-size-adjust: 100%; -ms-text-size-adjust: 100%; }
@@ -27,9 +27,9 @@
                 <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05);">
                     
                     <tr>
-                        <td align="center" style="background-color: #2D1B4B; padding: 35px 30px;">
+                        <td align="center" style="background-color: #0A0A0A; padding: 35px 30px;">
                             {% if logo_url %}
-                            <img src="{{ logo_url }}" alt="Gestiones Corpad" width="80" style="display: block; width: 80px; height: auto; margin-bottom: 20px; border-radius: 50%; border: 2px solid #A855F7;">
+                            <img src="{{ logo_url }}" alt="Lexa" width="80" style="display: block; width: 80px; height: auto; margin-bottom: 20px; border-radius: 50%; border: 2px solid #D4AF37;">
                             {% endif %}
                             
                             <h2 class="header-title" style="color: #ffffff; margin: 0; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 900; letter-spacing: 1px; text-transform: uppercase;">
@@ -51,10 +51,10 @@
                             </div>
 
                             {% if tipo_correo == 'cotizacion' %}
-                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF5FF; border-left: 4px solid #A855F7; border-radius: 4px;">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #FAF5FF; border-left: 4px solid #D4AF37; border-radius: 4px;">
                                 <tr>
                                     <td style="padding: 20px;">
-                                        <p style="margin: 0; color: #2D1B4B; font-weight: 900; font-size: 14px; text-transform: uppercase;">📎 Cotización Adjunta</p>
+                                        <p style="margin: 0; color: #0A0A0A; font-weight: 900; font-size: 14px; text-transform: uppercase;">📎 Cotización Adjunta</p>
                                         <p style="margin: 5px 0 0; color: #6B21A8; font-size: 13px;">Se ha incluido un documento PDF con los detalles económicos y términos del servicio.</p>
                                     </td>
                                 </tr>
@@ -101,10 +101,10 @@
                             <table width="100%" cellpadding="0" cellspacing="0" border="0">
                                 <tr>
                                     <td align="center" style="padding: 10px 0 30px;">
-                                        <a href="{{ link_carga }}" style="background-color: #2D1B4B; color: #ffffff; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(45,27,75,0.2); font-family: Arial, sans-serif;">
+                                        <a href="{{ link_carga }}" style="background-color: #0A0A0A; color: #ffffff; padding: 16px 32px; border-radius: 50px; text-decoration: none; font-weight: bold; font-size: 14px; display: inline-block; box-shadow: 0 4px 10px rgba(45,27,75,0.2); font-family: Arial, sans-serif;">
                                             📤 SUBIR DOCUMENTOS AHORA
                                         </a>
-                                        <p style="margin-top: 15px; font-size: 11px; color: #9CA3AF;">O copia este enlace: <a href="{{ link_carga }}" style="color: #A855F7;">{{ link_carga }}</a></p>
+                                        <p style="margin-top: 15px; font-size: 11px; color: #9CA3AF;">O copia este enlace: <a href="{{ link_carga }}" style="color: #D4AF37;">{{ link_carga }}</a></p>
                                     </td>
                                 </tr>
                             </table>
@@ -114,10 +114,10 @@
                             <table width="100%" cellpadding="0" cellspacing="0" style="border-top: 1px solid #F3F4F6; margin-top: 20px; padding-top: 25px;">
                                 <tr>
                                     <td style="font-family: Arial, sans-serif;">
-                                        <p style="font-weight: 900; font-size: 16px; color: #2D1B4B; margin: 0;">{{ firma_nombre|title }}</p>
+                                        <p style="font-weight: 900; font-size: 16px; color: #0A0A0A; margin: 0;">{{ firma_nombre|title }}</p>
                                         <p style="font-size: 13px; color: #6B7280; margin: 3px 0 0;">{{ firma_cargo|title }}</p>
-                                        <p style="font-size: 13px; color: #A855F7; font-weight: bold; margin: 5px 0 0;">
-                                            <a href="https://gestionescorpad.com" style="color: #A855F7; text-decoration: none;">www.gestionescorpad.com</a>
+                                        <p style="font-size: 13px; color: #D4AF37; font-weight: bold; margin: 5px 0 0;">
+                                            <a href="https://lexa.com" style="color: #D4AF37; text-decoration: none;">www.lexa.com</a>
                                         </p>
                                     </td>
                                 </tr>
@@ -127,7 +127,7 @@
 
                     <tr>
                         <td align="center" style="background-color: #F9FAFB; padding: 25px; border-top: 1px solid #F3F4F6; color: #9CA3AF; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.5;">
-                            <p style="margin: 0; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Gestiones Corpad &copy; {% now "Y" %}</p>
+                            <p style="margin: 0; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Lexa &copy; {% now "Y" %}</p>
                             <p style="margin: 5px 0 0;">Este es un correo estrictamente informativo generado por nuestra plataforma legal. No responda a esta dirección.</p>
                         </td>
                     </tr>

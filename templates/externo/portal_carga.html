@@ -9,14 +9,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
     <style>
-        /* FONDO PERSONALIZADO CORPAD */
+        /* FONDO PERSONALIZADO LEXA */
         body { 
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             font-family: 'Segoe UI', sans-serif;
-            background-color: #2D1B4B;
+            background-color: #0A0A0A;
             background-image: 
                 linear-gradient(135deg, rgba(45, 27, 75, 0.92) 0%, rgba(30, 64, 175, 0.85) 100%),
                 url("{% static 'img/logo.png' %}");
@@ -26,12 +26,12 @@
             background-attachment: fixed; 
         }
 
-        .brand-text { color: #2D1B4B; }
-        .accent-bg { background-color: #A855F7; }
+        .brand-text { color: #0A0A0A; }
+        .accent-bg { background-color: #D4AF37; }
         
-        .btn-primary { background: #2D1B4B; transition: all 0.3s; }
+        .btn-primary { background: #0A0A0A; transition: all 0.3s; }
         .btn-primary:hover { 
-            background: #A855F7; 
+            background: #D4AF37; 
             transform: translateY(-2px); 
             box-shadow: 0 4px 15px rgba(168, 85, 247, 0.4); 
         }
@@ -43,7 +43,7 @@
             transition: all 0.3s ease; 
         }
         .file-drop-zone:hover, .file-drop-zone.dragover { 
-            border-color: #A855F7; 
+            border-color: #D4AF37; 
             background-color: #faf5ff; 
             transform: scale(1.02);
         }
@@ -62,7 +62,7 @@
 
     <div class="w-full max-w-lg glass-card rounded-[2.5rem] shadow-2xl overflow-hidden relative animate__animated animate__fadeInUp">
         
-        <div class="h-1.5 w-full bg-gradient-to-r from-[#2D1B4B] via-[#A855F7] to-blue-500"></div>
+        <div class="h-1.5 w-full bg-gradient-to-r from-[#0A0A0A] via-[#D4AF37] to-blue-500"></div>
 
         <div class="p-6 md:p-10">
             
@@ -75,7 +75,7 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h2 class="text-xl font-bold text-[#2D1B4B] leading-none">{{ cliente.nombre_empresa }}</h2>
+                    <h2 class="text-xl font-bold text-[#0A0A0A] leading-none">{{ cliente.nombre_empresa }}</h2>
                     <p class="text-xs text-gray-500 font-medium mt-1">Portal de Documentación</p>
                     <div class="flex items-center gap-1.5 mt-1.5">
                         <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse shadow-[0_0_5px_#22c55e]"></span>
@@ -98,7 +98,7 @@
             <div class="animate__animated animate__fadeIn">
                 
                 <div class="text-center mb-6">
-                    <h1 class="text-lg md:text-xl font-black text-[#2D1B4B] leading-tight">
+                    <h1 class="text-lg md:text-xl font-black text-[#0A0A0A] leading-tight">
                         <span class="text-gray-400 font-bold block text-xs mb-1 uppercase tracking-widest">Siguiente requisito:</span>
                         {{ documento_actual }}
                     </h1>
@@ -112,23 +112,23 @@
                         <input type="file" name="archivo" id="fileInput" class="hidden" accept=".pdf,.jpg,.jpeg,.png" onchange="previewFile(this.files)">
                         
                         <div id="drop-content" class="text-center p-4 transition-all duration-300 group-hover:-translate-y-1">
-                            <div class="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 text-gray-300 group-hover:text-[#A855F7] group-hover:shadow-md transition-all">
+                            <div class="w-14 h-14 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-3 text-gray-300 group-hover:text-[#D4AF37] group-hover:shadow-md transition-all">
                                 <i class="fas fa-cloud-upload-alt text-2xl"></i>
                             </div>
                             <p class="text-sm font-bold text-gray-600">Toca o arrastra aquí tu archivo</p>
                             <p class="text-[10px] text-gray-400 mt-1 font-bold">PDF o Imagen (Máx 10MB)</p>
                         </div>
 
-                        <div id="file-preview" class="hidden absolute inset-0 bg-purple-50 flex-col items-center justify-center w-full h-full border-2 border-[#A855F7]">
-                            <i id="preview-icon" class="fas fa-file-pdf text-5xl text-[#A855F7] mb-2 animate__animated animate__bounceIn"></i>
-                            <p id="filename" class="text-xs font-black text-[#2D1B4B] px-6 truncate w-full text-center"></p>
+                        <div id="file-preview" class="hidden absolute inset-0 bg-yellow-50 flex-col items-center justify-center w-full h-full border-2 border-[#D4AF37]">
+                            <i id="preview-icon" class="fas fa-file-pdf text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn"></i>
+                            <p id="filename" class="text-xs font-black text-[#0A0A0A] px-6 truncate w-full text-center"></p>
                             <div class="mt-2 text-[10px] bg-green-100 border border-green-200 text-green-700 px-3 py-1 rounded-full font-black uppercase tracking-wider shadow-sm">
                                 <i class="fas fa-check mr-1"></i> Archivo listo
                             </div>
                         </div>
                     </label>
 
-                    <button type="submit" id="btn-enviar" class="w-full btn-primary text-white font-black py-4 rounded-xl shadow-xl shadow-purple-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xs tracking-widest uppercase transition-all" disabled>
+                    <button type="submit" id="btn-enviar" class="w-full btn-primary text-white font-black py-4 rounded-xl shadow-xl shadow-yellow-900/20 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 text-xs tracking-widest uppercase transition-all" disabled>
                         <span>ENVIAR DOCUMENTO</span> <i class="fas fa-paper-plane"></i>
                     </button>
                 </form>
@@ -136,7 +136,7 @@
                 {% if faltantes_count > 1 %}
                 <div class="mt-6 text-center">
                     <p class="text-[10px] text-gray-500 font-bold bg-gray-50 inline-block px-4 py-2 rounded-xl shadow-inner border border-gray-100">
-                        <i class="fas fa-tasks mr-1 text-[#A855F7]"></i> Faltan <strong class="text-[#2D1B4B]">{{ faltantes_count|add:"-1" }}</strong> documentos más en la lista.
+                        <i class="fas fa-tasks mr-1 text-[#D4AF37]"></i> Faltan <strong class="text-[#0A0A0A]">{{ faltantes_count|add:"-1" }}</strong> documentos más en la lista.
                     </p>
                 </div>
                 {% endif %}
@@ -151,14 +151,14 @@
                     </div>
                 </div>
                 
-                <h2 class="text-3xl font-black text-[#2D1B4B] mb-2 font-serif">¡Todo Completo!</h2>
+                <h2 class="text-3xl font-black text-[#0A0A0A] mb-2 font-serif">¡Todo Completo!</h2>
                 <p class="text-sm text-gray-500 max-w-xs mx-auto mb-8 leading-relaxed font-medium">
                     Hemos recibido toda tu documentación correctamente. Nuestro equipo legal iniciará la revisión.
                 </p>
                 
                 <div class="inline-flex items-center justify-center gap-2 text-[10px] text-gray-400 font-black tracking-widest uppercase bg-gray-50 px-5 py-3 rounded-xl border border-gray-100">
                     <img src="{% static 'img/logo.png' %}" class="h-5 opacity-40 grayscale">
-                    <span>Protegido por Corpad</span>
+                    <span>Protegido por Lexa</span>
                 </div>
 
                 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js" defer></script>
@@ -188,7 +188,7 @@
         
         <div class="bg-gray-50/80 py-4 text-center border-t border-gray-100 flex justify-center items-center gap-2">
             <i class="fas fa-shield-alt text-gray-300 text-xs"></i>
-            <p class="text-[9px] text-gray-400 font-black tracking-widest uppercase">Tecnología GESTIONES CORPAD</p>
+            <p class="text-[9px] text-gray-400 font-black tracking-widest uppercase">Tecnología LEXA</p>
         </div>
     </div>
 
@@ -278,9 +278,9 @@
 
                 // Cambiar icono según el tipo de archivo
                 if(file.type.includes('image')) {
-                    icon.className = 'fas fa-file-image text-5xl text-[#A855F7] mb-2 animate__animated animate__bounceIn';
+                    icon.className = 'fas fa-file-image text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn';
                 } else {
-                    icon.className = 'fas fa-file-pdf text-5xl text-[#A855F7] mb-2 animate__animated animate__bounceIn';
+                    icon.className = 'fas fa-file-pdf text-5xl text-[#D4AF37] mb-2 animate__animated animate__bounceIn';
                 }
 
                 content.classList.add('hidden');

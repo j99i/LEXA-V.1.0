@@ -25,7 +25,7 @@
             <div class="relative group">
                 <i class="fas fa-pen absolute left-0 top-3 text-gray-300 transition-colors group-hover:text-blue-500"></i>
                 <input type="text" name="titulo" value="{{ c.titulo }}" required
-                       class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#2D1B4B] focus:border-blue-500 focus:outline-none py-2 pl-8 transition-all">
+                       class="w-full bg-transparent border-b-2 border-gray-200 text-2xl md:text-3xl font-black text-[#0A0A0A] focus:border-blue-500 focus:outline-none py-2 pl-8 transition-all">
             </div>
         </div>
 
@@ -34,18 +34,18 @@
                 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 relative z-20 overflow-hidden">
                     <div class="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-blue-400 to-blue-600"></div>
-                    <h3 class="text-lg font-bold text-[#2D1B4B] mb-6 flex items-center gap-2">
+                    <h3 class="text-lg font-bold text-[#0A0A0A] mb-6 flex items-center gap-2">
                         <i class="fas fa-building text-blue-500"></i> Destinatario
                     </h3>
                     
                     <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Empresa</label>
-                            <input type="text" name="prospecto_empresa" value="{{ c.prospecto_empresa|default:'' }}" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 font-bold text-[#2D1B4B] outline-none transition-colors">
+                            <input type="text" name="prospecto_empresa" value="{{ c.prospecto_empresa|default:'' }}" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 font-bold text-[#0A0A0A] outline-none transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Contacto</label>
-                            <input type="text" name="prospecto_nombre" value="{{ c.prospecto_nombre|default:'' }}" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 font-bold text-[#2D1B4B] outline-none transition-colors">
+                            <input type="text" name="prospecto_nombre" value="{{ c.prospecto_nombre|default:'' }}" required class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 focus:border-blue-500 font-bold text-[#0A0A0A] outline-none transition-colors">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Cargo</label>
@@ -69,11 +69,11 @@
                 </div>
 
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 z-10 relative">
-                     <h3 class="text-sm font-bold text-[#2D1B4B] mb-4">Condiciones Comerciales</h3>
+                     <h3 class="text-sm font-bold text-[#0A0A0A] mb-4">Condiciones Comerciales</h3>
                      <div class="space-y-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Tiempo de Gestión</label>
-                            <select name="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-blue-500 transition-colors cursor-pointer">
+                            <select name="tiempo_entrega" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#0A0A0A] outline-none focus:border-blue-500 transition-colors cursor-pointer">
                                 <option value="30_dias" {% if c.tiempo_entrega == '30_dias' %}selected{% endif %}>30 Días Hábiles</option>
                                 <option value="60_dias" {% if c.tiempo_entrega == '60_dias' %}selected{% endif %}>60 Días Hábiles</option>
                                 <option value="90_dias" {% if c.tiempo_entrega == '90_dias' %}selected{% endif %}>90 Días Hábiles</option>
@@ -82,7 +82,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-400 uppercase mb-1">Condiciones de Pago</label>
-                            <select name="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#2D1B4B] outline-none focus:border-blue-500 transition-colors cursor-pointer">
+                            <select name="condiciones_pago" class="w-full p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-bold text-[#0A0A0A] outline-none focus:border-blue-500 transition-colors cursor-pointer">
                                 <option value="50_50" {% if c.condiciones_pago == '50_50' %}selected{% endif %}>50% Anticipo - 50% Final</option>
                                 <option value="100_entrega" {% if c.condiciones_pago == '100_entrega' %}selected{% endif %}>100% Contra Entrega</option>
                                 <option value="contado" {% if c.condiciones_pago == 'contado' %}selected{% endif %}>Pago de Contado</option>
@@ -95,8 +95,8 @@
             <div class="lg:col-span-2 space-y-6 z-10">
                 <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-gray-100 min-h-[500px] flex flex-col">
                     <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-lg font-bold text-[#2D1B4B] flex items-center gap-2"><i class="fas fa-list-ul text-blue-500"></i> Conceptos</h3>
-                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#2D1B4B] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md active:scale-95">
+                        <h3 class="text-lg font-bold text-[#0A0A0A] flex items-center gap-2"><i class="fas fa-list-ul text-blue-500"></i> Conceptos</h3>
+                        <button type="button" id="btn-agregar-servicio" class="px-4 py-2 bg-[#0A0A0A] text-white rounded-xl text-xs font-bold hover:bg-[#3E2C5E] transition-all shadow-md active:scale-95">
                             + AGREGAR
                         </button>
                     </div>
@@ -110,7 +110,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
                                 <div class="md:col-span-6">
                                     <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                                    <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] select-servicio outline-none focus:border-blue-500 transition-colors cursor-pointer">
+                                    <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#0A0A0A] select-servicio outline-none focus:border-blue-500 transition-colors cursor-pointer">
                                         <option value="">-- Seleccionar --</option>
                                         {% for s in servicios %}
                                         <option value="{{ s.id }}" data-precio="{{ s.precio_base|default:0|stringformat:'.2f' }}" data-desc="{{ s.descripcion|escapejs }}" {% if s.id == item.servicio.id %}selected{% endif %}>{{ s.nombre }}</option>
@@ -128,7 +128,7 @@
                                 </div>
                                 <div class="md:col-span-2 text-right pt-6">
                                     <span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span>
-                                    <span class="text-sm font-black text-[#2D1B4B] lbl-subtotal-fila truncate block" data-original="{{ item.subtotal }}">${{ item.subtotal|stringformat:'.2f' }}</span>
+                                    <span class="text-sm font-black text-[#0A0A0A] lbl-subtotal-fila truncate block" data-original="{{ item.subtotal }}">${{ item.subtotal|stringformat:'.2f' }}</span>
                                 </div>
                             </div>
                         </div>
@@ -182,9 +182,9 @@
                                 <span class="text-lg font-bold text-gray-500" id="lbl-iva">$0.00</span>
                             </div>
 
-                            <div class="w-full max-w-xs flex justify-between items-center border-t-2 border-[#2D1B4B] pt-4 mt-2">
-                                <span class="text-sm font-black text-[#2D1B4B] uppercase">TOTAL FINAL:</span>
-                                <span class="text-3xl font-black text-[#2D1B4B]" id="lbl-total">$0.00</span>
+                            <div class="w-full max-w-xs flex justify-between items-center border-t-2 border-[#0A0A0A] pt-4 mt-2">
+                                <span class="text-sm font-black text-[#0A0A0A] uppercase">TOTAL FINAL:</span>
+                                <span class="text-3xl font-black text-[#0A0A0A]" id="lbl-total">$0.00</span>
                             </div>
 
                             <p class="text-[10px] text-gray-400 font-bold uppercase tracking-widest" id="texto-impuestos">
@@ -214,7 +214,7 @@
         <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
             <div class="md:col-span-6">
                 <label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Servicio *</label>
-                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#2D1B4B] select-servicio outline-none focus:border-blue-500 transition-colors cursor-pointer">
+                <select name="servicios_seleccionados" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-gray-100 text-sm font-bold text-[#0A0A0A] select-servicio outline-none focus:border-blue-500 transition-colors cursor-pointer">
                     <option value="">-- Seleccionar --</option>
                     {% for s in servicios %}<option value="{{ s.id }}" data-precio="{{ s.precio_base|default:0|stringformat:'.2f' }}" data-desc="{{ s.descripcion|escapejs }}">{{ s.nombre }}</option>{% endfor %}
                 </select>
@@ -222,7 +222,7 @@
             </div>
             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Cant. *</label><input type="number" name="cantidades" value="1" min="1" step="1" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-blue-500 text-sm font-black text-center input-cant outline-none transition-colors"></div>
             <div class="md:col-span-2"><label class="block text-[10px] font-bold text-gray-400 uppercase mb-1">Precio Unit. *</label><input type="number" name="precios_personalizados" step="0.01" min="0" required class="w-full p-2.5 bg-gray-50 rounded-xl border border-transparent focus:border-blue-500 text-sm font-black text-right input-precio outline-none transition-colors"></div>
-            <div class="md:col-span-2 text-right pt-6"><span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span><span class="text-sm font-black text-[#2D1B4B] lbl-subtotal-fila truncate block" title="$0.00">$0.00</span></div>
+            <div class="md:col-span-2 text-right pt-6"><span class="text-[10px] block text-gray-400 font-bold uppercase">Subtotal</span><span class="text-sm font-black text-[#0A0A0A] lbl-subtotal-fila truncate block" title="$0.00">$0.00</span></div>
         </div>
     </div>
 </template>

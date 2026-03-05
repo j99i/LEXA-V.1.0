@@ -14,10 +14,10 @@
 
     <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
         <div>
-            <h1 class="text-3xl font-black text-[#2D1B4B] font-serif mb-1">Cotizaciones</h1>
+            <h1 class="text-3xl font-black text-[#0A0A0A] font-serif mb-1">Cotizaciones</h1>
             <p class="text-gray-500 font-medium text-sm">Historial y estado de tus propuestas comerciales.</p>
         </div>
-        <a href="{% url 'nueva_cotizacion' %}" class="bg-[#2D1B4B] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#A855F7] transition-all flex items-center gap-2 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
+        <a href="{% url 'nueva_cotizacion' %}" class="bg-[#0A0A0A] text-white px-6 py-3 rounded-xl font-bold text-xs shadow-lg hover:bg-[#D4AF37] transition-all flex items-center gap-2 uppercase tracking-wider focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2">
             <i class="fas fa-plus" aria-hidden="true"></i> Nueva Cotización
         </a>
     </div>
@@ -44,7 +44,7 @@
     <div class="bg-white p-2 rounded-[2rem] shadow-sm border border-gray-100 mb-6 flex flex-col md:flex-row justify-between items-center gap-4">
         
         <div class="flex gap-1 overflow-x-auto w-full md:w-auto hide-scrollbar p-2" role="tablist">
-            <button type="button" class="tab-btn active px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all bg-purple-50 text-[#A855F7] shadow-sm" data-filter="all" role="tab" aria-selected="true">
+            <button type="button" class="tab-btn active px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all bg-yellow-50 text-[#D4AF37] shadow-sm" data-filter="all" role="tab" aria-selected="true">
                 Todas
             </button>
             <button type="button" class="tab-btn px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-widest text-gray-500 hover:bg-gray-50 transition-all" data-filter="borrador" role="tab" aria-selected="false">
@@ -62,9 +62,9 @@
         </div>
 
         <div class="relative w-full md:w-72 group px-2 md:px-0 pb-2 md:pb-0">
-            <i class="fas fa-search absolute left-5 md:left-3 top-1/2 -translate-y-1/2 md:-translate-y-1/2 mb-1 md:mb-0 text-gray-300 group-focus-within:text-[#A855F7] transition-colors" aria-hidden="true"></i>
+            <i class="fas fa-search absolute left-5 md:left-3 top-1/2 -translate-y-1/2 md:-translate-y-1/2 mb-1 md:mb-0 text-gray-300 group-focus-within:text-[#D4AF37] transition-colors" aria-hidden="true"></i>
             <input type="text" id="buscador-cotizaciones" placeholder="Buscar cliente o folio..." 
-                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#2D1B4B] focus:bg-white focus:border-[#A855F7] focus:ring-4 focus:ring-purple-50 outline-none transition-all shadow-inner focus:shadow-sm">
+                    class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-transparent rounded-xl text-sm font-bold text-[#0A0A0A] focus:bg-white focus:border-[#D4AF37] focus:ring-4 focus:ring-yellow-50 outline-none transition-all shadow-inner focus:shadow-sm">
         </div>
     </div>
 
@@ -90,17 +90,17 @@
                         onclick="if(!event.target.closest('.btn-accion-evitar')) window.location.href='{% url 'detalle_cotizacion' c.id %}'">
                         
                         <td class="px-6 py-4">
-                            <span class="font-black text-[#2D1B4B] text-sm">#{{ c.id|stringformat:"04d" }}</span>
+                            <span class="font-black text-[#0A0A0A] text-sm">#{{ c.id|stringformat:"04d" }}</span>
                         </td>
                         
                         <td class="px-6 py-4">
                             {% if c.prospecto_empresa %}
-                                <div class="font-bold text-[#2D1B4B] text-sm">{{ c.prospecto_empresa }}</div>
+                                <div class="font-bold text-[#0A0A0A] text-sm">{{ c.prospecto_empresa }}</div>
                                 <div class="text-xs text-gray-400 flex items-center gap-1">
                                     <i class="fas fa-user text-[10px]" aria-hidden="true"></i> {{ c.prospecto_nombre }}
                                 </div>
                             {% else %}
-                                <div class="font-bold text-[#2D1B4B] text-sm">{{ c.prospecto_nombre }}</div>
+                                <div class="font-bold text-[#0A0A0A] text-sm">{{ c.prospecto_nombre }}</div>
                                 <div class="text-xs text-gray-400">{{ c.prospecto_email|default:"Sin email" }}</div>
                             {% endif %}
                         </td>
@@ -110,7 +110,7 @@
                         </td>
                         
                         <td class="px-6 py-4">
-                            <div class="font-black text-[#2D1B4B] text-sm">
+                            <div class="font-black text-[#0A0A0A] text-sm">
                                 ${{ c.total_con_iva|default:c.total|floatformat:2|intcomma }} <span class="text-xs text-gray-400 font-bold">MXN</span>
                             </div>
                         </td>
@@ -132,7 +132,7 @@
                         <td class="px-6 py-4 text-right">
                             <div class="flex items-center justify-end gap-2 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity btn-accion-evitar">
                                 
-                                <a href="{% url 'detalle_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-purple-50 text-[#A855F7] flex items-center justify-center hover:bg-[#A855F7] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500" title="Ver Detalles" aria-label="Ver Detalles de Cotización">
+                                <a href="{% url 'detalle_cotizacion' c.id %}" class="w-8 h-8 rounded-lg bg-yellow-50 text-[#D4AF37] flex items-center justify-center hover:bg-[#D4AF37] hover:text-white transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-yellow-500" title="Ver Detalles" aria-label="Ver Detalles de Cotización">
                                     <i class="fas fa-eye text-xs" aria-hidden="true"></i>
                                 </a>
 
@@ -193,10 +193,10 @@
             <i class="fas fa-exclamation-triangle text-3xl" aria-hidden="true"></i>
         </div>
         
-        <h3 id="modal-eliminar-title" class="text-xl font-black text-[#2D1B4B] mb-2">¿Estás seguro?</h3>
+        <h3 id="modal-eliminar-title" class="text-xl font-black text-[#0A0A0A] mb-2">¿Estás seguro?</h3>
         <p class="text-sm text-gray-500 mb-6">
             Estás a punto de eliminar la cotización de <br>
-            <strong id="modal-eliminar-cliente" class="text-[#2D1B4B]"></strong>.<br>
+            <strong id="modal-eliminar-cliente" class="text-[#0A0A0A]"></strong>.<br>
             <span class="text-red-500 font-bold mt-2 block">Esta acción no se puede deshacer.</span>
         </p>
 
@@ -265,7 +265,7 @@
             btn.addEventListener('click', (e) => {
                 // Quitar estilos activos de todas
                 tabBtns.forEach(b => {
-                    b.classList.remove('bg-purple-50', 'text-[#A855F7]', 'shadow-sm', 'font-black');
+                    b.classList.remove('bg-yellow-50', 'text-[#D4AF37]', 'shadow-sm', 'font-black');
                     b.classList.add('text-gray-500', 'font-bold', 'hover:bg-gray-50');
                     b.setAttribute('aria-selected', 'false');
                 });
@@ -273,7 +273,7 @@
                 // Agregar estilos a la clickeada
                 const currentBtn = e.target;
                 currentBtn.classList.remove('text-gray-500', 'hover:bg-gray-50', 'font-bold');
-                currentBtn.classList.add('bg-purple-50', 'text-[#A855F7]', 'shadow-sm', 'font-black');
+                currentBtn.classList.add('bg-yellow-50', 'text-[#D4AF37]', 'shadow-sm', 'font-black');
                 currentBtn.setAttribute('aria-selected', 'true');
 
                 filtroActual = currentBtn.getAttribute('data-filter');

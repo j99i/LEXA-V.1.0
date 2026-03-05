@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Acuse de Entrega - Corpad</title>
+    <title>Acuse de Entrega - Lexa</title>
     {% load static %}
     {% load humanize %}
     <style>
@@ -20,7 +20,7 @@
 
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #2D1B4B; 
+            color: #0A0A0A; 
             font-size: 9.5pt; /* Ligeramente más pequeño */
             line-height: 1.4;
             background-color: #ffffff;
@@ -30,7 +30,7 @@
 
         /* --- ENCABEZADO --- */
         .header {
-            border-bottom: 3px solid #2D1B4B;
+            border-bottom: 3px solid #0A0A0A;
             padding-bottom: 10px; /* Reducido */
             margin-bottom: 15px; /* Reducido */
             overflow: hidden;
@@ -40,12 +40,12 @@
 
         .logo-img { height: 45px; width: auto; vertical-align: middle; margin-right: 12px; }
         .brand-name { 
-            font-size: 20pt; font-weight: 800; color: #2D1B4B; 
+            font-size: 20pt; font-weight: 800; color: #0A0A0A; 
             display: inline-block; vertical-align: middle; letter-spacing: -1px;
         }
 
         .folio-badge {
-            background-color: #2D1B4B; color: white; padding: 4px 12px;
+            background-color: #0A0A0A; color: white; padding: 4px 12px;
             border-radius: 20px; font-size: 8pt; font-weight: 700;
             text-transform: uppercase; display: inline-block; margin-bottom: 6px;
         }
@@ -66,21 +66,21 @@
         .info-box.right {
             float: right;
             background-color: #ffffff;
-            border: 1px dashed #A855F7;
+            border: 1px dashed #D4AF37;
         }
 
         .card-label {
-            font-size: 7pt; font-weight: 800; color: #A855F7; 
+            font-size: 7pt; font-weight: 800; color: #D4AF37; 
             text-transform: uppercase; letter-spacing: 1.2px; 
             margin-bottom: 6px; display: block;
         }
 
-        .client-name { font-weight: 700; font-size: 10.5pt; color: #2D1B4B; margin-bottom: 3px; text-transform: uppercase; }
+        .client-name { font-weight: 700; font-size: 10.5pt; color: #0A0A0A; margin-bottom: 3px; text-transform: uppercase; }
         .client-detail { font-size: 8.5pt; color: #4B5563; margin-bottom: 3px; }
         
         .presente {
             display: block; margin: 8px 0; font-size: 8pt; 
-            font-weight: 800; color: #2D1B4B; letter-spacing: 3px;
+            font-weight: 800; color: #0A0A0A; letter-spacing: 3px;
         }
 
         .attn-line {
@@ -91,7 +91,7 @@
 
         /* --- TABLA --- */
         .section-title {
-            font-size: 9.5pt; font-weight: 700; color: #2D1B4B; margin-bottom: 8px;
+            font-size: 9.5pt; font-weight: 700; color: #0A0A0A; margin-bottom: 8px;
             padding-bottom: 4px; border-bottom: 2px solid #E5E7EB; text-transform: uppercase;
         }
 
@@ -103,7 +103,7 @@
         .data-table tr { page-break-inside: avoid; }
 
         .data-table th {
-            background-color: #2D1B4B; color: #ffffff; padding: 8px 10px; /* Reducido */
+            background-color: #0A0A0A; color: #ffffff; padding: 8px 10px; /* Reducido */
             text-align: left; font-size: 7.5pt; font-weight: 700; text-transform: uppercase;
         }
         .data-table td { 
@@ -112,7 +112,7 @@
         }
         .data-table tr:nth-child(even) { background-color: #F9FAFB; }
 
-        .doc-name { font-weight: 600; color: #2D1B4B; font-size: 9pt; display: block; margin-bottom: 4px; }
+        .doc-name { font-weight: 600; color: #0A0A0A; font-size: 9pt; display: block; margin-bottom: 4px; }
         .doc-vence { 
             font-size: 7pt; font-weight: 700; color: #DC2626; 
             background-color: #FEF2F2; padding: 2px 6px; border-radius: 4px; 
@@ -144,20 +144,20 @@
         /* --- OBSERVACIONES --- */
         .obs-container {
             background-color: #F8FAFC; border: 1px solid #E2E8F0;
-            border-left: 4px solid #2D1B4B; padding: 12px; margin-top: 15px;
+            border-left: 4px solid #0A0A0A; padding: 12px; margin-top: 15px;
             border-radius: 4px;
         }
         .obs-title {
-            color: #2D1B4B; font-weight: 700; font-size: 8pt; text-transform: uppercase; margin-bottom: 4px;
+            color: #0A0A0A; font-weight: 700; font-size: 8pt; text-transform: uppercase; margin-bottom: 4px;
         }
         .obs-content { font-size: 8.5pt; color: #475569; white-space: pre-line; text-align: justify; }
 
         /* --- FIRMA --- */
         .footer-section { margin-top: 25px; text-align: center; }
         .signature-img { height: 75px; width: auto; display: block; margin: 0 auto 5px auto; } /* Altura reducida */
-        .signature-line { border-top: 1px solid #2D1B4B; width: 220px; margin: 0 auto 5px auto; }
-        .signer-name { font-weight: 700; font-size: 9.5pt; color: #2D1B4B; text-transform: uppercase; }
-        .signer-title { font-size: 7.5pt; font-weight: 600; color: #A855F7; text-transform: uppercase; }
+        .signature-line { border-top: 1px solid #0A0A0A; width: 220px; margin: 0 auto 5px auto; }
+        .signer-name { font-weight: 700; font-size: 9.5pt; color: #0A0A0A; text-transform: uppercase; }
+        .signer-title { font-size: 7.5pt; font-weight: 600; color: #D4AF37; text-transform: uppercase; }
         
         .contact-text { font-size: 7.5pt; color: #64748B; margin-top: 10px; font-weight: 500; }
         .doc-code {
@@ -172,8 +172,8 @@
 
     <div class="header">
         <div class="header-left">
-           <img src="data:image/png;base64,{{ logo_b64 }}" class="logo-img" alt="Corpad">
-            <span class="brand-name">CORPAD</span>
+           <img src="data:image/png;base64,{{ logo_b64 }}" class="logo-img" alt="Lexa">
+            <span class="brand-name">LEXA</span>
         </div>
         <div class="header-right">
             <div class="folio-badge">Acuse de Entrega</div>
@@ -196,7 +196,7 @@
             {% if atencion or cliente.nombre_contacto %}
             <div class="attn-line">
                 <div class="client-detail">
-                    <strong style="color: #2D1B4B;">AT'N:</strong> {{ atencion|default:cliente.nombre_contacto }}
+                    <strong style="color: #0A0A0A;">AT'N:</strong> {{ atencion|default:cliente.nombre_contacto }}
                 </div>
                 {% if cargo %}
                 <div class="client-detail" style="font-size: 7.5pt; font-weight: 700; color: #6B7280;">{{ cargo|upper }}</div>
@@ -265,11 +265,11 @@
 
             <div class="signature-line"></div>
             <div class="signer-name">Lic. Maribel Aldana Santos</div>
-            <div class="signer-title">Directora General | Gestiones Corpad</div>
+            <div class="signer-title">Directora General | Lexa</div>
             
             <div class="contact-text">
                 55 9270 0722 &nbsp;|&nbsp; 
-                ges.corpad@outlook.com &nbsp;|&nbsp; 
+                ges.lexa@outlook.com &nbsp;|&nbsp; 
                 {{ municipio|default:"Cuautitlán" }}, {{ estado|default:"Edo. Méx." }}
             </div>
             

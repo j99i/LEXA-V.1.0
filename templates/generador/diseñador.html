@@ -62,7 +62,7 @@
             <div class="bg-slate-900 p-1.5 px-3 rounded-lg flex items-center gap-3 text-white shadow-md">
                 <div id="sys-status-icon" class="system-status"></div>
                 <div>
-                    <span class="font-mono font-bold text-[10px] tracking-widest block text-cyan-400 leading-none">CORPAD ASSISTANT</span>
+                    <span class="font-mono font-bold text-[10px] tracking-widest block text-cyan-400 leading-none">LEXA ASSISTANT</span>
                     <span id="sys-status-text" class="font-bold text-[9px] tracking-wide text-slate-300 leading-none">READY</span>
                 </div>
             </div>
@@ -70,7 +70,7 @@
         </div>
 
         <div class="flex gap-2">
-            <input type="text" id="nombre-plantilla" placeholder="Nombre de la Plantilla..." class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-1 focus:ring-purple-500 outline-none block w-64 p-2 font-bold transition-all">
+            <input type="text" id="nombre-plantilla" placeholder="Nombre de la Plantilla..." class="bg-gray-50 border border-gray-200 text-gray-700 text-xs rounded-lg focus:ring-1 focus:ring-yellow-500 outline-none block w-64 p-2 font-bold transition-all">
             <button id="btn-guardar" class="text-white bg-slate-900 hover:bg-black font-bold rounded-lg text-[10px] px-4 py-2 shadow-md flex items-center gap-2 transition-transform active:scale-95">
                 <i class="fas fa-save"></i> GUARDAR PLANTILLA
             </button>
@@ -80,9 +80,9 @@
     <div class="flex-1 flex gap-3 overflow-hidden">
         
         <div class="flex-1 bg-white rounded-2xl shadow-lg border border-gray-200 flex flex-col relative overflow-hidden group">
-            <div id="drop-zone" class="absolute inset-0 bg-slate-50 z-30 flex flex-col items-center justify-center border-4 border-dashed border-purple-100 m-4 rounded-xl hover:bg-purple-50/50 transition-all cursor-pointer">
+            <div id="drop-zone" class="absolute inset-0 bg-slate-50 z-30 flex flex-col items-center justify-center border-4 border-dashed border-yellow-100 m-4 rounded-xl hover:bg-yellow-50/50 transition-all cursor-pointer">
                 <div class="w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-500">
-                    <i class="fas fa-file-word text-4xl text-purple-600"></i>
+                    <i class="fas fa-file-word text-4xl text-yellow-600"></i>
                 </div>
                 <h3 class="text-xl font-black text-slate-700">Subir Contrato Base</h3>
                 <p class="text-slate-400 text-xs mt-1">Arrastra tu archivo .docx</p>
@@ -110,28 +110,28 @@
             <div class="h-[35%] bg-slate-50 rounded-2xl shadow-inner border border-gray-200 flex flex-col overflow-hidden relative">
                 <div class="p-2 px-3 bg-white border-b border-gray-100 flex justify-between items-center shadow-sm z-10">
                     <span class="font-black text-[10px] text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                        <i class="fas fa-terminal text-purple-600"></i> Terminal de Eventos
+                        <i class="fas fa-terminal text-yellow-600"></i> Terminal de Eventos
                     </span>
                     <button id="btn-limpiar-log" class="text-gray-300 hover:text-red-400 hover:bg-gray-50 p-1 rounded transition-colors" title="Limpiar Terminal"><i class="fas fa-eraser text-xs"></i></button>
                 </div>
                 <div id="chat-log" class="flex-1 overflow-y-auto p-3 custom-scrollbar flex flex-col-reverse relative bg-slate-50/50"></div>
             </div>
 
-            <div class="h-[65%] bg-white rounded-2xl shadow-lg border border-purple-100 flex flex-col overflow-hidden relative">
+            <div class="h-[65%] bg-white rounded-2xl shadow-lg border border-yellow-100 flex flex-col overflow-hidden relative">
                 <div id="panel-header" class="p-3 bg-slate-900 text-white flex flex-col gap-1 transition-colors duration-300">
                     <div class="flex justify-between items-center">
                         <span class="text-[9px] font-bold text-slate-400 uppercase tracking-widest">TEXTO SELECCIONADO</span>
-                        <span class="text-[9px] font-mono text-purple-300 opacity-50">MODO: MANUAL</span>
+                        <span class="text-[9px] font-mono text-yellow-300 opacity-50">MODO: MANUAL</span>
                     </div>
                     <div class="flex items-center gap-2 overflow-hidden bg-white/5 p-1.5 px-2 rounded-lg border border-white/10">
-                        <i class="fas fa-quote-left text-purple-400 text-xs"></i>
+                        <i class="fas fa-quote-left text-yellow-400 text-xs"></i>
                         <span id="texto-focus" class="text-xs font-bold truncate text-slate-200">Nada seleccionado...</span>
                     </div>
                 </div>
 
                 <div class="flex-1 flex flex-col overflow-hidden relative">
                     <div class="flex border-b border-gray-100">
-                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors">GLOSARIO DE VARIABLES</button>
+                        <button id="tab-buscar" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-yellow-700 border-b-2 border-yellow-600 bg-yellow-50/30 uppercase transition-colors">GLOSARIO DE VARIABLES</button>
                         <button id="tab-crear" class="flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors">NUEVA VARIABLE</button>
                     </div>
 
@@ -142,16 +142,16 @@
                         </button>
 
                         <div class="relative group mt-1">
-                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs group-focus-within:text-purple-500 transition-colors"></i>
-                            <input type="text" id="filtro-existente" placeholder="Buscar variable..." class="w-full pl-8 p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-1 focus:ring-purple-200 outline-none transition-all">
+                            <i class="fas fa-search absolute left-3 top-2.5 text-gray-400 text-xs group-focus-within:text-yellow-500 transition-colors"></i>
+                            <input type="text" id="filtro-existente" placeholder="Buscar variable..." class="w-full pl-8 p-2 bg-gray-50 border border-gray-200 rounded-lg text-xs font-bold focus:ring-1 focus:ring-yellow-200 outline-none transition-all">
                         </div>
                         
                         <div id="lista-glosario" class="flex-1 overflow-y-auto custom-scrollbar space-y-2 pr-1 mt-1">
                             {% for v in glosario %}
-                            <div class="item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-purple-300 bg-white shadow-sm transition-all" data-clave="{{ v.clave }}">
+                            <div class="item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-yellow-300 bg-white shadow-sm transition-all" data-clave="{{ v.clave }}">
                                 <div class="mb-2">
                                     <p class="text-xs font-bold text-slate-700 truncate">{{ v.descripcion }}</p>
-                                    <p class="text-[10px] text-purple-600 font-mono font-bold truncate">{{ v.clave }}</p>
+                                    <p class="text-[10px] text-yellow-600 font-mono font-bold truncate">{{ v.clave }}</p>
                                 </div>
                                 <div class="flex gap-2">
                                     <button class="btn-link flex-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
@@ -176,7 +176,7 @@
                     </div>
 
                     <div id="mode-crear" class="hidden flex-1 flex-col p-4 gap-3 overflow-y-auto bg-slate-50/50">
-                        <div class="bg-white p-3 rounded-xl border border-purple-100 shadow-sm flex items-center gap-3">
+                        <div class="bg-white p-3 rounded-xl border border-yellow-100 shadow-sm flex items-center gap-3">
                             <div class="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
                                 <i class="fas fa-keyboard text-xs"></i>
                             </div>
@@ -188,7 +188,7 @@
                         
                         <div>
                             <label class="text-[9px] font-bold text-slate-500 uppercase mb-1 block ml-1">Código de la Variable (Automático)</label>
-                            <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-purple-500 focus:ring-2 focus:ring-purple-500/10 outline-none transition-all text-purple-700 font-bold" placeholder="ej: var_nombre_cliente">
+                            <input type="text" id="input-clave-nueva" class="w-full font-mono text-xs p-3 bg-white border border-gray-200 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/10 outline-none transition-all text-yellow-700 font-bold" placeholder="ej: var_nombre_cliente">
                         </div>
                         
                         <div>
@@ -381,7 +381,7 @@ const JarvisUI = {
         }
 
         let iconType = type === 'user' ? 'user' : type === 'system' ? 'exclamation-triangle' : 'robot';
-        let labelType = type === 'user' ? 'Tú' : type === 'system' ? 'SISTEMA' : 'CORPAD ASSISTANT';
+        let labelType = type === 'user' ? 'Tú' : type === 'system' ? 'SISTEMA' : 'LEXA ASSISTANT';
 
         div.innerHTML = `
             <div class="flex items-center gap-2 mb-1 opacity-70">
@@ -437,7 +437,7 @@ const JarvisUI = {
         // --- Todo Seguro, Procede a Mapear ---
         JarvisState.selection = { text, range: sel.getRangeAt(0).cloneRange() };
         document.getElementById('texto-focus').innerText = text.substring(0, 30) + (text.length>30?'...':'');
-        document.getElementById('panel-header').classList.replace('bg-slate-900', 'bg-purple-900');
+        document.getElementById('panel-header').classList.replace('bg-slate-900', 'bg-yellow-900');
         
         // UX: Auto-generar código
         const autoCode = "var_" + this.sanitizeVarName(text);
@@ -658,23 +658,23 @@ const JarvisUI = {
         const tBuscar = document.getElementById('tab-buscar'), tCrear = document.getElementById('tab-crear');
         if(tab === 'buscar') {
             buscar.classList.remove('hidden'); crear.classList.add('hidden');
-            tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors";
+            tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-yellow-700 border-b-2 border-yellow-600 bg-yellow-50/30 uppercase transition-colors";
             tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors";
         } else {
             crear.classList.remove('hidden'); buscar.classList.add('hidden');
-            tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-purple-700 border-b-2 border-purple-600 bg-purple-50/30 uppercase transition-colors";
+            tCrear.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-yellow-700 border-b-2 border-yellow-600 bg-yellow-50/30 uppercase transition-colors";
             tBuscar.className = "flex-1 py-2.5 text-[10px] font-black tracking-wide text-gray-400 hover:bg-gray-50 uppercase transition-colors";
         }
     },
 
     addGlossaryItem(clave, desc) {
         const div = document.createElement('div');
-        div.className = 'item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-purple-300 bg-white shadow-sm transition-all animate__animated animate__fadeIn';
+        div.className = 'item-glosario p-2 px-3 rounded-lg border border-gray-200 hover:border-yellow-300 bg-white shadow-sm transition-all animate__animated animate__fadeIn';
         div.dataset.clave = clave;
         div.innerHTML = `
             <div class="mb-2">
                 <p class="text-xs font-bold text-slate-700 truncate">${desc}</p>
-                <p class="text-[10px] text-purple-600 font-mono font-bold truncate">${clave}</p>
+                <p class="text-[10px] text-yellow-600 font-mono font-bold truncate">${clave}</p>
             </div>
             <div class="flex gap-2">
                 <button class="btn-link flex-1 bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white text-[9px] py-1.5 rounded font-bold transition-colors flex justify-center items-center gap-1">
@@ -694,7 +694,7 @@ const JarvisUI = {
         window.getSelection().removeAllRanges();
         JarvisState.selection = null;
         document.getElementById('texto-focus').innerText = "Nada seleccionado...";
-        document.getElementById('panel-header').classList.replace('bg-purple-900', 'bg-slate-900');
+        document.getElementById('panel-header').classList.replace('bg-yellow-900', 'bg-slate-900');
     }
 };
 document.addEventListener('DOMContentLoaded', () => JarvisUI.init());

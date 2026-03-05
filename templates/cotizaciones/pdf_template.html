@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Cotización Digital - Corpad</title>
+    <title>Cotización Digital - Lexa</title>
     {% load static %}
     {% load humanize %}
     <style>
@@ -12,7 +12,7 @@
         }
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
-            color: #2D1B4B; 
+            color: #0A0A0A; 
             font-size: 9.5pt; /* Ligeramente más pequeño para ahorrar espacio */
             line-height: 1.3;
             background-color: #ffffff;
@@ -43,13 +43,13 @@
         .brand-name { 
             font-size: 20pt; 
             font-weight: 900; 
-            color: #2D1B4B; 
+            color: #0A0A0A; 
             letter-spacing: -1px; 
             margin: 0;
         }
 
         .folio-badge {
-            background-color: #2D1B4B;
+            background-color: #0A0A0A;
             color: white;
             padding: 4px 12px;
             border-radius: 1rem;
@@ -76,7 +76,7 @@
         .card-label {
             font-size: 7.5pt;
             font-weight: 800;
-            color: #A855F7; 
+            color: #D4AF37; 
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-bottom: 5px;
@@ -95,7 +95,7 @@
         table { width: 100%; border-collapse: collapse; }
         th {
             background-color: #F9FAFB;
-            color: #2D1B4B;
+            color: #0A0A0A;
             padding: 10px 12px; /* Reducido */
             text-align: left;
             font-size: 8pt;
@@ -104,10 +104,10 @@
             border-bottom: 1px solid #F3F4F6;
         }
         td { padding: 10px 12px; border-bottom: 1px solid #F3F4F6; vertical-align: top; } /* Reducido */
-        .item-num { color: #A855F7; font-weight: bold; margin-right: 5px; }
-        .item-title { font-weight: bold; color: #2D1B4B; font-size: 9.5pt; }
+        .item-num { color: #D4AF37; font-weight: bold; margin-right: 5px; }
+        .item-title { font-weight: bold; color: #0A0A0A; font-size: 9.5pt; }
         .item-desc { font-size: 8.5pt; color: #6B7280; margin-top: 2px; }
-        .price-col { text-align: right; font-weight: bold; color: #2D1B4B; font-size: 9.5pt; white-space: nowrap; }
+        .price-col { text-align: right; font-weight: bold; color: #0A0A0A; font-size: 9.5pt; white-space: nowrap; }
 
         /* --- TEXTOS GENERALES --- */
         .generalidades {
@@ -127,7 +127,7 @@
 
         /* --- RESUMEN (MÁS COMPACTO) --- */
         .summary-card {
-            background-color: #2D1B4B;
+            background-color: #0A0A0A;
             color: white;
             border-radius: 1.5rem;
             padding: 15px 20px; /* Reducido drásticamente (antes 25px) */
@@ -136,7 +136,7 @@
             text-align: right;
         }
         .total-amount { font-size: 16pt; font-weight: 900; color: #ffffff; } /* Antes 20pt */
-        .discount-text { font-size: 8pt; color: #A855F7; font-weight: bold; margin-bottom: 6px; }
+        .discount-text { font-size: 8pt; color: #D4AF37; font-weight: bold; margin-bottom: 6px; }
         .sub-row { font-size: 8.5pt; color: #e5e7eb; margin-bottom: 2px; }
 
         /* --- FIRMA --- */
@@ -159,7 +159,7 @@
             width: 220px; 
             margin: 0 auto 5px auto; 
         }
-        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #2D1B4B; font-size: 9.5pt; }
+        .firma-nombre { font-weight: bold; text-transform: uppercase; color: #0A0A0A; font-size: 9.5pt; }
         .firma-cargo { font-size: 8.5pt; color: #666; }
         .firma-web { margin-top: 3px; font-size: 7.5pt; color: #888; }
 
@@ -180,7 +180,7 @@
         <div class="header">
             <div class="header-left">
                 <img src="file:///app/staticfiles/img/logo.png" class="logo-img">
-                <h1 class="brand-name">CORPAD</h1>
+                <h1 class="brand-name">LEXA</h1>
             </div>
             <div class="header-right">
                 <div class="folio-badge">{{ c.titulo|default:"COTIZACIÓN" }}</div>
@@ -198,7 +198,7 @@
                 
                 <div class="attn-block" style="margin-top: 8px;">
                     <div style="margin-bottom: 2px;">
-                        <span style="font-size: 7.5pt; font-weight: bold; color: #2D1B4B;">AT'N:</span> 
+                        <span style="font-size: 7.5pt; font-weight: bold; color: #0A0A0A;">AT'N:</span> 
                         <span style="font-size: 8.5pt; font-weight: bold;">{{ c.prospecto_nombre|upper }}</span>
                     </div>
                     {% if c.prospecto_cargo %}
@@ -211,7 +211,7 @@
             
             <div style="display: table-cell; width: 5%;"></div> 
             
-            <div class="info-card" style="background-color: white; border-color: #A855F7;">
+            <div class="info-card" style="background-color: white; border-color: #D4AF37;">
                 <span class="card-label">Mensaje</span>
                 <p style="font-size: 8pt; margin: 0; color: #4B5563;">
                     Me permito poner a sus órdenes los servicios de asesoría y gestoría de trámites administrativos. A continuación detallo nuestra propuesta económica:
@@ -308,8 +308,8 @@
                 
                 <div class="firma-linea"></div>
                 <div class="firma-nombre">Lic. Maribel Aldana Santos</div>
-                <div class="firma-cargo">Director General | Gestiones Corpad</div>
-                <div class="firma-web">www.gestionescorpad.com</div>
+                <div class="firma-cargo">Director General | Lexa</div>
+                <div class="firma-web">www.lexa.com</div>
             </div>
         </div>
 

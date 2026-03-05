@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Acceso | GESTIONES CORPAD S.A.S.</title>
+    <title>Acceso | LEXA S.A.S.</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -13,7 +13,7 @@
     <style>
         body { font-family: 'Lato', sans-serif; }
         .font-serif { font-family: 'Playfair Display', serif; }
-        :root { --primary-purple: #2D1B4B; --accent-purple: #A855F7; }
+        :root { --primary-purple: #0A0A0A; --accent-purple: #D4AF37; }
         .bg-pattern {
             background-image: radial-gradient(var(--accent-purple) 1px, transparent 1px);
             background-size: 40px 40px; opacity: 0.05;
@@ -26,18 +26,18 @@
 
     <div class="bg-white w-full max-w-5xl md:h-[85vh] md:rounded-[2.5rem] shadow-2xl overflow-hidden flex flex-col md:flex-row animate__animated animate__fadeInUp">
         
-        <div class="hidden md:flex md:w-1/2 bg-[#2D1B4B] relative items-center justify-center p-12 overflow-hidden group">
+        <div class="hidden md:flex md:w-1/2 bg-[#0A0A0A] relative items-center justify-center p-12 overflow-hidden group">
             <div class="absolute inset-0 bg-pattern"></div>
-            <div class="absolute -top-20 -left-20 w-80 h-80 bg-[#A855F7] rounded-full mix-blend-overlay filter blur-[80px] opacity-20 animate-pulse"></div>
+            <div class="absolute -top-20 -left-20 w-80 h-80 bg-[#D4AF37] rounded-full mix-blend-overlay filter blur-[80px] opacity-20 animate-pulse"></div>
             
             <div class="relative z-10 text-center text-white">
                 <div class="mb-8 transform group-hover:scale-105 transition-transform duration-700">
-                    <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center mx-auto shadow-xl p-1 overflow-hidden border-4 border-[#A855F7]/20">
-                        <img src="{% static 'img/logo.png' %}" alt="Logo Corpad" class="w-full h-full object-cover rounded-full">
+                    <div class="w-32 h-32 rounded-full bg-white flex items-center justify-center mx-auto shadow-xl p-1 overflow-hidden border-4 border-[#D4AF37]/20">
+                        <img src="{% static 'img/logo.png' %}" alt="Logo Lexa" class="w-full h-full object-cover rounded-full">
                     </div>
                 </div>
-                <h2 class="text-3xl font-black font-serif mb-2 tracking-wide uppercase">GESTIONES CORPAD <br><span class="text-[#A855F7] text-2xl">S.A.S.</span></h2>
-                <div class="w-16 h-1 bg-[#A855F7] mx-auto rounded-full my-6"></div>
+                <h2 class="text-3xl font-black font-serif mb-2 tracking-wide uppercase">LEXA <br><span class="text-[#D4AF37] text-2xl">S.A.S.</span></h2>
+                <div class="w-16 h-1 bg-[#D4AF37] mx-auto rounded-full my-6"></div>
                 <p class="text-gray-300 text-[10px] font-bold tracking-[0.3em] uppercase opacity-80">
                     Sistemas Legales en la Nube
                 </p>
@@ -48,12 +48,12 @@
             
             <div class="md:hidden text-center mb-8">
                 <img src="{% static 'img/logo.png' %}" alt="Logo" class="h-16 w-16 mx-auto mb-2 rounded-full object-cover shadow-md">
-                <h1 class="text-xl font-black text-[#2D1B4B] font-serif">GESTIONES CORPAD</h1>
+                <h1 class="text-xl font-black text-[#0A0A0A] font-serif">LEXA</h1>
             </div>
 
             <div class="max-w-sm mx-auto w-full">
                 <div class="mb-10">
-                    <h3 class="text-3xl font-black text-[#2D1B4B] mb-2 font-serif">Bienvenido</h3>
+                    <h3 class="text-3xl font-black text-[#0A0A0A] mb-2 font-serif">Bienvenido</h3>
                     <p class="text-gray-400 text-sm italic">Acceso Seguro al Panel Administrativo</p>
                 </div>
 
@@ -71,10 +71,10 @@
                         <div class="relative flex items-center">
                             <i class="fas fa-user input-icon text-gray-300 absolute left-0 text-sm smooth-transition" aria-hidden="true"></i>
                             <input type="text" id="username" name="username" autocomplete="username" autofocus 
-                                class="w-full pl-7 pr-4 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
+                                class="w-full pl-7 pr-4 py-2 bg-transparent border-b border-gray-200 text-[#0A0A0A] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
                                 placeholder="Ej. administrador" required>
                         </div>
-                        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
+                        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#D4AF37] smooth-transition group-focus-within:w-full"></div>
                     </div>
 
                     <div class="input-group relative group">
@@ -82,26 +82,26 @@
                         <div class="relative flex items-center">
                             <i class="fas fa-lock input-icon text-gray-300 absolute left-0 text-sm smooth-transition" aria-hidden="true"></i>
                             <input type="password" id="password" name="password" autocomplete="current-password" 
-                                class="w-full pl-7 pr-10 py-2 bg-transparent border-b border-gray-200 text-[#2D1B4B] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
+                                class="w-full pl-7 pr-10 py-2 bg-transparent border-b border-gray-200 text-[#0A0A0A] font-bold focus:outline-none placeholder-gray-300 smooth-transition" 
                                 placeholder="••••••••" required>
                             
                             <button type="button" id="togglePassBtn" aria-label="Mostrar u ocultar contraseña" 
-                                class="absolute right-0 text-gray-300 hover:text-[#A855F7] focus:outline-none transition-colors">
+                                class="absolute right-0 text-gray-300 hover:text-[#D4AF37] focus:outline-none transition-colors">
                                 <i id="eyeIcon" class="fas fa-eye text-sm" aria-hidden="true"></i>
                             </button>
                         </div>
-                        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#A855F7] smooth-transition group-focus-within:w-full"></div>
+                        <div class="absolute bottom-0 left-0 h-[2px] w-0 bg-[#D4AF37] smooth-transition group-focus-within:w-full"></div>
                     </div>
 
                     <div class="flex items-center justify-between">
                         <label class="flex items-center gap-2 cursor-pointer group">
-                            <input type="checkbox" name="remember" class="w-3 h-3 rounded text-[#A855F7] focus:ring-[#A855F7] border-gray-300 cursor-pointer">
-                            <span class="text-[10px] font-bold text-gray-400 uppercase group-hover:text-[#2D1B4B] transition-colors">Recordarme</span>
+                            <input type="checkbox" name="remember" class="w-3 h-3 rounded text-[#D4AF37] focus:ring-[#D4AF37] border-gray-300 cursor-pointer">
+                            <span class="text-[10px] font-bold text-gray-400 uppercase group-hover:text-[#0A0A0A] transition-colors">Recordarme</span>
                         </label>
-                        <a href="{% url 'password_reset' %}" class="text-[10px] text-[#A855F7] font-black uppercase tracking-tighter hover:underline">¿Olvidaste tu contraseña?</a>
+                        <a href="{% url 'password_reset' %}" class="text-[10px] text-[#D4AF37] font-black uppercase tracking-tighter hover:underline">¿Olvidaste tu contraseña?</a>
                     </div>
 
-                    <button type="submit" id="btnLogin" class="w-full bg-[#2D1B4B] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#A855F7] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
+                    <button type="submit" id="btnLogin" class="w-full bg-[#0A0A0A] text-white py-4 rounded-xl font-black text-xs tracking-[0.2em] uppercase shadow-lg hover:bg-[#D4AF37] hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 group flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed disabled:transform-none">
                         <span id="btnText">Ingresar</span>
                         <i id="btnIcon" class="fas fa-shield-alt ml-2 opacity-50 group-hover:opacity-100 transition-all" aria-hidden="true"></i>
                     </button>
@@ -109,12 +109,12 @@
 
                 <div class="mt-10 text-center">
                      <p class="text-[10px] text-gray-400 font-bold uppercase mb-2">¿No tienes cuenta?</p>
-                     <a href="{% url 'registro' %}" class="text-xs font-black text-[#2D1B4B] hover:text-[#A855F7] transition-colors border-b-2 border-[#A855F7]/20 pb-1">Solicitar acceso administrativo</a>
+                     <a href="{% url 'registro' %}" class="text-xs font-black text-[#0A0A0A] hover:text-[#D4AF37] transition-colors border-b-2 border-[#D4AF37]/20 pb-1">Solicitar acceso administrativo</a>
                 </div>
             </div>
 
             <div class="absolute bottom-6 left-0 right-0 text-center">
-                <p class="text-[9px] text-gray-300 font-bold uppercase tracking-[0.2em]">© {% now "Y" %} GESTIONES CORPAD S.A.S. | INICIO DE SESION</p>
+                <p class="text-[9px] text-gray-300 font-bold uppercase tracking-[0.2em]">© {% now "Y" %} LEXA S.A.S. | INICIO DE SESION</p>
             </div>
         </div>
     </div>

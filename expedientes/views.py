@@ -67,10 +67,10 @@ from .utils import generar_pdf_response
 
 logger = logging.getLogger(__name__)
 
-EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', 'maribel.aldana@gestionescorpad.com')
-URL_PORTAL = os.environ.get('URL_PORTAL', 'https://portalgestionescorpad.up.railway.app')
+EMAIL_REPLY_TO = os.environ.get('EMAIL_REPLY_TO', 'maribel.aldana@lexa.com')
+URL_PORTAL = os.environ.get('URL_PORTAL', 'https://portallexa.up.railway.app')
 FIRMA_NOMBRE_DEFAULT = os.environ.get('FIRMA_NOMBRE_DEFAULT', 'Lic. Maribel Aldana Santos')
-FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Gestiones Corpad | Directora General')
+FIRMA_CARGO_DEFAULT = os.environ.get('FIRMA_CARGO_DEFAULT', 'Lexa | Directora General')
 
 
 # <--- DECORADOR CENTRALIZADO DE PERMISOS ---
@@ -1378,7 +1378,7 @@ def enviar_cotizacion_email(request, cotizacion_id):
                     <div style="border-top: 1px solid #ddd; padding-top: 20px; display: flex; align-items: center;">
                         {'<img src="cid:logo_firma" style="width: 50px; height: 50px; border-radius: 50%; margin-right: 15px;">' if usar_logo_default else ''}
                         <div>
-                            <strong style="font-size: 14px; color: #2D1B4B; display: block;">{firma_nombre}</strong>
+                            <strong style="font-size: 14px; color: #0A0A0A; display: block;">{firma_nombre}</strong>
                             <span style="font-size: 12px; color: #666;">{firma_cargo}</span>
                         </div>
                     </div>
@@ -1818,12 +1818,12 @@ Gestiones Cordpad
 def generador_qr(request):
     qr_url = None
     data = ""
-    color_fill = "#2D1B4B"
+    color_fill = "#0A0A0A"
     color_back = "#FFFFFF"
 
     if request.method == 'POST':
         data = request.POST.get('data')
-        color_fill = request.POST.get('color_fill', '#2D1B4B')
+        color_fill = request.POST.get('color_fill', '#0A0A0A')
         color_back = request.POST.get('color_back', '#FFFFFF')
 
         if data:
@@ -1840,7 +1840,7 @@ def generador_qr(request):
             # Generamos la imagen del QR y la convertimos a formato RGBA (para soportar transparencias)
             img_qr = qr.make_image(fill_color=color_fill, back_color=color_back).convert('RGBA')
 
-            # 2. Cargamos el logo de Corpad
+            # 2. Cargamos el logo de Lexa
             logo_path = os.path.join(settings.BASE_DIR, 'static', 'img', 'logo.png')
             
             if os.path.exists(logo_path):

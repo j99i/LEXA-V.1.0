@@ -22,7 +22,7 @@ else:
     except ImproperlyConfigured:
         raise ImproperlyConfigured("Falta la variable SECRET_KEY en entorno de producción.")
 
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app', 'portalgestionescorpad.up.railway.app'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['localhost', '127.0.0.1', '.railway.app', 'portallexa.up.railway.app'])
 
 CSRF_TRUSTED_ORIGINS = ['https://*.railway.app', 'https://*.up.railway.app']
 
@@ -190,7 +190,7 @@ ANYMAIL = {
     "RESEND_API_KEY": env('RESEND_API_KEY', default=''),
 }
 
-DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="GESTIONES CORPAD <onboarding@resend.dev>")
+DEFAULT_FROM_EMAIL = env('DEFAULT_FROM_EMAIL', default="LEXA <onboarding@resend.dev>")
 SERVER_EMAIL = env('DEFAULT_FROM_EMAIL', default="onboarding@resend.dev")
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
